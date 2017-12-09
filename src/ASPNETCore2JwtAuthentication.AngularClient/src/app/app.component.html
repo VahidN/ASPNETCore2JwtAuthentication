@@ -1,0 +1,18 @@
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" [routerLink]="['/']">{{title}}</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li role="menuitem" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <a [routerLink]="['/welcome']">Home</a>
+      </li>
+      <li role="menuitem" routerLinkActive="active">
+        <a [routerLink]="['/login']">Login</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+<div class="container">
+  <router-outlet></router-outlet>
+</div>

@@ -1,0 +1,1 @@
+ng build --prod --build-optimizer --watch
