@@ -6,6 +6,8 @@ import { RouterModule } from "@angular/router";
 import "./rxjs-operators";
 
 import { BrowserStorageService } from "./browser-storage.service";
+import { AuthService } from "./auth.service";
+import { AppConfig, APP_CONFIG } from "./app.config";
 
 @NgModule({
   imports: [CommonModule, RouterModule],
@@ -17,7 +19,9 @@ import { BrowserStorageService } from "./browser-storage.service";
   ],
   providers: [
     // global singleton services of the whole app will be listed here.
-    BrowserStorageService
+    BrowserStorageService,
+    AuthService,
+    { provide: APP_CONFIG, useValue: AppConfig }
   ]
 })
 export class CoreModule {

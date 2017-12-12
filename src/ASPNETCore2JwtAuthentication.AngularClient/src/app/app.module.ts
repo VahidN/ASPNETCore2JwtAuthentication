@@ -12,8 +12,8 @@ import { AppComponent } from "./app.component";
 import { WelcomeComponent } from "./welcome/welcome.component";
 import { PageNotFoundComponent } from "./page-not-found/page-not-found.component";
 import { AuthenticationModule } from "./authentication/authentication.module";
-import { HeaderComponent } from './header/header.component';
-
+import { HeaderComponent } from "./header/header.component";
+import { DashboardModule } from "./dashboard/dashboard.module";
 
 @NgModule({
   declarations: [
@@ -29,6 +29,7 @@ import { HeaderComponent } from './header/header.component';
     CoreModule,
     SharedModule.forRoot(),
     AuthenticationModule,
+    DashboardModule,
     AppRoutingModule
   ],
   providers: [],

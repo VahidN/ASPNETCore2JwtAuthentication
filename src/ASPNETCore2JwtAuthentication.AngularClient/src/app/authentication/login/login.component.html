@@ -1,3 +1,44 @@
-<p>
-  login works!
-</p>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">Login</h2>
+  </div>
+  <div class="panel-body">
+    <form #form="ngForm" (submit)="submitForm(form)" novalidate>
+      <div class="form-group" [class.has-error]="username.invalid && username.touched">
+        <label for="username">User name</label>
+        <input id="username" type="text" required name="username" [(ngModel)]="model.username"
+          #username="ngModel" class="form-control" placeholder="User name">
+        <div *ngIf="username.invalid && username.touched">
+          <div class="alert alert-danger"  *ngIf="username.errors['required']">
+            Name is required.
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" [class.has-error]="password.invalid && password.touched">
+        <label for="password">Password</label>
+        <input id="password" type="password" required name="password" [(ngModel)]="model.password"
+          #password="ngModel" class="form-control" placeholder="Password">
+        <div *ngIf="password.invalid && password.touched">
+          <div class="alert alert-danger"  *ngIf="password.errors['required']">
+            Password is required.
+          </div>
+        </div>
+      </div>
+
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" name="rememberMe" [(ngModel)]="model.rememberMe"> Remember me
+        </label>
+      </div>
+
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid ">Login</button>
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger " role="alert ">
+        {{error}}
+      </div>
+    </form>
+  </div>
+</div>

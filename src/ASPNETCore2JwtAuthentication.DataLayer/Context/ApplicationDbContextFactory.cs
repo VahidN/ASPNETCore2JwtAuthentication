@@ -20,7 +20,8 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Context
                                     .AddJsonFile("appsettings.json")
                                     .Build();
             var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            var connectionString = configuration.GetConnectionString("DefaultConnection")
+                                                .Replace("|DataDirectory|", Path.Combine(basePath, "wwwroot", "app_data"));
             builder.UseSqlServer(connectionString);
             return new ApplicationDbContext(builder.Options);
         }

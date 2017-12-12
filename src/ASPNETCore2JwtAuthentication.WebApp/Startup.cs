@@ -43,7 +43,8 @@ namespace ASPNETCore2JwtAuthentication.WebApp
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection"),
+                    Configuration.GetConnectionString("DefaultConnection")
+                                 .Replace("|DataDirectory|", Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "app_data")),
                     serverDbContextOptionsBuilder =>
                         {
                             var minutes = (int)TimeSpan.FromMinutes(3).TotalSeconds;
@@ -123,8 +124,8 @@ namespace ASPNETCore2JwtAuthentication.WebApp
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-			// app.UseCors(policyName: "CorsPolicy");
-			
+            // app.UseCors(policyName: "CorsPolicy");
+
             app.UseExceptionHandler(appBuilder =>
             {
                 appBuilder.Use(async (context, next) =>

@@ -4,11 +4,14 @@
       <a class="navbar-brand" [routerLink]="['/']">{{title}}</a>
     </div>
     <ul class="nav navbar-nav">
-      <li role="menuitem" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-        <a [routerLink]="['/welcome']">Home</a>
+      <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <a class="nav-link" [routerLink]="['/welcome']">Home</a>
       </li>
-      <li role="menuitem" routerLinkActive="active">
-        <a [routerLink]="['/login']">Login</a>
+      <li *ngIf="!isLoggedIn" class="nav-item" routerLinkActive="active">
+        <a class="nav-link" [routerLink]="['/login']">Login</a>
+      </li>
+      <li *ngIf="isLoggedIn" class="nav-item" routerLinkActive="active">
+        <a class="nav-link" (click)="logout()">Logoff [{{displayName}}]</a>
       </li>
     </ul>
   </div>
