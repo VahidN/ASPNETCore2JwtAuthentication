@@ -15,7 +15,7 @@ export class ProtectedPageComponent implements OnInit {
 
   ngOnInit() {
     this.decodedAccessToken = this.authService.getDecodedAccessToken();
-    this.accessTokenExpirationDate = this.authService.getAccessTokenExpirationDate();
+    this.accessTokenExpirationDate = this.authService.getAccessTokenExpirationDateUtc();
   }
 
 }

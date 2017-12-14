@@ -3,6 +3,7 @@ import { Router } from "@angular/router";
 import { HttpClient, HttpHeaders, HttpErrorResponse, HttpResponse } from "@angular/common/http";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import { Observable } from "rxjs/Observable";
+import { Subscription } from "rxjs/Subscription";
 
 import * as jwt_decode from "jwt-decode";
 
@@ -23,6 +24,8 @@ export class AuthService {
   private authStatusSource = new BehaviorSubject<boolean>(false);
   authStatus$ = this.authStatusSource.asObservable();
 
+  private refreshTokenSubscription: Subscription;
+
   constructor(
     @Inject(APP_CONFIG) private appConfig: IAppConfig,
     private browserStorageService: BrowserStorageService,
@@ -30,6 +33,7 @@ export class AuthService {
     private router: Router
   ) {
     this.updateStatusOnPageRefresh();
+    this.scheduleRefreshToken();
   }
 
   login(credentials: Credentials): Observable<boolean> {
@@ -43,6 +47,7 @@ export class AuthService {
           return false;
         }
         this.setLoginSession(response);
+        this.scheduleRefreshToken();
         this.authStatusSource.next(true);
         return true;
       })
@@ -56,6 +61,7 @@ export class AuthService {
       .catch((error: HttpErrorResponse) => Observable.throw(error))
       .subscribe(result => {
         this.deleteAuthTokens();
+        this.unscheduleRefreshToken();
         this.authStatusSource.next(false);
         if (navigateToHome) {
           this.router.navigate(["/"]);
@@ -90,22 +96,22 @@ export class AuthService {
     return this.getDecodedAccessToken().DisplayName;
   }
 
-  getAccessTokenExpirationDate(): Date {
+  getAccessTokenExpirationDateUtc(): Date {
     const decoded = this.getDecodedAccessToken();
     if (decoded.exp === undefined) {
       return null;
     }
-    const date = new Date(0);
+    const date = new Date(0); // The 0 sets the date to the epoch
     date.setUTCSeconds(decoded.exp);
     return date;
   }
 
   isAccessTokenTokenExpired(): boolean {
-    const date = this.getAccessTokenExpirationDate();
-    if (date === undefined) {
+    const expirationDateUtc = this.getAccessTokenExpirationDateUtc();
+    if (!expirationDateUtc) {
       return true;
     }
-    return !(date.valueOf() > new Date().valueOf());
+    return !(expirationDateUtc.valueOf() > new Date().valueOf());
   }
 
   deleteAuthTokens() {
@@ -117,6 +123,45 @@ export class AuthService {
       this.browserStorageService.removeSession(AuthTokenType[AuthTokenType.RefreshToken]);
     }
     this.browserStorageService.removeLocal(this.rememberMeToken);
+  }
+
+  scheduleRefreshToken() {
+    if (!this.isLoggedIn()) {
+      return;
+    }
+
+    this.unscheduleRefreshToken();
+
+    const expiresAtUtc = this.getAccessTokenExpirationDateUtc().valueOf();
+    const nowUtc = new Date().valueOf();
+    const initialDelay = Math.max(1, expiresAtUtc - nowUtc);
+    console.log("Initial scheduleRefreshToken Delay(ms)", initialDelay);
+    const timerSource$ = Observable.timer(initialDelay);
+    this.refreshTokenSubscription = timerSource$.subscribe(() => {
+      this.refreshToken();
+    });
+  }
+
+  unscheduleRefreshToken() {
+    if (this.refreshTokenSubscription) {
+      this.refreshTokenSubscription.unsubscribe();
+    }
+  }
+
+  refreshToken() {
+    const headers = new HttpHeaders({ "Content-Type": "application/json" });
+    const model = { refreshToken: this.getRawAuthToken(AuthTokenType.RefreshToken) };
+    return this.http
+      .post(`${this.appConfig.apiEndpoint}/account/RefreshToken`, model, { headers: headers })
+      .finally(() => {
+        this.scheduleRefreshToken();
+      })
+      .map(response => response || {})
+      .catch((error: HttpErrorResponse) => Observable.throw(error))
+      .subscribe(result => {
+        console.log("RefreshToken Result", result);
+        this.setLoginSession(result);
+      });
   }
 
   private updateStatusOnPageRefresh(): void {
