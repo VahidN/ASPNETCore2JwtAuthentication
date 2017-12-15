@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ASPNETCore2JwtAuthentication.Common;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 
 namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
 {
     [Route("api/[controller]")]
+    [EnableCors("CorsPolicy")]
     [Authorize(Policy = CustomRoles.Admin)]
     public class MyProtectedAdminApiController : Controller
     {

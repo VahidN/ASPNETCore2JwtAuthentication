@@ -112,7 +112,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp
             {
                 options.AddPolicy("CorsPolicy",
                     builder => builder
-                        .AllowAnyOrigin()
+                        .WithOrigins("http://localhost:4200") //Note:  The URL must be specified without a trailing slash (/).
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials());

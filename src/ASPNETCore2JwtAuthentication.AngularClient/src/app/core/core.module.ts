@@ -3,25 +3,30 @@ import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 
 // import RxJs needed operators only once
-import "./rxjs-operators";
+import "./services/rxjs-operators";
 
-import { BrowserStorageService } from "./browser-storage.service";
-import { AuthService } from "./auth.service";
-import { AppConfig, APP_CONFIG } from "./app.config";
+import { BrowserStorageService } from "./services/browser-storage.service";
+import { AuthService } from "./services/auth.service";
+import { AppConfig, APP_CONFIG } from "./services/app.config";
+import { HeaderComponent } from "./component/header/header.component";
+import { AuthGuard } from "./services/auth.guard";
 
 @NgModule({
   imports: [CommonModule, RouterModule],
   exports: [
     // components that are used in app.component.ts will be listed here.
+    HeaderComponent
   ],
   declarations: [
     // components that are used in app.component.ts will be listed here.
+    HeaderComponent
   ],
   providers: [
     // global singleton services of the whole app will be listed here.
     BrowserStorageService,
     AuthService,
-    { provide: APP_CONFIG, useValue: AppConfig }
+    { provide: APP_CONFIG, useValue: AppConfig },
+    AuthGuard
   ]
 })
 export class CoreModule {

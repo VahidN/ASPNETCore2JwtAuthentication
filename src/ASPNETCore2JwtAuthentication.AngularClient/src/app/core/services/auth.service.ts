@@ -9,7 +9,8 @@ import * as jwt_decode from "jwt-decode";
 
 import { APP_CONFIG, IAppConfig } from "./app.config";
 import { BrowserStorageService } from "./browser-storage.service";
-import { Credentials } from "./credentials";
+import { Credentials } from "./../models/credentials";
+import { AuthUser } from "./../models/auth-user";
 
 export enum AuthTokenType {
   AccessToken,
@@ -39,7 +40,7 @@ export class AuthService {
   login(credentials: Credentials): Observable<boolean> {
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
     return this.http
-      .post(`${this.appConfig.apiEndpoint}/account/login`, credentials, { headers: headers })
+      .post(`${this.appConfig.apiEndpoint}/${this.appConfig.loginPath}`, credentials, { headers: headers })
       .map((response: any) => {
         this.browserStorageService.setLocal(this.rememberMeToken, credentials.rememberMe);
         if (!response) {
@@ -56,7 +57,7 @@ export class AuthService {
 
   logout(navigateToHome: boolean): void {
     this.http
-      .get(`${this.appConfig.apiEndpoint}/account/logout`)
+      .get(`${this.appConfig.apiEndpoint}/${this.appConfig.logoutPath}`)
       .map(response => response || {})
       .catch((error: HttpErrorResponse) => Observable.throw(error))
       .subscribe(result => {
@@ -94,6 +95,36 @@ export class AuthService {
 
   getDisplayName(): string {
     return this.getDecodedAccessToken().DisplayName;
+  }
+
+  getAuthUser(): AuthUser {
+    if (!this.isLoggedIn()) {
+      return null;
+    }
+
+    const decodedToken = this.getDecodedAccessToken();
+    let roles = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+    if (roles) {
+      roles = roles.map(role => role.toLowerCase());
+    }
+    return Object.freeze({
+      userId: decodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
+      userName: decodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
+      displayName: decodedToken["DisplayName"],
+      roles: roles
+    });
+  }
+
+  isAuthUserInRoles(requiredRoles: string[]): boolean {
+    const user = this.getAuthUser();
+    if (!user || !user.roles) {
+      return false;
+    }
+    return requiredRoles.some(requiredRole => user.roles.indexOf(requiredRole.toLowerCase()) >= 0);
+  }
+
+  isAuthUserInRole(requiredRole: string): boolean {
+    return this.isAuthUserInRoles([requiredRole]);
   }
 
   getAccessTokenExpirationDateUtc(): Date {
@@ -152,7 +183,7 @@ export class AuthService {
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
     const model = { refreshToken: this.getRawAuthToken(AuthTokenType.RefreshToken) };
     return this.http
-      .post(`${this.appConfig.apiEndpoint}/account/RefreshToken`, model, { headers: headers })
+      .post(`${this.appConfig.apiEndpoint}/${this.appConfig.refreshTokenPath}`, model, { headers: headers })
       .finally(() => {
         this.scheduleRefreshToken();
       })
@@ -169,8 +200,9 @@ export class AuthService {
   }
 
   private setLoginSession(response: any): void {
-    this.setToken(AuthTokenType.AccessToken, response.access_token);
-    this.setToken(AuthTokenType.RefreshToken, response.refresh_token);
+    this.setToken(AuthTokenType.AccessToken, response[this.appConfig.accessTokenObjectKey]);
+    this.setToken(AuthTokenType.RefreshToken, response[this.appConfig.refreshTokenObjectKey]);
+    console.log("Logged-in user info", this.getAuthUser());
   }
 
   private setToken(tokenType: AuthTokenType, tokenValue: string): void {

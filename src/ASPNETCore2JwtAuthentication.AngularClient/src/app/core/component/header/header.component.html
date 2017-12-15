@@ -8,10 +8,13 @@
         <a class="nav-link" [routerLink]="['/welcome']">Home</a>
       </li>
       <li *ngIf="!isLoggedIn" class="nav-item" routerLinkActive="active">
-        <a class="nav-link" [routerLink]="['/login']">Login</a>
+        <a class="nav-link" queryParamsHandling="merge" [routerLink]="['/login']">Login</a>
       </li>
       <li *ngIf="isLoggedIn" class="nav-item" routerLinkActive="active">
         <a class="nav-link" (click)="logout()">Logoff [{{displayName}}]</a>
+      </li>
+      <li *ngIf="isLoggedIn" class="nav-item" routerLinkActive="active">
+        <a class="nav-link" [routerLink]="['/protectedPage']">Protected Page</a>
       </li>
     </ul>
   </div>

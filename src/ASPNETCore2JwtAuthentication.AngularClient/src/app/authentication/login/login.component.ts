@@ -3,8 +3,8 @@ import { NgForm } from "@angular/forms";
 import { Router, ActivatedRoute } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { AuthService } from "../../core/auth.service";
-import { Credentials } from "../../core/credentials";
+import { AuthService } from "../../core/services/auth.service";
+import { Credentials } from "../../core/models/credentials";
 
 @Component({
   selector: "app-login",
