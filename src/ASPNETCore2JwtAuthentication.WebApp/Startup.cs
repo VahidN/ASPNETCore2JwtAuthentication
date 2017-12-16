@@ -58,6 +58,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp
                     {
                         options.AddPolicy(CustomRoles.Admin, policy => policy.RequireRole(CustomRoles.Admin));
                         options.AddPolicy(CustomRoles.User, policy => policy.RequireRole(CustomRoles.User));
+                        options.AddPolicy(CustomRoles.Editor, policy => policy.RequireRole(CustomRoles.Editor));
                     });
 
             // Needed for jwt auth.

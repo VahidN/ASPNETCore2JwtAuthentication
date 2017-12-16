@@ -16,6 +16,9 @@
       <li *ngIf="isLoggedIn" class="nav-item" routerLinkActive="active">
         <a class="nav-link" [routerLink]="['/protectedPage']">Protected Page</a>
       </li>
+      <li *ngIf="isLoggedIn" class="nav-item" routerLinkActive="active">
+        <a class="nav-link" [routerLink]="['/callProtectedApi']">‍‍Call Protected Api</a>
+      </li>
     </ul>
   </div>
 </nav>

@@ -4,6 +4,7 @@ import { Routes, RouterModule } from "@angular/router";
 import { ProtectedPageComponent } from "./protected-page/protected-page.component";
 import { AuthGuardPermission } from "../core/models/auth-guard-permission";
 import { AuthGuard } from "../core/services/auth.guard";
+import { CallProtectedApiComponent } from "./call-protected-api/call-protected-api.component";
 
 const routes: Routes = [
   {
@@ -11,7 +12,18 @@ const routes: Routes = [
     component: ProtectedPageComponent,
     data: {
       permission: {
-        permittedRoles: ["Admin1"],
+        permittedRoles: ["Admin"],
+        deniedRoles: null
+      } as AuthGuardPermission
+    },
+    canActivate: [AuthGuard]
+  },
+  {
+    path: "callProtectedApi",
+    component: CallProtectedApiComponent,
+    data: {
+      permission: {
+        permittedRoles: ["Admin", "User"],
         deniedRoles: null
       } as AuthGuardPermission
     },

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using ASPNETCore2JwtAuthentication.Common;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
+using System.Linq;
 
 namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
 {
@@ -30,10 +31,11 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
             return Ok(new
             {
                 Id = 1,
-                Title = "Hello from My Protected Admin Api Controller!",
+                Title = "Hello from My Protected Admin Api Controller! [Authorize(Policy = CustomRoles.Admin)]",
                 Username = this.User.Identity.Name,
                 UserData = userId,
-                TokenSerialNumber = await _usersService.GetSerialNumberAsync(int.Parse(userId)).ConfigureAwait(false)
+                TokenSerialNumber = await _usersService.GetSerialNumberAsync(int.Parse(userId)).ConfigureAwait(false),
+                Roles = claimsIdentity.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToList()
             });
         }
     }

@@ -1,6 +1,7 @@
 ﻿import { NgModule, SkipSelf, Optional, } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
+import { HTTP_INTERCEPTORS } from "@angular/common/http";
 
 // import RxJs needed operators only once
 import "./services/rxjs-operators";
@@ -10,6 +11,7 @@ import { AuthService } from "./services/auth.service";
 import { AppConfig, APP_CONFIG } from "./services/app.config";
 import { HeaderComponent } from "./component/header/header.component";
 import { AuthGuard } from "./services/auth.guard";
+import { AuthInterceptor } from "./services/auth.interceptor";
 
 @NgModule({
   imports: [CommonModule, RouterModule],
@@ -26,7 +28,12 @@ import { AuthGuard } from "./services/auth.guard";
     BrowserStorageService,
     AuthService,
     { provide: APP_CONFIG, useValue: AppConfig },
-    AuthGuard
+    AuthGuard,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
   ]
 })
 export class CoreModule {

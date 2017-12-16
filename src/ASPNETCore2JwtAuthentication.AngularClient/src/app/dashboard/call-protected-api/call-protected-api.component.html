@@ -1,0 +1,16 @@
+<button *ngIf="isAdmin" class="btn btn-primary" (click)="callMyProtectedAdminApiController()">
+  Call Protected Admin API ([Authorize(Roles = "Admin")])
+</button>
+
+<button *ngIf="isAdmin || isUser" class="btn btn-default" (click)="callMyProtectedApiController()">
+  Call Protected API ([Authorize])
+</button>
+
+<button class="btn btn-warning" (click)="callMyProtectedEditorsApiController()">
+  Call Protected API ([Authorize(Roles = "Editor")])
+</button>
+
+
+<div *ngIf="result">
+  <pre>{{result | json}}</pre>
+</div>

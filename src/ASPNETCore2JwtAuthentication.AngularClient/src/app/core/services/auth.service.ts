@@ -55,18 +55,28 @@ export class AuthService {
       .catch((error: HttpErrorResponse) => Observable.throw(error));
   }
 
+  getBearerAuthHeader(): HttpHeaders {
+    return new HttpHeaders({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${this.getRawAuthToken(AuthTokenType.AccessToken)}`
+    });
+  }
+
   logout(navigateToHome: boolean): void {
     this.http
       .get(`${this.appConfig.apiEndpoint}/${this.appConfig.logoutPath}`)
-      .map(response => response || {})
-      .catch((error: HttpErrorResponse) => Observable.throw(error))
-      .subscribe(result => {
+      .finally(() => {
         this.deleteAuthTokens();
         this.unscheduleRefreshToken();
         this.authStatusSource.next(false);
         if (navigateToHome) {
           this.router.navigate(["/"]);
         }
+      })
+      .map(response => response || {})
+      .catch((error: HttpErrorResponse) => Observable.throw(error))
+      .subscribe(result => {
+        console.log("logout", result);
       });
   }
 
