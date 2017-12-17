@@ -19,14 +19,16 @@ export class AuthInterceptor implements HttpInterceptor {
       request = request.clone({
         headers: request.headers.set("Authorization", `Bearer ${accessToken}`)
       });
+      return next.handle(request)
+        .catch((error: any, caught: Observable<HttpEvent<any>>) => {
+          if (error.status === 401 || error.status === 403) {
+            this.router.navigate(["/accessDenied"]);
+          }
+          return Observable.throw(error);
+        });
+    } else {
+      // login page
+      return next.handle(request);
     }
-
-    return next.handle(request)
-      .catch((error: any, caught: Observable<HttpEvent<any>>) => {
-        if (error.status === 401 || error.status === 403) {
-          this.router.navigate(["/accessDenied"]);
-        }
-        return Observable.throw(error);
-      });
   }
 }
