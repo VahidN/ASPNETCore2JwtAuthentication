@@ -1,9 +1,9 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule } from "@angular/common";
+import { NgModule } from "@angular/core";
 
-import { DashboardRoutingModule } from './dashboard-routing.module';
-import { ProtectedPageComponent } from './protected-page/protected-page.component';
-import { CallProtectedApiComponent } from './call-protected-api/call-protected-api.component';
+import { CallProtectedApiComponent } from "./call-protected-api/call-protected-api.component";
+import { DashboardRoutingModule } from "./dashboard-routing.module";
+import { ProtectedPageComponent } from "./protected-page/protected-page.component";
 
 @NgModule({
   imports: [

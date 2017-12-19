@@ -1,10 +1,10 @@
 import { NgModule } from "@angular/core";
-import { Routes, RouterModule } from "@angular/router";
+import { RouterModule, Routes } from "@angular/router";
 
-import { ProtectedPageComponent } from "./protected-page/protected-page.component";
 import { AuthGuardPermission } from "../core/models/auth-guard-permission";
 import { AuthGuard } from "../core/services/auth.guard";
 import { CallProtectedApiComponent } from "./call-protected-api/call-protected-api.component";
+import { ProtectedPageComponent } from "./protected-page/protected-page.component";
 
 const routes: Routes = [
   {

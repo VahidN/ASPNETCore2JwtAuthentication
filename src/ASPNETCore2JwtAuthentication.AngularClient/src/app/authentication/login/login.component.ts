@@ -1,10 +1,10 @@
+import { HttpErrorResponse } from "@angular/common/http";
 import { Component, OnInit } from "@angular/core";
 import { NgForm } from "@angular/forms";
-import { Router, ActivatedRoute } from "@angular/router";
-import { HttpErrorResponse } from "@angular/common/http";
+import { ActivatedRoute, Router } from "@angular/router";
 
-import { AuthService } from "../../core/services/auth.service";
 import { Credentials } from "../../core/models/credentials";
+import { AuthService } from "../../core/services/auth.service";
 
 @Component({
   selector: "app-login",

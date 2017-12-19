@@ -1,9 +1,9 @@
-import { Component, OnInit, Inject } from "@angular/core";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
-
-import { AuthService } from "../../core/services/auth.service";
-import { IAppConfig, APP_CONFIG } from "../../core/services/app.config";
+import { Component, Inject, OnInit } from "@angular/core";
 import { Observable } from "rxjs/Observable";
+
+import { APP_CONFIG, IAppConfig } from "../../core/services/app.config";
+import { AuthService } from "../../core/services/auth.service";
 
 @Component({
   selector: "app-call-protected-api",

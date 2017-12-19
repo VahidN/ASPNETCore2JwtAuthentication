@@ -1,17 +1,17 @@
-﻿import { NgModule, SkipSelf, Optional, } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { RouterModule } from "@angular/router";
-import { HTTP_INTERCEPTORS } from "@angular/common/http";
-
-// import RxJs needed operators only once
+﻿// import RxJs needed operators only once
 import "./services/rxjs-operators";
 
-import { BrowserStorageService } from "./services/browser-storage.service";
-import { AuthService } from "./services/auth.service";
-import { AppConfig, APP_CONFIG } from "./services/app.config";
+import { CommonModule } from "@angular/common";
+import { HTTP_INTERCEPTORS } from "@angular/common/http";
+import { NgModule, Optional, SkipSelf } from "@angular/core";
+import { RouterModule } from "@angular/router";
+
 import { HeaderComponent } from "./component/header/header.component";
+import { APP_CONFIG, AppConfig } from "./services/app.config";
 import { AuthGuard } from "./services/auth.guard";
 import { AuthInterceptor } from "./services/auth.interceptor";
+import { AuthService } from "./services/auth.service";
+import { BrowserStorageService } from "./services/browser-storage.service";
 
 @NgModule({
   imports: [CommonModule, RouterModule],

@@ -1,16 +1,15 @@
-import { Injectable, Inject } from "@angular/core";
+import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
+import { Inject, Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { HttpClient, HttpHeaders, HttpErrorResponse, HttpResponse } from "@angular/common/http";
+import * as jwt_decode from "jwt-decode";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import { Observable } from "rxjs/Observable";
 import { Subscription } from "rxjs/Subscription";
 
-import * as jwt_decode from "jwt-decode";
-
+import { AuthUser } from "./../models/auth-user";
+import { Credentials } from "./../models/credentials";
 import { APP_CONFIG, IAppConfig } from "./app.config";
 import { BrowserStorageService } from "./browser-storage.service";
-import { Credentials } from "./../models/credentials";
-import { AuthUser } from "./../models/auth-user";
 
 export enum AuthTokenType {
   AccessToken,
