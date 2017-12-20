@@ -79,7 +79,7 @@ export class AuthService {
       });
   }
 
-  isLoggedIn(): boolean {
+  isAuthUserLoggedIn(): boolean {
     const accessToken = this.getRawAuthToken(AuthTokenType.AccessToken);
     const refreshToken = this.getRawAuthToken(AuthTokenType.RefreshToken);
     const hasTokens = !this.isEmptyString(accessToken) && !this.isEmptyString(refreshToken);
@@ -102,12 +102,12 @@ export class AuthService {
     return jwt_decode(this.getRawAuthToken(AuthTokenType.AccessToken));
   }
 
-  getDisplayName(): string {
+  getAuthUserDisplayName(): string {
     return this.getDecodedAccessToken().DisplayName;
   }
 
   getAuthUser(): AuthUser {
-    if (!this.isLoggedIn()) {
+    if (!this.isAuthUserLoggedIn()) {
       return null;
     }
 
@@ -129,6 +129,11 @@ export class AuthService {
     if (!user || !user.roles) {
       return false;
     }
+
+    if (user.roles.indexOf(this.appConfig.adminRoleName.toLowerCase()) >= 0) {
+      return true; // The `Admin` role has full access to every pages.
+    }
+
     return requiredRoles.some(requiredRole => user.roles.indexOf(requiredRole.toLowerCase()) >= 0);
   }
 
@@ -165,8 +170,8 @@ export class AuthService {
     this.browserStorageService.removeLocal(this.rememberMeToken);
   }
 
-  scheduleRefreshToken() {
-    if (!this.isLoggedIn()) {
+  private scheduleRefreshToken() {
+    if (!this.isAuthUserLoggedIn()) {
       return;
     }
 
@@ -182,13 +187,13 @@ export class AuthService {
     });
   }
 
-  unscheduleRefreshToken() {
+  private unscheduleRefreshToken() {
     if (this.refreshTokenSubscription) {
       this.refreshTokenSubscription.unsubscribe();
     }
   }
 
-  refreshToken() {
+  private refreshToken() {
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
     const model = { refreshToken: this.getRawAuthToken(AuthTokenType.RefreshToken) };
     return this.http
@@ -205,7 +210,7 @@ export class AuthService {
   }
 
   private updateStatusOnPageRefresh(): void {
-    this.authStatusSource.next(this.isLoggedIn());
+    this.authStatusSource.next(this.isAuthUserLoggedIn());
   }
 
   private setLoginSession(response: any): void {

@@ -19,7 +19,7 @@ export class AccessDeniedComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.isAuthenticated = this.authService.isLoggedIn();
+    this.isAuthenticated = this.authService.isAuthUserLoggedIn();
   }
 
   goBack() {

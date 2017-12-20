@@ -22,7 +22,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.subscription = this.authService.authStatus$.subscribe(status => {
       this.isLoggedIn = status;
       if (status) {
-        this.displayName = this.authService.getDisplayName();
+        this.displayName = this.authService.getAuthUserDisplayName();
       }
     });
   }

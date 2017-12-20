@@ -9,6 +9,7 @@ export interface IAppConfig {
   refreshTokenPath: string;
   accessTokenObjectKey: string;
   refreshTokenObjectKey: string;
+  adminRoleName: string;
 }
 
 export const AppConfig: IAppConfig = {
@@ -17,5 +18,6 @@ export const AppConfig: IAppConfig = {
   logoutPath: "account/logout",
   refreshTokenPath: "account/RefreshToken",
   accessTokenObjectKey: "access_token",
-  refreshTokenObjectKey: "refresh_token"
+  refreshTokenObjectKey: "refresh_token",
+  adminRoleName: "Admin"
 };
