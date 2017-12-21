@@ -1,15 +1,23 @@
 ﻿import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from "@angular/router";
+import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, Router, RouterStateSnapshot } from "@angular/router";
 
 import { AuthGuardPermission } from "../models/auth-guard-permission";
 import { AuthService } from "./auth.service";
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthGuard implements CanActivate, CanActivateChild {
+
   constructor(private authService: AuthService, private router: Router) { }
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    return this.hasAuthUserAccessToThisRoute(route, state);
+  }
 
+  canActivateChild(childRoute: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    return this.hasAuthUserAccessToThisRoute(childRoute, state);
+  }
+
+  private hasAuthUserAccessToThisRoute(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     if (!this.authService.isAuthUserLoggedIn()) {
       this.showAccessDenied(state);
       return false;
@@ -44,6 +52,7 @@ export class AuthGuard implements CanActivate {
       return false;
     }
   }
+
 
   private showAccessDenied(state: RouterStateSnapshot) {
     this.router.navigate(["/accessDenied"], { queryParams: { returnUrl: state.url } });
