@@ -1,29 +1,49 @@
 ﻿import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, Router, RouterStateSnapshot } from "@angular/router";
+import {
+    ActivatedRouteSnapshot,
+    CanActivate,
+    CanActivateChild,
+    CanLoad,
+    Data,
+    Route,
+    Router,
+    RouterStateSnapshot,
+} from "@angular/router";
 
 import { AuthGuardPermission } from "../models/auth-guard-permission";
 import { AuthService } from "./auth.service";
 
 @Injectable()
-export class AuthGuard implements CanActivate, CanActivateChild {
+export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
+
+  private permissionObjectKey = "permission";
 
   constructor(private authService: AuthService, private router: Router) { }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    return this.hasAuthUserAccessToThisRoute(route, state);
+    const permissionData = route.data[this.permissionObjectKey] as AuthGuardPermission;
+    const returnUrl = state.url;
+    return this.hasAuthUserAccessToThisRoute(permissionData, returnUrl);
   }
 
   canActivateChild(childRoute: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    return this.hasAuthUserAccessToThisRoute(childRoute, state);
+    const permissionData = childRoute.data[this.permissionObjectKey] as AuthGuardPermission;
+    const returnUrl = state.url;
+    return this.hasAuthUserAccessToThisRoute(permissionData, returnUrl);
   }
 
-  private hasAuthUserAccessToThisRoute(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+  canLoad(route: Route): boolean {
+    const permissionData = route.data[this.permissionObjectKey] as AuthGuardPermission;
+    const returnUrl = `/${route.path}`;
+    return this.hasAuthUserAccessToThisRoute(permissionData, returnUrl);
+  }
+
+  private hasAuthUserAccessToThisRoute(permissionData: Data, returnUrl: string): boolean {
     if (!this.authService.isAuthUserLoggedIn()) {
-      this.showAccessDenied(state);
+      this.showAccessDenied(returnUrl);
       return false;
     }
 
-    const permissionData = route.data["permission"] as AuthGuardPermission;
     if (!permissionData) {
       return true;
     }
@@ -38,7 +58,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
         return true;
       }
 
-      this.showAccessDenied(state);
+      this.showAccessDenied(returnUrl);
       return false;
     }
 
@@ -48,13 +68,12 @@ export class AuthGuard implements CanActivate, CanActivateChild {
         return true;
       }
 
-      this.showAccessDenied(state);
+      this.showAccessDenied(returnUrl);
       return false;
     }
   }
 
-
-  private showAccessDenied(state: RouterStateSnapshot) {
-    this.router.navigate(["/accessDenied"], { queryParams: { returnUrl: state.url } });
+  private showAccessDenied(returnUrl: string) {
+    this.router.navigate(["/accessDenied"], { queryParams: { returnUrl: returnUrl } });
   }
 }
