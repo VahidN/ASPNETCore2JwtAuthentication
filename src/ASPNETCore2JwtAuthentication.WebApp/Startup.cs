@@ -75,12 +75,14 @@ namespace ASPNETCore2JwtAuthentication.WebApp
                     cfg.SaveToken = true;
                     cfg.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidIssuer = Configuration["BearerTokens:Issuer"],
-                        ValidAudience = Configuration["BearerTokens:Audience"],
+                        ValidIssuer = Configuration["BearerTokens:Issuer"], // site that makes the token
+                        ValidateIssuer = false, // TODO: change this to avoid forwarding attacks
+                        ValidAudience = Configuration["BearerTokens:Audience"], // site that consumes the token
+                        ValidateAudience = false, // TODO: change this to avoid forwarding attacks
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["BearerTokens:Key"])),
-                        ValidateIssuerSigningKey = true,
-                        ValidateLifetime = true,
-                        ClockSkew = TimeSpan.Zero
+                        ValidateIssuerSigningKey = true, // verify signature to avoid tampering
+                        ValidateLifetime = true, // validate the expiration
+                        ClockSkew = TimeSpan.Zero // tolerance for the expiration date
                     };
                     cfg.Events = new JwtBearerEvents
                     {
