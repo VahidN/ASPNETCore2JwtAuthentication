@@ -106,13 +106,13 @@ export class AuthService {
     return this.getDecodedAccessToken().DisplayName;
   }
 
-  getAuthUser(): AuthUser {
+  getAuthUser(): AuthUser | null {
     if (!this.isAuthUserLoggedIn()) {
       return null;
     }
 
     const decodedToken = this.getDecodedAccessToken();
-    let roles = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+    let roles = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] as string[];
     if (roles) {
       roles = roles.map(role => role.toLowerCase());
     }
@@ -141,7 +141,7 @@ export class AuthService {
     return this.isAuthUserInRoles([requiredRole]);
   }
 
-  getAccessTokenExpirationDateUtc(): Date {
+  getAccessTokenExpirationDateUtc(): Date | null {
     const decoded = this.getDecodedAccessToken();
     if (decoded.exp === undefined) {
       return null;
@@ -176,8 +176,11 @@ export class AuthService {
     }
 
     this.unscheduleRefreshToken();
-
-    const expiresAtUtc = this.getAccessTokenExpirationDateUtc().valueOf();
+    const expDateUtc = this.getAccessTokenExpirationDateUtc();
+    if (!expDateUtc) {
+      throw new Error("This access token has not the `exp` property.");
+    }
+    const expiresAtUtc = expDateUtc.valueOf();
     const nowUtc = new Date().valueOf();
     const initialDelay = Math.max(1, expiresAtUtc - nowUtc);
     console.log("Initial scheduleRefreshToken Delay(ms)", initialDelay);

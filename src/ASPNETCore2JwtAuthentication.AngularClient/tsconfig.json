@@ -7,6 +7,18 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "noImplicitReturns": true,
+    "allowUnreachableCode": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "suppressExcessPropertyErrors": false,
+    "noImplicitThis": true,
+    "noFallthroughCasesInSwitch": true,
+    //"strictFunctionTypes": true,
+    "suppressImplicitAnyIndexErrors": false,
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
     "target": "es5",
     "typeRoots": [
       "node_modules/@types"

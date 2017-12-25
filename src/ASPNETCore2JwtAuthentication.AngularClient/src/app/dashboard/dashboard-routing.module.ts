@@ -12,8 +12,7 @@ const routes: Routes = [
     component: ProtectedPageComponent,
     data: {
       permission: {
-        permittedRoles: ["Admin"],
-        deniedRoles: null
+        permittedRoles: ["Admin"]
       } as AuthGuardPermission
     },
     canActivate: [AuthGuard]
@@ -23,8 +22,7 @@ const routes: Routes = [
     component: CallProtectedApiComponent,
     data: {
       permission: {
-        permittedRoles: ["Admin", "User"],
-        deniedRoles: null
+        permittedRoles: ["Admin", "User"]
       } as AuthGuardPermission
     },
     canActivate: [AuthGuard]

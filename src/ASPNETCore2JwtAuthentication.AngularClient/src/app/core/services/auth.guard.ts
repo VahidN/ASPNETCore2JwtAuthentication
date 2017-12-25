@@ -33,9 +33,13 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
   }
 
   canLoad(route: Route): boolean {
-    const permissionData = route.data[this.permissionObjectKey] as AuthGuardPermission;
-    const returnUrl = `/${route.path}`;
-    return this.hasAuthUserAccessToThisRoute(permissionData, returnUrl);
+    if (route.data) {
+      const permissionData = route.data[this.permissionObjectKey] as AuthGuardPermission;
+      const returnUrl = `/${route.path}`;
+      return this.hasAuthUserAccessToThisRoute(permissionData, returnUrl);
+    } else {
+      return true;
+    }
   }
 
   private hasAuthUserAccessToThisRoute(permissionData: Data, returnUrl: string): boolean {
@@ -71,6 +75,8 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
       this.showAccessDenied(returnUrl);
       return false;
     }
+
+    return true;
   }
 
   private showAccessDenied(returnUrl: string) {

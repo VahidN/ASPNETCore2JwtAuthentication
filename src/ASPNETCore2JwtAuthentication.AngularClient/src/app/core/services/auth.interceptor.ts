@@ -21,6 +21,7 @@ export class AuthInterceptor implements HttpInterceptor {
       });
       return next.handle(request)
         .catch((error: any, caught: Observable<HttpEvent<any>>) => {
+          console.log({ error, caught });
           if (error.status === 401 || error.status === 403) {
             this.router.navigate(["/accessDenied"]);
           }

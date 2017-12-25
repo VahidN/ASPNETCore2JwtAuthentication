@@ -10,7 +10,7 @@ import { AuthService } from "../../core/services/auth.service";
 export class ProtectedPageComponent implements OnInit {
 
   decodedAccessToken: any = {};
-  accessTokenExpirationDate: Date = null;
+  accessTokenExpirationDate: Date | null = null;
 
   constructor(private authService: AuthService) { }
 
