@@ -243,3 +243,4 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/src/ASPNETCore2JwtAuthentication.AngularClient/package-lock.json
