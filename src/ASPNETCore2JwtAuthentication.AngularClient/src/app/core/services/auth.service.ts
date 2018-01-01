@@ -43,6 +43,7 @@ export class AuthService {
       .map((response: any) => {
         this.browserStorageService.setLocal(this.rememberMeToken, credentials.rememberMe);
         if (!response) {
+          console.log("There is no `{'access_token':'...','refresh_token':'...'}` response after login.");
           this.authStatusSource.next(false);
           return false;
         }
@@ -171,11 +172,12 @@ export class AuthService {
   }
 
   private scheduleRefreshToken() {
+    this.unscheduleRefreshToken();
+
     if (!this.isAuthUserLoggedIn()) {
       return;
     }
 
-    this.unscheduleRefreshToken();
     const expDateUtc = this.getAccessTokenExpirationDateUtc();
     if (!expDateUtc) {
       throw new Error("This access token has not the `exp` property.");
@@ -223,6 +225,10 @@ export class AuthService {
   }
 
   private setToken(tokenType: AuthTokenType, tokenValue: string): void {
+    if (this.isEmptyString(tokenValue)) {
+      console.log(`${AuthTokenType[tokenType]} is null or empty.`);
+    }
+
     if (this.rememberMe()) {
       this.browserStorageService.setLocal(AuthTokenType[tokenType], tokenValue);
     } else {
