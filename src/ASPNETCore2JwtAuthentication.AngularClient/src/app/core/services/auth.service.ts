@@ -229,6 +229,10 @@ export class AuthService {
       console.log(`${AuthTokenType[tokenType]} is null or empty.`);
     }
 
+    if (tokenType === AuthTokenType.AccessToken && this.isEmptyString(tokenValue)) {
+      throw new Error("AccessToken can't be null or empty.");
+    }
+
     if (this.rememberMe()) {
       this.browserStorageService.setLocal(AuthTokenType[tokenType], tokenValue);
     } else {
