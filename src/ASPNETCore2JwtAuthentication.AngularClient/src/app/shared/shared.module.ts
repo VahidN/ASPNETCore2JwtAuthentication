@@ -3,6 +3,8 @@ import { HttpClientModule } from "@angular/common/http";
 import { ModuleWithProviders, NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
+import { IsVisibleForAuthUserDirective } from "./directives/is-visible-for-auth-user.directive";
+
 @NgModule({
   imports: [
     CommonModule,
@@ -14,12 +16,14 @@ import { FormsModule } from "@angular/forms";
   ],
   declarations: [
     // common and shared components/directives/pipes between more than one module and components will be listed here.
+    IsVisibleForAuthUserDirective
   ],
   exports: [
     // common and shared components/directives/pipes between more than one module and components will be listed here.
     CommonModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    IsVisibleForAuthUserDirective
   ]
   /* No providers here! Since they’ll be already provided in AppModule. */
 })

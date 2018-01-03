@@ -1,16 +1,37 @@
-<button *ngIf="isAdmin" class="btn btn-primary" (click)="callMyProtectedAdminApiController()">
-  Call Protected Admin API ([Authorize(Roles = "Admin")])
-</button>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">Call protected API</h2>
+  </div>
+  <div class="panel-body">
+    <button *ngIf="isAdmin" class="btn btn-primary" (click)="callMyProtectedAdminApiController()">
+      Call Protected Admin API ([Authorize(Roles = "Admin")])
+    </button>
 
-<button *ngIf="isAdmin || isUser" class="btn btn-default" (click)="callMyProtectedApiController()">
-  Call Protected API ([Authorize])
-</button>
+    <button *ngIf="isAdmin || isUser" class="btn btn-default" (click)="callMyProtectedApiController()">
+      Call Protected API ([Authorize])
+    </button>
 
-<button class="btn btn-warning" (click)="callMyProtectedEditorsApiController()">
-  Call Protected API ([Authorize(Roles = "Editor")])
-</button>
+    <button class="btn btn-warning" (click)="callMyProtectedEditorsApiController()">
+      Call Protected API ([Authorize(Roles = "Editor")])
+    </button>
 
 
-<div *ngIf="result">
-  <pre>{{result | json}}</pre>
+    <div *ngIf="result">
+      <pre>{{result | json}}</pre>
+    </div>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">Show/Hide elements using isVisibleForAuthUser directive</h2>
+  </div>
+  <div class="panel-body">
+    <div class="alert alert-info" isVisibleForAuthUser>
+      Is-Visible-For-AuthUser
+    </div>
+    <div class="alert alert-success" isVisibleForAuthUser [isVisibleForRoles]="['Admin','User']">
+      Is-Visible-For-Roles = ['Admin','User']
+    </div>
+  </div>
 </div>
