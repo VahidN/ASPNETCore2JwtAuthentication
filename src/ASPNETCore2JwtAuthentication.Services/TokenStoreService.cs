@@ -148,7 +148,7 @@ namespace ASPNETCore2JwtAuthentication.Services
                 // Issuer
                 new Claim(JwtRegisteredClaimNames.Iss, _configuration.Value.Issuer),
                 // Issued at
-                new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToUnixEpochDate().ToString(), ClaimValueTypes.Integer64),
+                new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim("DisplayName", user.DisplayName),
