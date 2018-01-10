@@ -113,10 +113,7 @@ export class AuthService {
     }
 
     const decodedToken = this.getDecodedAccessToken();
-    let roles = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] as string[];
-    if (roles) {
-      roles = roles.map(role => role.toLowerCase());
-    }
+    const roles = this.getAuthUserRoles(decodedToken);
     return Object.freeze({
       userId: decodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
       userName: decodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
@@ -135,7 +132,13 @@ export class AuthService {
       return true; // The `Admin` role has full access to every pages.
     }
 
-    return requiredRoles.some(requiredRole => user.roles.indexOf(requiredRole.toLowerCase()) >= 0);
+    return requiredRoles.some(requiredRole => {
+      if (user.roles) {
+        return user.roles.indexOf(requiredRole.toLowerCase()) >= 0;
+      } else {
+        return false;
+      }
+    });
   }
 
   isAuthUserInRole(requiredRole: string): boolean {
@@ -169,6 +172,19 @@ export class AuthService {
       this.browserStorageService.removeSession(AuthTokenType[AuthTokenType.RefreshToken]);
     }
     this.browserStorageService.removeLocal(this.rememberMeToken);
+  }
+
+  private getAuthUserRoles(decodedToken: any): string[] | null {
+    const roles = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+    if (!roles) {
+      return null;
+    }
+
+    if (Array.isArray(roles)) {
+      return roles.map(role => role.toLowerCase());
+    } else {
+      return [roles.toLowerCase()];
+    }
   }
 
   private scheduleRefreshToken() {
