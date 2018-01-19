@@ -51,7 +51,7 @@ namespace ASPNETCore2JwtAuthentication.Services
                 return;
             }
 
-            var user = await _usersService.FindUserAsync(userId).ConfigureAwait(false);
+            var user = await _usersService.FindUserAsync(userId);
             if (user == null || user.SerialNumber != serialNumberClaim.Value || !user.IsActive)
             {
                 // user has changed his/her password/roles/stat/IsActive
@@ -60,13 +60,13 @@ namespace ASPNETCore2JwtAuthentication.Services
 
             var accessToken = context.SecurityToken as JwtSecurityToken;
             if (accessToken == null || string.IsNullOrWhiteSpace(accessToken.RawData) ||
-                !await _tokenStoreService.IsValidTokenAsync(accessToken.RawData, userId).ConfigureAwait(false))
+                !await _tokenStoreService.IsValidTokenAsync(accessToken.RawData, userId))
             {
                 context.Fail("This token is not in our database.");
                 return;
             }
 
-            await _usersService.UpdateUserLastActivityDateAsync(userId).ConfigureAwait(false);
+            await _usersService.UpdateUserLastActivityDateAsync(userId);
         }
     }
 }

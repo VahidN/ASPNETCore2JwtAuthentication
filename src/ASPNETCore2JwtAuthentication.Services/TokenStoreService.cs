@@ -59,7 +59,7 @@ namespace ASPNETCore2JwtAuthentication.Services
 
         public async Task AddUserTokenAsync(UserToken userToken)
         {
-            await InvalidateUserTokensAsync(userToken.UserId).ConfigureAwait(false);
+            await InvalidateUserTokensAsync(userToken.UserId);
             _tokens.Add(userToken);
         }
 
@@ -76,7 +76,7 @@ namespace ASPNETCore2JwtAuthentication.Services
                 RefreshTokenExpiresDateTime = refreshTokenExpiresDateTime,
                 AccessTokenExpiresDateTime = accessTokenExpiresDateTime
             };
-            await AddUserTokenAsync(token).ConfigureAwait(false);
+            await AddUserTokenAsync(token);
         }
 
         public async Task DeleteExpiredTokensAsync()
@@ -91,7 +91,7 @@ namespace ASPNETCore2JwtAuthentication.Services
 
         public async Task DeleteTokenAsync(string refreshToken)
         {
-            var token = await FindTokenAsync(refreshToken).ConfigureAwait(false);
+            var token = await FindTokenAsync(refreshToken);
             if (token != null)
             {
                 _tokens.Remove(token);
@@ -110,7 +110,7 @@ namespace ASPNETCore2JwtAuthentication.Services
 
         public async Task InvalidateUserTokensAsync(int userId)
         {
-            var userTokens = await _tokens.Where(x => x.UserId == userId).ToListAsync().ConfigureAwait(false);
+            var userTokens = await _tokens.Where(x => x.UserId == userId).ToListAsync();
             foreach (var userToken in userTokens)
             {
                 _tokens.Remove(userToken);
@@ -121,7 +121,7 @@ namespace ASPNETCore2JwtAuthentication.Services
         {
             var accessTokenHash = _securityService.GetSha256Hash(accessToken);
             var userToken = await _tokens.FirstOrDefaultAsync(
-                x => x.AccessTokenHash == accessTokenHash && x.UserId == userId).ConfigureAwait(false);
+                x => x.AccessTokenHash == accessTokenHash && x.UserId == userId);
             return userToken?.AccessTokenExpiresDateTime >= DateTime.UtcNow;
         }
 
@@ -130,11 +130,11 @@ namespace ASPNETCore2JwtAuthentication.Services
             var now = DateTimeOffset.UtcNow;
             var accessTokenExpiresDateTime = now.AddMinutes(_configuration.Value.AccessTokenExpirationMinutes);
             var refreshTokenExpiresDateTime = now.AddMinutes(_configuration.Value.RefreshTokenExpirationMinutes);
-            var accessToken = await createAccessTokenAsync(user, accessTokenExpiresDateTime.UtcDateTime).ConfigureAwait(false);
+            var accessToken = await createAccessTokenAsync(user, accessTokenExpiresDateTime.UtcDateTime);
             var refreshToken = Guid.NewGuid().ToString().Replace("-", "");
 
-            await AddUserTokenAsync(user, refreshToken, accessToken, refreshTokenExpiresDateTime, accessTokenExpiresDateTime).ConfigureAwait(false);
-            await _uow.SaveChangesAsync().ConfigureAwait(false);
+            await AddUserTokenAsync(user, refreshToken, accessToken, refreshTokenExpiresDateTime, accessTokenExpiresDateTime);
+            await _uow.SaveChangesAsync();
 
             return (accessToken, refreshToken);
         }
@@ -159,7 +159,7 @@ namespace ASPNETCore2JwtAuthentication.Services
             };
 
             // add roles
-            var roles = await _rolesService.FindUserRolesAsync(user.Id).ConfigureAwait(false);
+            var roles = await _rolesService.FindUserRolesAsync(user.Id);
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role.Name));

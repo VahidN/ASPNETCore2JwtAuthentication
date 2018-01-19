@@ -47,13 +47,13 @@ namespace ASPNETCore2JwtAuthentication.Services
 
         public async Task<string> GetSerialNumberAsync(int userId)
         {
-            var user = await FindUserAsync(userId).ConfigureAwait(false);
+            var user = await FindUserAsync(userId);
             return user.SerialNumber;
         }
 
         public async Task UpdateUserLastActivityDateAsync(int userId)
         {
-            var user = await FindUserAsync(userId).ConfigureAwait(false);
+            var user = await FindUserAsync(userId);
             if (user.LastLoggedIn != null)
             {
                 var updateLastActivityDate = TimeSpan.FromMinutes(2);
@@ -65,7 +65,7 @@ namespace ASPNETCore2JwtAuthentication.Services
                 }
             }
             user.LastLoggedIn = DateTimeOffset.UtcNow;
-            await _uow.SaveChangesAsync().ConfigureAwait(false);
+            await _uow.SaveChangesAsync();
         }
     }
 }

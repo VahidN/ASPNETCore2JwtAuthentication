@@ -34,7 +34,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
                 Title = "Hello from My Protected Admin Api Controller! [Authorize(Policy = CustomRoles.Admin)]",
                 Username = this.User.Identity.Name,
                 UserData = userId,
-                TokenSerialNumber = await _usersService.GetSerialNumberAsync(int.Parse(userId)).ConfigureAwait(false),
+                TokenSerialNumber = await _usersService.GetSerialNumberAsync(int.Parse(userId)),
                 Roles = claimsIdentity.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToList()
             });
         }

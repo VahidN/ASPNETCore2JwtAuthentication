@@ -43,13 +43,13 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
                 return BadRequest("user is not set.");
             }
 
-            var user = await _usersService.FindUserAsync(loginUser.Username, loginUser.Password).ConfigureAwait(false);
+            var user = await _usersService.FindUserAsync(loginUser.Username, loginUser.Password);
             if (user == null || !user.IsActive)
             {
                 return Unauthorized();
             }
 
-            var (accessToken, refreshToken) = await _tokenStoreService.CreateJwtTokens(user).ConfigureAwait(false);
+            var (accessToken, refreshToken) = await _tokenStoreService.CreateJwtTokens(user);
             return Ok(new { access_token = accessToken, refresh_token = refreshToken });
         }
 
@@ -69,7 +69,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
                 return Unauthorized();
             }
 
-            var (accessToken, newRefreshToken) = await _tokenStoreService.CreateJwtTokens(token.User).ConfigureAwait(false);
+            var (accessToken, newRefreshToken) = await _tokenStoreService.CreateJwtTokens(token.User);
             return Ok(new { access_token = accessToken, refresh_token = newRefreshToken });
         }
 
@@ -84,10 +84,10 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
             // Delete the user's tokens from the database (revoke its bearer token)
             if (!string.IsNullOrWhiteSpace(userIdValue) && int.TryParse(userIdValue, out int userId))
             {
-                await _tokenStoreService.InvalidateUserTokensAsync(userId).ConfigureAwait(false);
+                await _tokenStoreService.InvalidateUserTokensAsync(userId);
             }
-            await _tokenStoreService.DeleteExpiredTokensAsync().ConfigureAwait(false);
-            await _uow.SaveChangesAsync().ConfigureAwait(false);
+            await _tokenStoreService.DeleteExpiredTokensAsync();
+            await _uow.SaveChangesAsync();
 
             return true;
         }
