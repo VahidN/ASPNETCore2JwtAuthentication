@@ -8,6 +8,7 @@ namespace ASPNETCore2JwtAuthentication.DomainClasses
         public User()
         {
             UserRoles = new HashSet<UserRole>();
+            UserTokens = new HashSet<UserToken>();
         }
 
         public int Id { get; set; }
@@ -31,6 +32,6 @@ namespace ASPNETCore2JwtAuthentication.DomainClasses
 
         public virtual ICollection<UserRole> UserRoles { get; set; }
 
-        public virtual UserToken UserToken { get; set; }
+        public virtual ICollection<UserToken> UserTokens { get; set; }
     }
 }

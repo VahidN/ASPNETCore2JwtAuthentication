@@ -14,7 +14,7 @@ namespace ASPNETCore2JwtAuthentication.DomainClasses
 
         public DateTimeOffset RefreshTokenExpiresDateTime { get; set; }
 
-        public int UserId { get; set; } // one-to-one association
+        public int UserId { get; set; }
         public virtual User User { get; set; }
     }
 }

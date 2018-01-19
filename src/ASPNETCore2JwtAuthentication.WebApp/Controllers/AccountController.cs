@@ -7,6 +7,7 @@ using ASPNETCore2JwtAuthentication.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 
 namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
@@ -18,11 +19,13 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
         private readonly IUsersService _usersService;
         private readonly ITokenStoreService _tokenStoreService;
         private readonly IUnitOfWork _uow;
+        private readonly IOptionsSnapshot<BearerTokensOptions> _configuration;
 
         public AccountController(
             IUsersService usersService,
             ITokenStoreService tokenStoreService,
-            IUnitOfWork uow)
+            IUnitOfWork uow,
+            IOptionsSnapshot<BearerTokensOptions> configuration)
         {
             _usersService = usersService;
             _usersService.CheckArgumentIsNull(nameof(usersService));
@@ -32,6 +35,9 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
 
             _uow = uow;
             _uow.CheckArgumentIsNull(nameof(_uow));
+
+            _configuration = configuration;
+            _configuration.CheckArgumentIsNull(nameof(configuration));
         }
 
         [AllowAnonymous]
@@ -84,7 +90,10 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
             // Delete the user's tokens from the database (revoke its bearer token)
             if (!string.IsNullOrWhiteSpace(userIdValue) && int.TryParse(userIdValue, out int userId))
             {
-                await _tokenStoreService.InvalidateUserTokensAsync(userId);
+                if (_configuration.Value.AllowSignoutAllUserActiveClients)
+                {
+                    await _tokenStoreService.InvalidateUserTokensAsync(userId);
+                }
             }
             await _tokenStoreService.DeleteExpiredTokensAsync();
             await _uow.SaveChangesAsync();

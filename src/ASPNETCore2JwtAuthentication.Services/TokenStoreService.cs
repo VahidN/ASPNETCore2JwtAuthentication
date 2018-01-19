@@ -59,7 +59,10 @@ namespace ASPNETCore2JwtAuthentication.Services
 
         public async Task AddUserTokenAsync(UserToken userToken)
         {
-            await InvalidateUserTokensAsync(userToken.UserId);
+            if (!_configuration.Value.AllowMultipleLoginsFromTheSameUser)
+            {
+                await InvalidateUserTokensAsync(userToken.UserId);
+            }
             _tokens.Add(userToken);
         }
 

@@ -25,9 +25,6 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Context
                 entity.HasIndex(e => e.Username).IsUnique();
                 entity.Property(e => e.Password).IsRequired();
                 entity.Property(e => e.SerialNumber).HasMaxLength(450);
-                entity.HasOne(e => e.UserToken)
-                      .WithOne(ut => ut.User)
-                      .HasForeignKey<UserToken>(ut => ut.UserId); // one-to-one association
             });
 
             builder.Entity<Role>(entity =>
@@ -49,6 +46,9 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Context
 
             builder.Entity<UserToken>(entity =>
             {
+                entity.HasOne(ut => ut.User)
+                      .WithMany(u => u.UserTokens)
+                      .HasForeignKey(ut => ut.UserId);
             });
         }
     }
