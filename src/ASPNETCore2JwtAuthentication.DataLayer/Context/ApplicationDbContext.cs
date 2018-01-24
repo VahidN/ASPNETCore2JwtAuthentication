@@ -49,6 +49,9 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Context
                 entity.HasOne(ut => ut.User)
                       .WithMany(u => u.UserTokens)
                       .HasForeignKey(ut => ut.UserId);
+
+                entity.Property(ut => ut.RefreshTokenIdHash).HasMaxLength(450).IsRequired();
+                entity.Property(ut => ut.RefreshTokenIdHashSource).HasMaxLength(450);
             });
         }
     }

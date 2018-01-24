@@ -63,8 +63,10 @@ export class AuthService {
   }
 
   logout(navigateToHome: boolean): void {
+    const headers = new HttpHeaders({ "Content-Type": "application/json" });
+    const logoutUser = { refreshToken: this.getRawAuthToken(AuthTokenType.RefreshToken) };
     this.http
-      .get(`${this.appConfig.apiEndpoint}/${this.appConfig.logoutPath}`)
+      .post(`${this.appConfig.apiEndpoint}/${this.appConfig.logoutPath}`, logoutUser, { headers: headers })
       .finally(() => {
         this.deleteAuthTokens();
         this.unscheduleRefreshToken();

@@ -17,15 +17,15 @@ namespace ASPNETCore2JwtAuthentication.Services
     public interface ITokenStoreService
     {
         Task AddUserTokenAsync(UserToken userToken);
-        Task AddUserTokenAsync(
-                User user, string refreshToken, string accessToken,
-                DateTimeOffset refreshTokenExpiresDateTime, DateTimeOffset accessTokenExpiresDateTime);
+        Task AddUserTokenAsync(User user, string refreshToken, string accessToken, string refreshTokenSource);
         Task<bool> IsValidTokenAsync(string accessToken, int userId);
         Task DeleteExpiredTokensAsync();
         Task<UserToken> FindTokenAsync(string refreshToken);
         Task DeleteTokenAsync(string refreshToken);
+        Task DeleteTokensWithSameRefreshTokenSourceAsync(string refreshTokenIdHashSource);
         Task InvalidateUserTokensAsync(int userId);
-        Task<(string accessToken, string refreshToken)> CreateJwtTokens(User user);
+        Task<(string accessToken, string refreshToken)> CreateJwtTokens(User user, string refreshTokenSource);
+        Task RevokeUserBearerTokensAsync(string userIdValue, string refreshToken);
     }
 
     public class TokenStoreService : ITokenStoreService
@@ -63,21 +63,23 @@ namespace ASPNETCore2JwtAuthentication.Services
             {
                 await InvalidateUserTokensAsync(userToken.UserId);
             }
+            await DeleteTokensWithSameRefreshTokenSourceAsync(userToken.RefreshTokenIdHashSource);
             _tokens.Add(userToken);
         }
 
-        public async Task AddUserTokenAsync(
-                User user, string refreshToken, string accessToken,
-                DateTimeOffset refreshTokenExpiresDateTime, DateTimeOffset accessTokenExpiresDateTime)
+        public async Task AddUserTokenAsync(User user, string refreshToken, string accessToken, string refreshTokenSource)
         {
+            var now = DateTimeOffset.UtcNow;
             var token = new UserToken
             {
                 UserId = user.Id,
                 // Refresh token handles should be treated as secrets and should be stored hashed
                 RefreshTokenIdHash = _securityService.GetSha256Hash(refreshToken),
+                RefreshTokenIdHashSource = string.IsNullOrWhiteSpace(refreshTokenSource) ?
+                                           null : _securityService.GetSha256Hash(refreshTokenSource),
                 AccessTokenHash = _securityService.GetSha256Hash(accessToken),
-                RefreshTokenExpiresDateTime = refreshTokenExpiresDateTime,
-                AccessTokenExpiresDateTime = accessTokenExpiresDateTime
+                RefreshTokenExpiresDateTime = now.AddMinutes(_configuration.Value.RefreshTokenExpirationMinutes),
+                AccessTokenExpiresDateTime = now.AddMinutes(_configuration.Value.AccessTokenExpirationMinutes)
             };
             await AddUserTokenAsync(token);
         }
@@ -85,11 +87,11 @@ namespace ASPNETCore2JwtAuthentication.Services
         public async Task DeleteExpiredTokensAsync()
         {
             var now = DateTimeOffset.UtcNow;
-            var userTokens = await _tokens.Where(x => x.RefreshTokenExpiresDateTime < now).ToListAsync();
-            foreach (var userToken in userTokens)
-            {
-                _tokens.Remove(userToken);
-            }
+            await _tokens.Where(x => x.RefreshTokenExpiresDateTime < now)
+                         .ForEachAsync(userToken =>
+                         {
+                             _tokens.Remove(userToken);
+                         });
         }
 
         public async Task DeleteTokenAsync(string refreshToken)
@@ -99,6 +101,38 @@ namespace ASPNETCore2JwtAuthentication.Services
             {
                 _tokens.Remove(token);
             }
+        }
+
+        public async Task DeleteTokensWithSameRefreshTokenSourceAsync(string refreshTokenIdHashSource)
+        {
+            if (string.IsNullOrWhiteSpace(refreshTokenIdHashSource))
+            {
+                return;
+            }
+            await _tokens.Where(t => t.RefreshTokenIdHashSource == refreshTokenIdHashSource)
+                         .ForEachAsync(userToken =>
+                         {
+                             _tokens.Remove(userToken);
+                         });
+        }
+
+        public async Task RevokeUserBearerTokensAsync(string userIdValue, string refreshToken)
+        {
+            if (!string.IsNullOrWhiteSpace(userIdValue) && int.TryParse(userIdValue, out int userId))
+            {
+                if (_configuration.Value.AllowSignoutAllUserActiveClients)
+                {
+                    await InvalidateUserTokensAsync(userId);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(refreshToken))
+            {
+                var refreshTokenIdHashSource = _securityService.GetSha256Hash(refreshToken);
+                await DeleteTokensWithSameRefreshTokenSourceAsync(refreshTokenIdHashSource);
+            }
+
+            await DeleteExpiredTokensAsync();
         }
 
         public Task<UserToken> FindTokenAsync(string refreshToken)
@@ -113,11 +147,11 @@ namespace ASPNETCore2JwtAuthentication.Services
 
         public async Task InvalidateUserTokensAsync(int userId)
         {
-            var userTokens = await _tokens.Where(x => x.UserId == userId).ToListAsync();
-            foreach (var userToken in userTokens)
-            {
-                _tokens.Remove(userToken);
-            }
+            await _tokens.Where(x => x.UserId == userId)
+                         .ForEachAsync(userToken =>
+                         {
+                             _tokens.Remove(userToken);
+                         });
         }
 
         public async Task<bool> IsValidTokenAsync(string accessToken, int userId)
@@ -125,24 +159,20 @@ namespace ASPNETCore2JwtAuthentication.Services
             var accessTokenHash = _securityService.GetSha256Hash(accessToken);
             var userToken = await _tokens.FirstOrDefaultAsync(
                 x => x.AccessTokenHash == accessTokenHash && x.UserId == userId);
-            return userToken?.AccessTokenExpiresDateTime >= DateTime.UtcNow;
+            return userToken?.AccessTokenExpiresDateTime >= DateTimeOffset.UtcNow;
         }
 
-        public async Task<(string accessToken, string refreshToken)> CreateJwtTokens(User user)
+        public async Task<(string accessToken, string refreshToken)> CreateJwtTokens(User user, string refreshTokenSource)
         {
-            var now = DateTimeOffset.UtcNow;
-            var accessTokenExpiresDateTime = now.AddMinutes(_configuration.Value.AccessTokenExpirationMinutes);
-            var refreshTokenExpiresDateTime = now.AddMinutes(_configuration.Value.RefreshTokenExpirationMinutes);
-            var accessToken = await createAccessTokenAsync(user, accessTokenExpiresDateTime.UtcDateTime);
+            var accessToken = await createAccessTokenAsync(user);
             var refreshToken = Guid.NewGuid().ToString().Replace("-", "");
-
-            await AddUserTokenAsync(user, refreshToken, accessToken, refreshTokenExpiresDateTime, accessTokenExpiresDateTime);
+            await AddUserTokenAsync(user, refreshToken, accessToken, refreshTokenSource);
             await _uow.SaveChangesAsync();
 
             return (accessToken, refreshToken);
         }
 
-        private async Task<string> createAccessTokenAsync(User user, DateTime expires)
+        private async Task<string> createAccessTokenAsync(User user)
         {
             var claims = new List<Claim>
             {
@@ -170,12 +200,13 @@ namespace ASPNETCore2JwtAuthentication.Services
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.Value.Key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var now = DateTime.UtcNow;
             var token = new JwtSecurityToken(
                 issuer: _configuration.Value.Issuer,
                 audience: _configuration.Value.Audience,
                 claims: claims,
-                notBefore: DateTime.UtcNow,
-                expires: expires,
+                notBefore: now,
+                expires: now.AddMinutes(_configuration.Value.AccessTokenExpirationMinutes),
                 signingCredentials: creds);
             return new JwtSecurityTokenHandler().WriteToken(token);
         }

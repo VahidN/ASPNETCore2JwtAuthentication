@@ -29,8 +29,8 @@
         <button type="button" class="btn btn-warning" onclick="doLogin('/api/account/RefreshToken',{
                 refreshToken: refreshToken})" id="login">Refresh Token</button>
 
-        <button type="button" class="btn btn-danger" onclick="doCallApi('/api/account/logout')"
-            name="logout">Logout</button>
+        <button type="button" class="btn btn-danger" onclick="doLogin('/api/account/logout',{
+                refreshToken: refreshToken})" name="logout">Logout</button>
 
         <div class="alert alert-warning" style="margin-top: 15px">
             obtaining new tokens using the refresh_token should happen only if the id_token has

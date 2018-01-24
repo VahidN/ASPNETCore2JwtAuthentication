@@ -12,6 +12,8 @@ namespace ASPNETCore2JwtAuthentication.DomainClasses
 
         public string RefreshTokenIdHash { get; set; }
 
+        public string RefreshTokenIdHashSource { get; set; }
+
         public DateTimeOffset RefreshTokenExpiresDateTime { get; set; }
 
         public int UserId { get; set; }
