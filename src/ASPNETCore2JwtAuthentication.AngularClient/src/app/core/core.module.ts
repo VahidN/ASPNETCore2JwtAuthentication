@@ -1,7 +1,4 @@
-﻿// import RxJs needed operators only once
-import "./services/rxjs-operators";
-
-import { CommonModule } from "@angular/common";
+﻿import { CommonModule } from "@angular/common";
 import { HTTP_INTERCEPTORS } from "@angular/common/http";
 import { NgModule, Optional, SkipSelf } from "@angular/core";
 import { RouterModule } from "@angular/router";

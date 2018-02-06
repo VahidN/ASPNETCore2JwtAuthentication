@@ -2,9 +2,13 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http
 import { Inject, Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import * as jwt_decode from "jwt-decode";
+
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import { Observable } from "rxjs/Observable";
 import { Subscription } from "rxjs/Subscription";
+import { timer } from "rxjs/observable/timer";
+import { map, catchError, finalize } from "rxjs/operators";
+import { ErrorObservable } from "rxjs/observable/ErrorObservable";
 
 import { AuthUser } from "./../models/auth-user";
 import { Credentials } from "./../models/credentials";
@@ -40,7 +44,8 @@ export class AuthService {
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
     return this.http
       .post(`${this.appConfig.apiEndpoint}/${this.appConfig.loginPath}`, credentials, { headers: headers })
-      .map((response: any) => {
+      .pipe(
+      map((response: any) => {
         this.browserStorageService.setLocal(this.rememberMeToken, credentials.rememberMe);
         if (!response) {
           console.log("There is no `{'access_token':'...','refresh_token':'...'}` response after login.");
@@ -51,8 +56,9 @@ export class AuthService {
         this.scheduleRefreshToken();
         this.authStatusSource.next(true);
         return true;
-      })
-      .catch((error: HttpErrorResponse) => Observable.throw(error));
+      }),
+      catchError((error: HttpErrorResponse) => ErrorObservable.create(error))
+      );
   }
 
   getBearerAuthHeader(): HttpHeaders {
@@ -67,16 +73,17 @@ export class AuthService {
     const logoutUser = { refreshToken: this.getRawAuthToken(AuthTokenType.RefreshToken) };
     this.http
       .post(`${this.appConfig.apiEndpoint}/${this.appConfig.logoutPath}`, logoutUser, { headers: headers })
-      .finally(() => {
+      .pipe(
+      map(response => response || {}),
+      catchError((error: HttpErrorResponse) => ErrorObservable.create(error)),
+      finalize(() => {
         this.deleteAuthTokens();
         this.unscheduleRefreshToken();
         this.authStatusSource.next(false);
         if (navigateToHome) {
           this.router.navigate(["/"]);
         }
-      })
-      .map(response => response || {})
-      .catch((error: HttpErrorResponse) => Observable.throw(error))
+      }))
       .subscribe(result => {
         console.log("logout", result);
       });
@@ -204,7 +211,7 @@ export class AuthService {
     const nowUtc = new Date().valueOf();
     const initialDelay = Math.max(1, expiresAtUtc - nowUtc);
     console.log("Initial scheduleRefreshToken Delay(ms)", initialDelay);
-    const timerSource$ = Observable.timer(initialDelay);
+    const timerSource$ = timer(initialDelay);
     this.refreshTokenSubscription = timerSource$.subscribe(() => {
       this.refreshToken();
     });
@@ -221,11 +228,13 @@ export class AuthService {
     const model = { refreshToken: this.getRawAuthToken(AuthTokenType.RefreshToken) };
     return this.http
       .post(`${this.appConfig.apiEndpoint}/${this.appConfig.refreshTokenPath}`, model, { headers: headers })
-      .finally(() => {
+      .pipe(
+      map(response => response || {}),
+      catchError((error: HttpErrorResponse) => ErrorObservable.create(error)),
+      finalize(() => {
         this.scheduleRefreshToken();
-      })
-      .map(response => response || {})
-      .catch((error: HttpErrorResponse) => Observable.throw(error))
+      }
+      ))
       .subscribe(result => {
         console.log("RefreshToken Result", result);
         this.setLoginSession(result);

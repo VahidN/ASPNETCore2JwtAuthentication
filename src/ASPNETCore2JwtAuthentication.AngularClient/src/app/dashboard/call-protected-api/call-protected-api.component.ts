@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Component, Inject, OnInit } from "@angular/core";
-import { Observable } from "rxjs/Observable";
+import { map, catchError } from "rxjs/operators";
+import { ErrorObservable } from "rxjs/observable/ErrorObservable";
 
 import { APP_CONFIG, IAppConfig } from "../../core/services/app.config";
 import { AuthService } from "../../core/services/auth.service";
@@ -30,8 +31,10 @@ export class CallProtectedApiComponent implements OnInit {
   callMyProtectedAdminApiController() {
     this.httpClient
       .get(`${this.appConfig.apiEndpoint}/MyProtectedAdminApi`)
-      .map(response => response || {})
-      .catch((error: HttpErrorResponse) => Observable.throw(error))
+      .pipe(
+      map(response => response || {}),
+      catchError((error: HttpErrorResponse) => ErrorObservable.create(error))
+      )
       .subscribe(result => {
         this.result = result;
       });
@@ -40,8 +43,10 @@ export class CallProtectedApiComponent implements OnInit {
   callMyProtectedApiController() {
     this.httpClient
       .get(`${this.appConfig.apiEndpoint}/MyProtectedApi`)
-      .map(response => response || {})
-      .catch((error: HttpErrorResponse) => Observable.throw(error))
+      .pipe(
+      map(response => response || {}),
+      catchError((error: HttpErrorResponse) => ErrorObservable.create(error))
+      )
       .subscribe(result => {
         this.result = result;
       });
@@ -50,8 +55,10 @@ export class CallProtectedApiComponent implements OnInit {
   callMyProtectedEditorsApiController() {
     this.httpClient
       .get(`${this.appConfig.apiEndpoint}/MyProtectedEditorsApi`)
-      .map(response => response || {})
-      .catch((error: HttpErrorResponse) => Observable.throw(error))
+      .pipe(
+      map(response => response || {}),
+      catchError((error: HttpErrorResponse) => ErrorObservable.create(error))
+      )
       .subscribe(result => {
         this.result = result;
       });

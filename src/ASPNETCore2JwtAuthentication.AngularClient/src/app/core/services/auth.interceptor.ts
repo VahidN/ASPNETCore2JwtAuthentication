@@ -1,7 +1,10 @@
 ﻿import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
 import { Injectable, Injector } from "@angular/core";
 import { Router } from "@angular/router";
+
 import { Observable } from "rxjs/Observable";
+import { catchError } from "rxjs/operators/catchError";
+import { ErrorObservable } from "rxjs/observable/ErrorObservable";
 
 import { AuthService, AuthTokenType } from "./auth.service";
 
@@ -19,14 +22,15 @@ export class AuthInterceptor implements HttpInterceptor {
       request = request.clone({
         headers: request.headers.set("Authorization", `Bearer ${accessToken}`)
       });
-      return next.handle(request)
-        .catch((error: any, caught: Observable<HttpEvent<any>>) => {
+      return next.handle(request).pipe(
+        catchError((error: any, caught: Observable<HttpEvent<any>>) => {
           console.log({ error, caught });
           if (error.status === 401 || error.status === 403) {
             this.router.navigate(["/accessDenied"]);
           }
-          return Observable.throw(error);
-        });
+          return ErrorObservable.create(error);
+        })
+      );
     } else {
       // login page
       return next.handle(request);
