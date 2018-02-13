@@ -15,7 +15,7 @@ export class LoginComponent implements OnInit {
 
   model: Credentials = { username: "", password: "", rememberMe: false };
   error = "";
-  returnUrl: string;
+  returnUrl: string | null = null;
 
   constructor(
     private authService: AuthService,
@@ -44,13 +44,13 @@ export class LoginComponent implements OnInit {
           }
         }
       },
-      (error: HttpErrorResponse) => {
-        console.log("Login error", error);
-        if (error.status === 401) {
-          this.error = "Invalid User name or Password. Please try again.";
-        } else {
-          this.error = `${error.statusText}: ${error.message}`;
-        }
-      });
+        (error: HttpErrorResponse) => {
+          console.log("Login error", error);
+          if (error.status === 401) {
+            this.error = "Invalid User name or Password. Please try again.";
+          } else {
+            this.error = `${error.statusText}: ${error.message}`;
+          }
+        });
   }
 }

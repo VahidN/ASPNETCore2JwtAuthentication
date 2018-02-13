@@ -9,6 +9,9 @@ import { AuthGuard } from "./services/auth.guard";
 import { AuthInterceptor } from "./services/auth.interceptor";
 import { AuthService } from "./services/auth.service";
 import { BrowserStorageService } from "./services/browser-storage.service";
+import { RefreshTokenService } from "./services/refresh-token.service";
+import { TokenStoreService } from "./services/token-store.service";
+import { UtilsService } from "./services/utils.service";
 
 @NgModule({
   imports: [CommonModule, RouterModule],
@@ -22,9 +25,15 @@ import { BrowserStorageService } from "./services/browser-storage.service";
   ],
   providers: [
     // global singleton services of the whole app will be listed here.
+    UtilsService,
     BrowserStorageService,
+    TokenStoreService,
+    RefreshTokenService,
+    {
+      provide: APP_CONFIG,
+      useValue: AppConfig
+    },
     AuthService,
-    { provide: APP_CONFIG, useValue: AppConfig },
     AuthGuard,
     {
       provide: HTTP_INTERCEPTORS,
@@ -34,7 +43,7 @@ import { BrowserStorageService } from "./services/browser-storage.service";
   ]
 })
 export class CoreModule {
-  constructor( @Optional() @SkipSelf() core: CoreModule) {
+  constructor(@Optional() @SkipSelf() core: CoreModule) {
     if (core) {
       throw new Error("CoreModule should be imported ONLY in AppModule.");
     }

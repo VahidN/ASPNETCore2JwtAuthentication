@@ -8,14 +8,16 @@ import { AuthService } from "../../core/services/auth.service";
 })
 export class IsVisibleForAuthUserDirective implements OnInit, OnDestroy {
 
-  private subscription: Subscription;
+  private subscription: Subscription | null = null;
 
-  @Input() isVisibleForRoles: string[];
+  @Input() isVisibleForRoles: string[] | null = null;
 
   constructor(private elem: ElementRef, private authService: AuthService) { }
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   ngOnInit(): void {

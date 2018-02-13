@@ -12,9 +12,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   title = "Angular.Jwt.Core";
 
-  isLoggedIn: boolean;
-  subscription: Subscription;
-  displayName: string;
+  isLoggedIn = false;
+  subscription: Subscription | null = null;
+  displayName = "";
 
   constructor(private authService: AuthService) { }
 
@@ -22,14 +22,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.subscription = this.authService.authStatus$.subscribe(status => {
       this.isLoggedIn = status;
       if (status) {
-        this.displayName = this.authService.getAuthUserDisplayName();
+        const authUser = this.authService.getAuthUser();
+        this.displayName = authUser ? authUser.displayName : "";
       }
     });
   }
 
   ngOnDestroy() {
     // prevent memory leak when component is destroyed
-    this.subscription.unsubscribe();
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   logout() {
