@@ -1,8 +1,8 @@
-﻿import { Inject, Injectable } from "@angular/core";
+﻿import { Injectable } from "@angular/core";
 import * as jwt_decode from "jwt-decode";
 
 import { AuthTokenType } from "./../models/auth-token-type";
-import { APP_CONFIG, IAppConfig } from "./app.config";
+import { ApiConfigService } from "./api-config.service";
 import { BrowserStorageService } from "./browser-storage.service";
 import { UtilsService } from "./utils.service";
 
@@ -14,7 +14,7 @@ export class TokenStoreService {
   constructor(
     private browserStorageService: BrowserStorageService,
     private utilsService: UtilsService,
-    @Inject(APP_CONFIG) private appConfig: IAppConfig) { }
+    private apiConfigService: ApiConfigService) { }
 
   getRawAuthToken(tokenType: AuthTokenType): string {
     if (this.rememberMe()) {
@@ -92,8 +92,8 @@ export class TokenStoreService {
   }
 
   storeLoginSession(response: any): void {
-    this.setToken(AuthTokenType.AccessToken, response[this.appConfig.accessTokenObjectKey]);
-    this.setToken(AuthTokenType.RefreshToken, response[this.appConfig.refreshTokenObjectKey]);
+    this.setToken(AuthTokenType.AccessToken, response[this.apiConfigService.configuration.accessTokenObjectKey]);
+    this.setToken(AuthTokenType.RefreshToken, response[this.apiConfigService.configuration.refreshTokenObjectKey]);
   }
 
   rememberMe(): boolean {

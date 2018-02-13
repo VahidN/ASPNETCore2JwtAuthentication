@@ -6,6 +6,7 @@ import { catchError, finalize, map } from "rxjs/operators";
 import { Subscription } from "rxjs/Subscription";
 
 import { AuthTokenType } from "./../models/auth-token-type";
+import { ApiConfigService } from "./api-config.service";
 import { APP_CONFIG, IAppConfig } from "./app.config";
 import { TokenStoreService } from "./token-store.service";
 
@@ -17,6 +18,7 @@ export class RefreshTokenService {
   constructor(
     private tokenStoreService: TokenStoreService,
     @Inject(APP_CONFIG) private appConfig: IAppConfig,
+    private apiConfigService: ApiConfigService,
     private http: HttpClient) { }
 
   scheduleRefreshToken(isAuthUserLoggedIn: boolean) {
@@ -50,7 +52,8 @@ export class RefreshTokenService {
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
     const model = { refreshToken: this.tokenStoreService.getRawAuthToken(AuthTokenType.RefreshToken) };
     return this.http
-      .post(`${this.appConfig.apiEndpoint}/${this.appConfig.refreshTokenPath}`, model, { headers: headers })
+      .post(`${this.appConfig.apiEndpoint}/${this.apiConfigService.configuration.refreshTokenPath}`,
+        model, { headers: headers })
       .pipe(
         map(response => response || {}),
         catchError((error: HttpErrorResponse) => ErrorObservable.create(error)),

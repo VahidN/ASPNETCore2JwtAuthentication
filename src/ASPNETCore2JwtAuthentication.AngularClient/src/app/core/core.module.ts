@@ -1,9 +1,10 @@
 ﻿import { CommonModule } from "@angular/common";
 import { HTTP_INTERCEPTORS } from "@angular/common/http";
-import { NgModule, Optional, SkipSelf } from "@angular/core";
+import { APP_INITIALIZER, NgModule, Optional, SkipSelf } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
 import { HeaderComponent } from "./component/header/header.component";
+import { ApiConfigService } from "./services/api-config.service";
 import { APP_CONFIG, AppConfig } from "./services/app.config";
 import { AuthGuard } from "./services/auth.guard";
 import { AuthInterceptor } from "./services/auth.interceptor";
@@ -39,7 +40,14 @@ import { UtilsService } from "./services/utils.service";
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
-    }
+    },
+    ApiConfigService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (config: ApiConfigService) => () => config.loadApiConfig(),
+      deps: [ApiConfigService],
+      multi: true
+    },
   ]
 })
 export class CoreModule {

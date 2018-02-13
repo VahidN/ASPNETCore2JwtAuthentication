@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ASPNETCore2JwtAuthentication.DataLayer.Context;
 using ASPNETCore2JwtAuthentication.Services;
+using ASPNETCore2JwtAuthentication.WebApp.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -31,6 +32,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<BearerTokensOptions>(options => Configuration.GetSection("BearerTokens").Bind(options));
+            services.Configure<ApiSettings>(options => Configuration.GetSection("ApiSettings").Bind(options));
 
             services.AddScoped<IUnitOfWork, ApplicationDbContext>();
             services.AddScoped<IUsersService, UsersService>();

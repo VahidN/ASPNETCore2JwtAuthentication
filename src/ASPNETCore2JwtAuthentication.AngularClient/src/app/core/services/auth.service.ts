@@ -9,6 +9,7 @@ import { catchError, finalize, map } from "rxjs/operators";
 import { AuthTokenType } from "./../models/auth-token-type";
 import { AuthUser } from "./../models/auth-user";
 import { Credentials } from "./../models/credentials";
+import { ApiConfigService } from "./api-config.service";
 import { APP_CONFIG, IAppConfig } from "./app.config";
 import { RefreshTokenService } from "./refresh-token.service";
 import { TokenStoreService } from "./token-store.service";
@@ -23,6 +24,7 @@ export class AuthService {
     private http: HttpClient,
     private router: Router,
     @Inject(APP_CONFIG) private appConfig: IAppConfig,
+    private apiConfigService: ApiConfigService,
     private tokenStoreService: TokenStoreService,
     private refreshTokenService: RefreshTokenService
   ) {
@@ -33,13 +35,14 @@ export class AuthService {
   login(credentials: Credentials): Observable<boolean> {
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
     return this.http
-      .post(`${this.appConfig.apiEndpoint}/${this.appConfig.loginPath}`, credentials, { headers: headers })
+      .post(`${this.appConfig.apiEndpoint}/${this.apiConfigService.configuration.loginPath}`,
+        credentials, { headers: headers })
       .pipe(
         map((response: any) => {
           this.tokenStoreService.setRememberMe(credentials.rememberMe);
           if (!response) {
-            console.log("There is no `{'" + this.appConfig.accessTokenObjectKey +
-              "':'...','" + this.appConfig.refreshTokenObjectKey + "':'...value...'}` response after login.");
+            console.log("There is no `{'" + this.apiConfigService.configuration.accessTokenObjectKey +
+              "':'...','" + this.apiConfigService.configuration.refreshTokenObjectKey + "':'...value...'}` response after login.");
             this.authStatusSource.next(false);
             return false;
           }
@@ -64,7 +67,8 @@ export class AuthService {
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
     const logoutUser = { refreshToken: this.tokenStoreService.getRawAuthToken(AuthTokenType.RefreshToken) };
     this.http
-      .post(`${this.appConfig.apiEndpoint}/${this.appConfig.logoutPath}`, logoutUser, { headers: headers })
+      .post(`${this.appConfig.apiEndpoint}/${this.apiConfigService.configuration.logoutPath}`,
+        logoutUser, { headers: headers })
       .pipe(
         map(response => response || {}),
         catchError((error: HttpErrorResponse) => ErrorObservable.create(error)),
@@ -107,7 +111,7 @@ export class AuthService {
       return false;
     }
 
-    if (user.roles.indexOf(this.appConfig.adminRoleName.toLowerCase()) >= 0) {
+    if (user.roles.indexOf(this.apiConfigService.configuration.adminRoleName.toLowerCase()) >= 0) {
       return true; // The `Admin` role has full access to every pages.
     }
 

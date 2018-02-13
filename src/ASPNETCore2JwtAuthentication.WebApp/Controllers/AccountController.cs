@@ -7,7 +7,6 @@ using ASPNETCore2JwtAuthentication.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 
 namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
@@ -23,8 +22,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
         public AccountController(
             IUsersService usersService,
             ITokenStoreService tokenStoreService,
-            IUnitOfWork uow,
-            IOptionsSnapshot<BearerTokensOptions> configuration)
+            IUnitOfWork uow)
         {
             _usersService = usersService;
             _usersService.CheckArgumentIsNull(nameof(usersService));
