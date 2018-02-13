@@ -41,7 +41,7 @@ export class AuthService {
         map((response: any) => {
           this.tokenStoreService.setRememberMe(credentials.rememberMe);
           if (!response) {
-            console.log("There is no `{'" + this.apiConfigService.configuration.accessTokenObjectKey +
+            console.error("There is no `{'" + this.apiConfigService.configuration.accessTokenObjectKey +
               "':'...','" + this.apiConfigService.configuration.refreshTokenObjectKey + "':'...value...'}` response after login.");
             this.authStatusSource.next(false);
             return false;

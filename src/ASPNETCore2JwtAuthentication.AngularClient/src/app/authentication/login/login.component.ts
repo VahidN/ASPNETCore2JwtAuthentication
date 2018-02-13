@@ -45,7 +45,7 @@ export class LoginComponent implements OnInit {
         }
       },
         (error: HttpErrorResponse) => {
-          console.log("Login error", error);
+          console.error("Login error", error);
           if (error.status === 401) {
             this.error = "Invalid User name or Password. Please try again.";
           } else {

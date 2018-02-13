@@ -63,7 +63,7 @@ export class TokenStoreService {
 
   setToken(tokenType: AuthTokenType, tokenValue: string): void {
     if (this.utilsService.isEmptyString(tokenValue)) {
-      console.log(`${AuthTokenType[tokenType]} is null or empty.`);
+      console.error(`${AuthTokenType[tokenType]} is null or empty.`);
     }
 
     if (tokenType === AuthTokenType.AccessToken && this.utilsService.isEmptyString(tokenValue)) {

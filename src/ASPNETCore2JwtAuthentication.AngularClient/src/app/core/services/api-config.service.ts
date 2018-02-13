@@ -14,13 +14,15 @@ export class ApiConfigService {
 
   loadApiConfig(): Promise<any> {
     const http = this.injector.get<HttpClient>(HttpClient);
-    return http.get<IApiConfig>(`${this.appConfig.apiEndpoint}/${this.appConfig.apiSettingsPath}`)
+    const url = `${this.appConfig.apiEndpoint}/${this.appConfig.apiSettingsPath}`;
+    return http.get<IApiConfig>(url)
       .toPromise()
       .then(config => {
         this.config = config;
         console.log("ApiConfig", this.config);
       })
       .catch(err => {
+        console.error(`Failed to loadApiConfig(). Make sure ${url} is accessible.`, this.config);
         return Promise.reject(err);
       });
   }
