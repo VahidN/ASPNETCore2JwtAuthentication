@@ -1,9 +1,9 @@
 <h1 class="text-danger">
-  <span class="glyphicon glyphicon-ban-circle"></span> Access Denied
+  <i class="fa fa-ban" aria-hidden="true"></i> Access Denied
 </h1>
 <p>Sorry! You don't have access to this page.</p>
 <button class="btn btn-default" (click)="goBack()">
-  <span class="glyphicon glyphicon-arrow-left"></span> Back
+  <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
 </button>
 
 <button *ngIf="!isAuthenticated" class="btn btn-success" [routerLink]="['/login']"

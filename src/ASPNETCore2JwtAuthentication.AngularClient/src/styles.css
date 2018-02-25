@@ -1,1 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
+.top15 {
+  margin-top: 1.5rem;
+  margin-right: 0;
+  margin-left: 0;
+}
+
+.highlight {
+  padding: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  background-color: #f7f7f9;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+}
