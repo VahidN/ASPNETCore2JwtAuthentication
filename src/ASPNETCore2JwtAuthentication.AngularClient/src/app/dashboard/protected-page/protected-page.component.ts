@@ -1,6 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-
-import { TokenStoreService } from "../../core/services/token-store.service";
+import { TokenStoreService } from "@app/core";
 
 @Component({
   selector: "app-protected-page",

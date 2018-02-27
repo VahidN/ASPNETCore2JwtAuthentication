@@ -1,8 +1,7 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { AuthGuard, AuthGuardPermission } from "@app/core";
 
-import { AuthGuardPermission } from "../core/models/auth-guard-permission";
-import { AuthGuard } from "../core/services/auth.guard";
 import { CallProtectedApiComponent } from "./call-protected-api/call-protected-api.component";
 import { ProtectedPageComponent } from "./protected-page/protected-page.component";
 

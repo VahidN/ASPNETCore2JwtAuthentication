@@ -2,9 +2,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { Component, OnInit } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-
-import { Credentials } from "../../core/models/credentials";
-import { AuthService } from "../../core/services/auth.service";
+import { AuthService, Credentials } from "@app/core";
 
 @Component({
   selector: "app-login",

@@ -1,7 +1,6 @@
 ﻿import { Directive, ElementRef, Input, OnDestroy, OnInit } from "@angular/core";
+import { AuthService } from "@app/core";
 import { Subscription } from "rxjs/Subscription";
-
-import { AuthService } from "../../core/services/auth.service";
 
 @Directive({
   selector: "[isVisibleForAuthUser]"
