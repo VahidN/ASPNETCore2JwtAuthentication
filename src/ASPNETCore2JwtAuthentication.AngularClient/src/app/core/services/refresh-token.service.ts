@@ -33,7 +33,7 @@ export class RefreshTokenService {
       return;
     }
 
-    if (this.isRefreshTokenTimerStarted()) {
+    if (this.isRefreshTokenTimerStartedInAnotherTab()) {
       return;
     }
 
@@ -83,7 +83,11 @@ export class RefreshTokenService {
       });
   }
 
-  private isRefreshTokenTimerStarted(): boolean {
+  private isRefreshTokenTimerStartedInAnotherTab(): boolean {
+    if (!this.tokenStoreService.rememberMe()) {
+      return false; // It uses the session storage for the tokens and its access scope is limited to the current tab.
+    }
+
     const currentTabId = this.utilsService.getCurrentTabId();
     const timerStat = this.browserStorageService.getLocal(this.refreshTokenTimerCheckId);
     console.log("RefreshTokenTimer Check", {
