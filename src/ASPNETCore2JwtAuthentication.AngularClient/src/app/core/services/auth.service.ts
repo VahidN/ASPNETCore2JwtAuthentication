@@ -74,7 +74,7 @@ export class AuthService {
         catchError((error: HttpErrorResponse) => ErrorObservable.create(error)),
         finalize(() => {
           this.tokenStoreService.deleteAuthTokens();
-          this.refreshTokenService.unscheduleRefreshToken();
+          this.refreshTokenService.unscheduleRefreshToken(true);
           this.authStatusSource.next(false);
           if (navigateToHome) {
             this.router.navigate(["/"]);

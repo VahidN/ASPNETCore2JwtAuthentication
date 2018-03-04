@@ -8,23 +8,32 @@ import { Subscription } from "rxjs/Subscription";
 import { AuthTokenType } from "./../models/auth-token-type";
 import { ApiConfigService } from "./api-config.service";
 import { APP_CONFIG, IAppConfig } from "./app.config";
+import { BrowserStorageService } from "./browser-storage.service";
 import { TokenStoreService } from "./token-store.service";
+import { UtilsService } from "./utils.service";
 
 @Injectable()
 export class RefreshTokenService {
 
+  private refreshTokenTimerCheckId = "is_refreshToken_timer_started";
   private refreshTokenSubscription: Subscription | null = null;
 
   constructor(
     private tokenStoreService: TokenStoreService,
     @Inject(APP_CONFIG) private appConfig: IAppConfig,
     private apiConfigService: ApiConfigService,
-    private http: HttpClient) { }
+    private http: HttpClient,
+    private browserStorageService: BrowserStorageService,
+    private utilsService: UtilsService) { }
 
   scheduleRefreshToken(isAuthUserLoggedIn: boolean) {
-    this.unscheduleRefreshToken();
+    this.unscheduleRefreshToken(false);
 
     if (!isAuthUserLoggedIn) {
+      return;
+    }
+
+    if (this.isRefreshTokenTimerStarted()) {
       return;
     }
 
@@ -40,11 +49,17 @@ export class RefreshTokenService {
     this.refreshTokenSubscription = timerSource$.subscribe(() => {
       this.refreshToken(isAuthUserLoggedIn);
     });
+
+    this.setRefreshTokenTimerStarted(true);
   }
 
-  unscheduleRefreshToken() {
+  unscheduleRefreshToken(cancelTimerCheckToken: boolean) {
     if (this.refreshTokenSubscription) {
       this.refreshTokenSubscription.unsubscribe();
+    }
+
+    if (cancelTimerCheckToken) {
+      this.setRefreshTokenTimerStarted(false);
     }
   }
 
@@ -58,12 +73,36 @@ export class RefreshTokenService {
         map(response => response || {}),
         catchError((error: HttpErrorResponse) => ErrorObservable.create(error)),
         finalize(() => {
+          this.setRefreshTokenTimerStarted(false);
           this.scheduleRefreshToken(isAuthUserLoggedIn);
         })
       )
       .subscribe(result => {
         console.log("RefreshToken Result", result);
         this.tokenStoreService.storeLoginSession(result);
+      });
+  }
+
+  private isRefreshTokenTimerStarted(): boolean {
+    const currentTabId = this.utilsService.getCurrentTabId();
+    const timerStat = this.browserStorageService.getLocal(this.refreshTokenTimerCheckId);
+    console.log("RefreshTokenTimer Check", {
+      refreshTokenTimerCheckId: timerStat,
+      currentTabId: currentTabId
+    });
+    const isStarted = timerStat.isStarted === true && timerStat.tabId !== currentTabId;
+    if (isStarted) {
+      console.log(`RefreshToken timer has already been started in another tab with tabId=${timerStat.tabId}.
+      currentTabId=${currentTabId}.`);
+    }
+    return isStarted;
+  }
+
+  private setRefreshTokenTimerStarted(value: boolean): void {
+    this.browserStorageService.setLocal(this.refreshTokenTimerCheckId,
+      {
+        isStarted: value,
+        tabId: this.utilsService.getCurrentTabId()
       });
   }
 }
