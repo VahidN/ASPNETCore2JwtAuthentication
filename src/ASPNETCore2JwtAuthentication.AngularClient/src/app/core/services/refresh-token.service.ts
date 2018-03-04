@@ -50,7 +50,7 @@ export class RefreshTokenService {
       this.refreshToken(isAuthUserLoggedIn);
     });
 
-    this.setRefreshTokenTimerStarted(true);
+    this.setRefreshTokenTimerStarted();
   }
 
   unscheduleRefreshToken(cancelTimerCheckToken: boolean) {
@@ -59,7 +59,7 @@ export class RefreshTokenService {
     }
 
     if (cancelTimerCheckToken) {
-      this.setRefreshTokenTimerStarted(false);
+      this.deleteRefreshTokenTimerCheckId();
     }
   }
 
@@ -73,7 +73,7 @@ export class RefreshTokenService {
         map(response => response || {}),
         catchError((error: HttpErrorResponse) => ErrorObservable.create(error)),
         finalize(() => {
-          this.setRefreshTokenTimerStarted(false);
+          this.deleteRefreshTokenTimerCheckId();
           this.scheduleRefreshToken(isAuthUserLoggedIn);
         })
       )
@@ -90,7 +90,7 @@ export class RefreshTokenService {
       refreshTokenTimerCheckId: timerStat,
       currentTabId: currentTabId
     });
-    const isStarted = timerStat.isStarted === true && timerStat.tabId !== currentTabId;
+    const isStarted = timerStat && timerStat.isStarted === true && timerStat.tabId !== currentTabId;
     if (isStarted) {
       console.log(`RefreshToken timer has already been started in another tab with tabId=${timerStat.tabId}.
       currentTabId=${currentTabId}.`);
@@ -98,11 +98,15 @@ export class RefreshTokenService {
     return isStarted;
   }
 
-  private setRefreshTokenTimerStarted(value: boolean): void {
+  private setRefreshTokenTimerStarted(): void {
     this.browserStorageService.setLocal(this.refreshTokenTimerCheckId,
       {
-        isStarted: value,
+        isStarted: true,
         tabId: this.utilsService.getCurrentTabId()
       });
+  }
+
+  private deleteRefreshTokenTimerCheckId() {
+    this.browserStorageService.removeLocal(this.refreshTokenTimerCheckId);
   }
 }
