@@ -74,12 +74,11 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("[action]"), HttpPost("[action]")]
-        public async Task<bool> Logout([FromBody]JToken jsonBody)
+        [HttpGet("[action]")]
+        public async Task<bool> Logout(string refreshToken)
         {
             var claimsIdentity = this.User.Identity as ClaimsIdentity;
             var userIdValue = claimsIdentity.FindFirst(ClaimTypes.UserData)?.Value;
-            var refreshToken = jsonBody.Value<string>("refreshToken");
 
             // The Jwt implementation does not support "revoke OAuth token" (logout) by design.
             // Delete the user's tokens from the database (revoke its bearer token)

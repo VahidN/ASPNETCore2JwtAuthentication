@@ -65,9 +65,9 @@ export class AuthService {
 
   logout(navigateToHome: boolean): void {
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
-    const refreshToken = this.tokenStoreService.getRawAuthToken(AuthTokenType.RefreshToken);
+    const refreshToken = encodeURIComponent(this.tokenStoreService.getRawAuthToken(AuthTokenType.RefreshToken));
     this.http
-      .get(`${this.appConfig.apiEndpoint}/${this.apiConfigService.configuration.logoutPath}/refreshToken?=${refreshToken}`,
+      .get(`${this.appConfig.apiEndpoint}/${this.apiConfigService.configuration.logoutPath}?refreshToken=${refreshToken}`,
         { headers: headers })
       .pipe(
         map(response => response || {}),
