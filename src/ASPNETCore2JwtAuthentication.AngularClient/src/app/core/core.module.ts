@@ -13,6 +13,7 @@ import { BrowserStorageService } from "./services/browser-storage.service";
 import { RefreshTokenService } from "./services/refresh-token.service";
 import { TokenStoreService } from "./services/token-store.service";
 import { UtilsService } from "./services/utils.service";
+import { XsrfInterceptor } from "./services/xsrf.interceptor";
 
 @NgModule({
   imports: [CommonModule, RouterModule],
@@ -36,6 +37,11 @@ import { UtilsService } from "./services/utils.service";
     },
     AuthService,
     AuthGuard,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: XsrfInterceptor,
+      multi: true
+    },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

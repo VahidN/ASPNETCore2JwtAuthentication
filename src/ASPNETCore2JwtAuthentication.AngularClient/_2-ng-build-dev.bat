@@ -1,1 +1,1 @@
-ng build --watch
+ng build --base-href /AngularClient/ --watch

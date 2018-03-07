@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using ASPNETCore2JwtAuthentication.DataLayer.Context;
 using ASPNETCore2JwtAuthentication.Services;
 using ASPNETCore2JwtAuthentication.WebApp.Models;
+using ASPNETCore2JwtAuthentication.WebApp.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -123,13 +125,19 @@ namespace ASPNETCore2JwtAuthentication.WebApp
                         .AllowCredentials());
             });
 
-            services.AddMvc();
+            // services.AddAntiforgery(x => x.HeaderName = "X-XSRF-TOKEN");
+            services.AddMvc(options =>
+            {
+                // options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             // app.UseCors(policyName: "CorsPolicy");
+
+            // app.UseAngularAntiforgeryToken();
 
             app.UseExceptionHandler(appBuilder =>
             {

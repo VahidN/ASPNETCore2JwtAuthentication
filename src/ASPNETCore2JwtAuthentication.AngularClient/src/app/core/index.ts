@@ -6,7 +6,6 @@ export * from "./models/credentials";
 export * from "./services/api-config.service";
 export * from "./services/app.config";
 export * from "./services/auth.guard";
-export * from "./services/auth.interceptor";
 export * from "./services/auth.service";
 export * from "./services/browser-storage.service";
 export * from "./services/refresh-token.service";

@@ -65,10 +65,10 @@ export class AuthService {
 
   logout(navigateToHome: boolean): void {
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
-    const logoutUser = { refreshToken: this.tokenStoreService.getRawAuthToken(AuthTokenType.RefreshToken) };
+    const refreshToken = this.tokenStoreService.getRawAuthToken(AuthTokenType.RefreshToken);
     this.http
-      .post(`${this.appConfig.apiEndpoint}/${this.apiConfigService.configuration.logoutPath}`,
-        logoutUser, { headers: headers })
+      .get(`${this.appConfig.apiEndpoint}/${this.apiConfigService.configuration.logoutPath}/refreshToken?=${refreshToken}`,
+        { headers: headers })
       .pipe(
         map(response => response || {}),
         catchError((error: HttpErrorResponse) => ErrorObservable.create(error)),
