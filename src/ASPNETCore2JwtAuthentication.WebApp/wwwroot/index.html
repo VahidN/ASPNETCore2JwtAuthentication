@@ -29,8 +29,8 @@
         <button type="button" class="btn btn-warning" onclick="doLogin('/api/account/RefreshToken',{
                 refreshToken: refreshToken})" id="login">Refresh Token</button>
 
-        <button type="button" class="btn btn-danger" onclick="doLogin('/api/account/logout',{
-                refreshToken: refreshToken})" name="logout">Logout</button>
+        <button type="button" class="btn btn-danger" onclick="doLogout('/api/account/logout?refreshToken=' + refreshToken)"
+		        name="logout">Logout</button>
 
         <div class="alert alert-warning" style="margin-top: 15px">
             obtaining new tokens using the refresh_token should happen only if the id_token has
@@ -41,6 +41,10 @@
     <script type="text/javascript">
         var jwtToken;
         var refreshToken;
+		
+        function isNullOrEmpty(value) {
+            return (typeof value == 'undefined' || !value);
+        }		
 
         function doLogin(url, data) {
             $.ajax({
@@ -82,6 +86,33 @@
                 }
             });
         }
+		
+        function doLogout(url) {
+            if (isNullOrEmpty(jwtToken)) // will check if the value is undefined or null.
+            {
+                alert('Please login first.');
+                return;
+            }
+		
+            $.ajax({
+			    headers: { 'Authorization': 'Bearer ' + jwtToken },
+                url: url,
+                type: 'GET'
+            }).then(function (response) {
+                console.log("response", response);
+                if (response) {
+                    alert(JSON.stringify(response, null, ' '));
+                }
+				
+                jwtToken = '';
+                refreshToken = '';				
+            }, function (xhr, status, error) {
+                console.log({ xhr: xhr, status: status, error: error });
+                if (xhr.status === 401) {
+                    alert('Access denied! Please login with an account which has enough permissions first.');
+                }
+            });
+        }		
     </script>
 </body>
 
