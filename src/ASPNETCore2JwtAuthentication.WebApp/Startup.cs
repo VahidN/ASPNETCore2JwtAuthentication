@@ -125,10 +125,10 @@ namespace ASPNETCore2JwtAuthentication.WebApp
                         .AllowCredentials());
             });
 
-            // services.AddAntiforgery(x => x.HeaderName = "X-XSRF-TOKEN");
+            services.AddAntiforgery(x => x.HeaderName = "X-XSRF-TOKEN");
             services.AddMvc(options =>
             {
-                // options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+                options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
         }
 
@@ -137,7 +137,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp
         {
             // app.UseCors(policyName: "CorsPolicy");
 
-            // app.UseAngularAntiforgeryToken();
+            app.UseAngularAntiforgeryToken();
 
             app.UseExceptionHandler(appBuilder =>
             {

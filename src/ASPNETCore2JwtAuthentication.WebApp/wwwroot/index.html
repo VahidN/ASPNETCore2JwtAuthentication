@@ -30,7 +30,7 @@
                 refreshToken: refreshToken})" id="login">Refresh Token</button>
 
         <button type="button" class="btn btn-danger" onclick="doLogout('/api/account/logout?refreshToken=' + refreshToken)"
-		        name="logout">Logout</button>
+            name="logout">Logout</button>
 
         <div class="alert alert-warning" style="margin-top: 15px">
             obtaining new tokens using the refresh_token should happen only if the id_token has
@@ -41,13 +41,14 @@
     <script type="text/javascript">
         var jwtToken;
         var refreshToken;
-		
+
         function isNullOrEmpty(value) {
             return (typeof value == 'undefined' || !value);
-        }		
+        }
 
         function doLogin(url, data) {
             $.ajax({
+                headers: { 'X-XSRF-TOKEN': getCookie('XSRF-TOKEN') },
                 url: url,
                 data: JSON.stringify(data),
                 type: 'POST',
@@ -86,16 +87,16 @@
                 }
             });
         }
-		
+
         function doLogout(url) {
             if (isNullOrEmpty(jwtToken)) // will check if the value is undefined or null.
             {
                 alert('Please login first.');
                 return;
             }
-		
+
             $.ajax({
-			    headers: { 'Authorization': 'Bearer ' + jwtToken },
+                headers: { 'Authorization': 'Bearer ' + jwtToken },
                 url: url,
                 type: 'GET'
             }).then(function (response) {
@@ -103,16 +104,32 @@
                 if (response) {
                     alert(JSON.stringify(response, null, ' '));
                 }
-				
+
                 jwtToken = '';
-                refreshToken = '';				
+                refreshToken = '';
             }, function (xhr, status, error) {
                 console.log({ xhr: xhr, status: status, error: error });
                 if (xhr.status === 401) {
                     alert('Access denied! Please login with an account which has enough permissions first.');
                 }
             });
-        }		
+        }
+
+        function getCookie(name) {
+            const value = "; " + document.cookie;
+            const parts = value.split("; " + name + "=");
+            if (parts.length === 2) {
+                const lastItem = parts.pop();
+                if (lastItem) {
+                    const uri = lastItem.split(";").shift();
+                    if (uri) {
+                        return decodeURIComponent(uri);
+                    }
+                }
+            }
+            return "";
+        }
+
     </script>
 </body>
 
