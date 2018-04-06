@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 15.0.26124.0
@@ -13,6 +13,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASPNETCore2JwtAuthentication.DataLayer", "src\ASPNETCore2JwtAuthentication.DataLayer\ASPNETCore2JwtAuthentication.DataLayer.csproj", "{40AE4F92-F6EA-479A-AC6C-A8A0ABECA619}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASPNETCore2JwtAuthentication.Common", "src\ASPNETCore2JwtAuthentication.Common\ASPNETCore2JwtAuthentication.Common.csproj", "{E69FA021-3C95-4998-88E4-4F577DD0575C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASPNETCore2JwtAuthentication.ConsoleClient", "src\ASPNETCore2JwtAuthentication.ConsoleClient\ASPNETCore2JwtAuthentication.ConsoleClient.csproj", "{8776E76C-62C0-4B33-86EB-7E0555EA56BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +86,18 @@ Global
 		{E69FA021-3C95-4998-88E4-4F577DD0575C}.Release|x64.Build.0 = Release|Any CPU
 		{E69FA021-3C95-4998-88E4-4F577DD0575C}.Release|x86.ActiveCfg = Release|Any CPU
 		{E69FA021-3C95-4998-88E4-4F577DD0575C}.Release|x86.Build.0 = Release|Any CPU
+		{8776E76C-62C0-4B33-86EB-7E0555EA56BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8776E76C-62C0-4B33-86EB-7E0555EA56BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8776E76C-62C0-4B33-86EB-7E0555EA56BD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8776E76C-62C0-4B33-86EB-7E0555EA56BD}.Debug|x64.Build.0 = Debug|Any CPU
+		{8776E76C-62C0-4B33-86EB-7E0555EA56BD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8776E76C-62C0-4B33-86EB-7E0555EA56BD}.Debug|x86.Build.0 = Debug|Any CPU
+		{8776E76C-62C0-4B33-86EB-7E0555EA56BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8776E76C-62C0-4B33-86EB-7E0555EA56BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8776E76C-62C0-4B33-86EB-7E0555EA56BD}.Release|x64.ActiveCfg = Release|Any CPU
+		{8776E76C-62C0-4B33-86EB-7E0555EA56BD}.Release|x64.Build.0 = Release|Any CPU
+		{8776E76C-62C0-4B33-86EB-7E0555EA56BD}.Release|x86.ActiveCfg = Release|Any CPU
+		{8776E76C-62C0-4B33-86EB-7E0555EA56BD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -94,5 +108,6 @@ Global
 		{7A1C27BA-7430-463D-AE3E-0C949AF121DB} = {71A2662C-DEC6-47FF-9835-E6F83F66E766}
 		{40AE4F92-F6EA-479A-AC6C-A8A0ABECA619} = {71A2662C-DEC6-47FF-9835-E6F83F66E766}
 		{E69FA021-3C95-4998-88E4-4F577DD0575C} = {71A2662C-DEC6-47FF-9835-E6F83F66E766}
+		{8776E76C-62C0-4B33-86EB-7E0555EA56BD} = {71A2662C-DEC6-47FF-9835-E6F83F66E766}
 	EndGlobalSection
 EndGlobal
