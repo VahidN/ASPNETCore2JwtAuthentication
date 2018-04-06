@@ -81,10 +81,9 @@ namespace ASPNETCore2JwtAuthentication.ConsoleClient
             {
                 _httpClient.DefaultRequestHeaders.Add("X-XSRF-TOKEN", appCookies["XSRF-TOKEN"]);
             }
-            var model = new User { Username = username, Password = password };
-            var response = await _httpClient.PostAsync(
+            var response = await _httpClient.PostAsJsonAsync(
                  requestUri,
-                 new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json"));
+                 new User { Username = username, Password = password });
             response.EnsureSuccessStatusCode();
 
             var token = await response.Content.ReadAsAsync<Token>(new[] { new JsonMediaTypeFormatter() });
