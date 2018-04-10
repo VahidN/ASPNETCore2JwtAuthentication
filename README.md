@@ -28,13 +28,14 @@ A Jwt based authentication sample for ASP.NET Core 2.0 without using the Identit
 How to run the Angular 4.3+ Client
 -------------
 
+- Update all of the outdated global dependencies using the `npm update -g` command.
 - Install the `Angular-CLI`.
 - Open a command prompt console and then navigate to src/ASPNETCore2JwtAuthentication.AngularClient/ folder.
 - Now run the following commands:
 
 ```PowerShell
 npm install
-ng serve -o
+_2-ng-build-dev.bat
 ```
 
 - Then open another command prompt console and navigate to src/ASPNETCore2JwtAuthentication.WebApp/ folder.
@@ -45,4 +46,4 @@ dotnet restore
 dotnet watch run
 ```
 
-- Finally to browse the application, navigate to http://localhost:4200
+- Finally to browse the application, navigate to http://localhost:5000/AngularClient

@@ -2,7 +2,7 @@
 import { Inject, Injectable } from "@angular/core";
 import { ErrorObservable } from "rxjs/observable/ErrorObservable";
 import { timer } from "rxjs/observable/timer";
-import { catchError, finalize, map } from "rxjs/operators";
+import { catchError, map } from "rxjs/operators";
 import { Subscription } from "rxjs/Subscription";
 
 import { AuthTokenType } from "./../models/auth-token-type";
@@ -43,7 +43,8 @@ export class RefreshTokenService {
     }
     const expiresAtUtc = expDateUtc.valueOf();
     const nowUtc = new Date().valueOf();
-    const initialDelay = Math.max(1, expiresAtUtc - nowUtc);
+    const threeSeconds = 3000;
+    const initialDelay = Math.max(1, expiresAtUtc - nowUtc - threeSeconds);
     console.log("Initial scheduleRefreshToken Delay(ms)", initialDelay);
     const timerSource$ = timer(initialDelay);
     this.refreshTokenSubscription = timerSource$.subscribe(() => {
@@ -71,15 +72,13 @@ export class RefreshTokenService {
         model, { headers: headers })
       .pipe(
         map(response => response || {}),
-        catchError((error: HttpErrorResponse) => ErrorObservable.create(error)),
-        finalize(() => {
-          this.deleteRefreshTokenTimerCheckId();
-          this.scheduleRefreshToken(isAuthUserLoggedIn);
-        })
+        catchError((error: HttpErrorResponse) => ErrorObservable.create(error))
       )
       .subscribe(result => {
         console.log("RefreshToken Result", result);
         this.tokenStoreService.storeLoginSession(result);
+        this.deleteRefreshTokenTimerCheckId();
+        this.scheduleRefreshToken(isAuthUserLoggedIn);
       });
   }
 

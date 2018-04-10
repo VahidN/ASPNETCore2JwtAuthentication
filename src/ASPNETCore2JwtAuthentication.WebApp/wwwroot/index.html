@@ -26,7 +26,7 @@
         <button type="button" class="btn btn-info" onclick="doCallApi('/api/MyProtectedAdminApi')"
             id="callAdminApi">Call Protected Admin API [Authorize(Roles = "Admin")]</button>
 
-        <button type="button" class="btn btn-warning" onclick="doLogin('/api/account/RefreshToken',{
+        <button type="button" class="btn btn-warning" onclick="doRefreshToken('/api/account/RefreshToken',{
                 refreshToken: refreshToken})" id="login">Refresh Token</button>
 
         <button type="button" class="btn btn-danger" onclick="doLogout('/api/account/logout?refreshToken=' + refreshToken)"
@@ -48,7 +48,33 @@
 
         function doLogin(url, data) {
             $.ajax({
-                headers: { 'X-XSRF-TOKEN': getCookie('XSRF-TOKEN') },
+                url: url,
+                data: JSON.stringify(data),
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8'
+            }).then(function (response) {
+                console.log("response", response);
+                alert(JSON.stringify(response, null, ' '));
+
+                jwtToken = response.access_token;
+                refreshToken = response.refresh_token;
+            }, function (xhr, status, error) {
+                console.log({ xhr: xhr, status: status, error: error });
+                if (xhr.status === 401) {
+                    alert('Login failed. Please enter a valid username and password.');
+                    jwtToken = "";
+                    refreshToken = "";
+                }
+            });
+        }
+
+        function doRefreshToken(url, data) {
+            $.ajax({
+                headers: {
+                    'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'), // this is necessary for [AutoValidateAntiforgeryTokenAttribute] and all of the 'POST' requests
+                    'Authorization': 'Bearer ' + jwtToken // this is necessary to populate the this.HttpContext.User object automatically
+                },
                 url: url,
                 data: JSON.stringify(data),
                 type: 'POST',
@@ -123,7 +149,9 @@
                 if (lastItem) {
                     const uri = lastItem.split(";").shift();
                     if (uri) {
-                        return decodeURIComponent(uri);
+                        const cookie = decodeURIComponent(uri);
+                        console.log('cookie[' + name + ']', cookie);
+                        return cookie;
                     }
                 }
             }

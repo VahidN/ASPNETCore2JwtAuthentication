@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using ASPNETCore2JwtAuthentication.Common;
 using ASPNETCore2JwtAuthentication.DataLayer.Context;
 using ASPNETCore2JwtAuthentication.DomainClasses;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace ASPNETCore2JwtAuthentication.Services
@@ -15,6 +15,9 @@ namespace ASPNETCore2JwtAuthentication.Services
         Task<User> FindUserAsync(string username, string password);
         Task<User> FindUserAsync(int userId);
         Task UpdateUserLastActivityDateAsync(int userId);
+        Task<User> GetCurrentUserAsync();
+        int GetCurrentUserId();
+        Task<(bool Succeeded, string Error)> ChangePasswordAsync(User user, string currentPassword, string newPassword);
     }
 
     public class UsersService : IUsersService
@@ -22,8 +25,12 @@ namespace ASPNETCore2JwtAuthentication.Services
         private readonly IUnitOfWork _uow;
         private readonly DbSet<User> _users;
         private readonly ISecurityService _securityService;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public UsersService(IUnitOfWork uow, ISecurityService securityService)
+        public UsersService(
+            IUnitOfWork uow,
+            ISecurityService securityService,
+            IHttpContextAccessor contextAccessor)
         {
             _uow = uow;
             _uow.CheckArgumentIsNull(nameof(_uow));
@@ -32,6 +39,9 @@ namespace ASPNETCore2JwtAuthentication.Services
 
             _securityService = securityService;
             _securityService.CheckArgumentIsNull(nameof(_securityService));
+
+            _contextAccessor = contextAccessor;
+            _contextAccessor.CheckArgumentIsNull(nameof(_contextAccessor));
         }
 
         public Task<User> FindUserAsync(int userId)
@@ -66,6 +76,34 @@ namespace ASPNETCore2JwtAuthentication.Services
             }
             user.LastLoggedIn = DateTimeOffset.UtcNow;
             await _uow.SaveChangesAsync();
+        }
+
+        public int GetCurrentUserId()
+        {
+            var claimsIdentity = _contextAccessor.HttpContext.User.Identity as ClaimsIdentity;
+            var userDataClaim = claimsIdentity?.FindFirst(ClaimTypes.UserData);
+            var userId = userDataClaim?.Value;
+            return string.IsNullOrWhiteSpace(userId) ? 0 : int.Parse(userId);
+        }
+
+        public Task<User> GetCurrentUserAsync()
+        {
+            var userId = GetCurrentUserId();
+            return FindUserAsync(userId);
+        }
+
+        public async Task<(bool Succeeded, string Error)> ChangePasswordAsync(User user, string currentPassword, string newPassword)
+        {
+            var currentPasswordHash = _securityService.GetSha256Hash(currentPassword);
+            if (user.Password != currentPasswordHash)
+            {
+                return (false, "Current password is wrong.");
+            }
+
+            user.Password = _securityService.GetSha256Hash(newPassword);
+            // user.SerialNumber = Guid.NewGuid().ToString("N"); // To force other logins to expire.
+            await _uow.SaveChangesAsync();
+            return (true, string.Empty);
         }
     }
 }

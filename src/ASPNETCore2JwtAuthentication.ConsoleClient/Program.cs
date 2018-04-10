@@ -42,19 +42,17 @@ namespace ASPNETCore2JwtAuthentication.ConsoleClient
 
         public static async Task Main(string[] args)
         {
-            var appCookies = await GetAntiforgeryCookiesAsync();
-            var token = await LoginAsync(
+            var (token, appCookies) = await LoginAsync(
                 requestUri: "/api/account/login",
                 username: "Vahid",
-                password: "1234",
-                appCookies: appCookies);
+                password: "1234");
             await CallProtectedApiAsync(requestUri: "/api/MyProtectedApi", token: token);
+            var newToken = await RefreshTokenAsync("/api/account/RefreshToken", token, appCookies);
         }
 
-        private static async Task<Dictionary<string, string>> GetAntiforgeryCookiesAsync()
+        private static Dictionary<string, string> GetAntiforgeryCookies()
         {
             Console.WriteLine("\nGet Antiforgery Cookies:");
-            var firstPageWithCookies = await _httpClient.GetAsync("/", HttpCompletionOption.ResponseHeadersRead);
             var cookies = _httpClientHandler.CookieContainer.GetCookies(new Uri(_baseAddress));
 
             var appCookies = new Dictionary<string, string>();
@@ -68,18 +66,10 @@ namespace ASPNETCore2JwtAuthentication.ConsoleClient
             return appCookies;
         }
 
-        private static async Task<Token> LoginAsync(
-            string requestUri,
-            string username,
-            string password,
-            Dictionary<string, string> appCookies)
+        private static async Task<(Token Token, Dictionary<string, string> AppCookies)> LoginAsync(string requestUri, string username, string password)
         {
             Console.WriteLine("\nLogin:");
 
-            if (!_httpClient.DefaultRequestHeaders.Contains("X-XSRF-TOKEN"))
-            {
-                _httpClient.DefaultRequestHeaders.Add("X-XSRF-TOKEN", appCookies["XSRF-TOKEN"]);
-            }
             var response = await _httpClient.PostAsJsonAsync(
                  requestUri,
                  new User { Username = username, Password = password });
@@ -89,7 +79,32 @@ namespace ASPNETCore2JwtAuthentication.ConsoleClient
             Console.WriteLine($"Response    : {response}");
             Console.WriteLine($"AccessToken : {token.AccessToken}");
             Console.WriteLine($"RefreshToken: {token.RefreshToken}");
-            return token;
+
+            var appCookies = GetAntiforgeryCookies();
+            return (token, appCookies);
+        }
+
+        private static async Task<Token> RefreshTokenAsync(string requestUri, Token token, Dictionary<string, string> appCookies)
+        {
+            Console.WriteLine("\nRefreshToken:");
+
+            if (!_httpClient.DefaultRequestHeaders.Contains("X-XSRF-TOKEN"))
+            {
+                // this is necessary for [AutoValidateAntiforgeryTokenAttribute] and all of the 'POST' requests
+                _httpClient.DefaultRequestHeaders.Add("X-XSRF-TOKEN", appCookies["XSRF-TOKEN"]);
+            }
+            // this is necessary to populate the this.HttpContext.User object automatically
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            var response = await _httpClient.PostAsJsonAsync(
+                 requestUri,
+                 new { refreshToken = token.RefreshToken });
+            response.EnsureSuccessStatusCode();
+
+            var newToken = await response.Content.ReadAsAsync<Token>(new[] { new JsonMediaTypeFormatter() });
+            Console.WriteLine($"Response    : {response}");
+            Console.WriteLine($"New AccessToken : {newToken.AccessToken}");
+            Console.WriteLine($"New RefreshToken: {newToken.RefreshToken}");
+            return newToken;
         }
 
         private static async Task CallProtectedApiAsync(string requestUri, Token token)

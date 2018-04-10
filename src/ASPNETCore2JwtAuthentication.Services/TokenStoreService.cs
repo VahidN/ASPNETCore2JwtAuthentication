@@ -24,7 +24,7 @@ namespace ASPNETCore2JwtAuthentication.Services
         Task DeleteTokenAsync(string refreshToken);
         Task DeleteTokensWithSameRefreshTokenSourceAsync(string refreshTokenIdHashSource);
         Task InvalidateUserTokensAsync(int userId);
-        Task<(string accessToken, string refreshToken)> CreateJwtTokens(User user, string refreshTokenSource);
+        Task<(string accessToken, string refreshToken, IEnumerable<Claim> Claims)> CreateJwtTokens(User user, string refreshTokenSource);
         Task RevokeUserBearerTokensAsync(string userIdValue, string refreshToken);
     }
 
@@ -162,40 +162,40 @@ namespace ASPNETCore2JwtAuthentication.Services
             return userToken?.AccessTokenExpiresDateTime >= DateTimeOffset.UtcNow;
         }
 
-        public async Task<(string accessToken, string refreshToken)> CreateJwtTokens(User user, string refreshTokenSource)
+        public async Task<(string accessToken, string refreshToken, IEnumerable<Claim> Claims)> CreateJwtTokens(User user, string refreshTokenSource)
         {
-            var accessToken = await createAccessTokenAsync(user);
+            var result = await createAccessTokenAsync(user);
             var refreshToken = Guid.NewGuid().ToString().Replace("-", "");
-            await AddUserTokenAsync(user, refreshToken, accessToken, refreshTokenSource);
+            await AddUserTokenAsync(user, refreshToken, result.AccessToken, refreshTokenSource);
             await _uow.SaveChangesAsync();
 
-            return (accessToken, refreshToken);
+            return (result.AccessToken, refreshToken, result.Claims);
         }
 
-        private async Task<string> createAccessTokenAsync(User user)
+        private async Task<(string AccessToken, IEnumerable<Claim> Claims)> createAccessTokenAsync(User user)
         {
             var claims = new List<Claim>
             {
                 // Unique Id for all Jwt tokes
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString(), ClaimValueTypes.String, _configuration.Value.Issuer),
                 // Issuer
-                new Claim(JwtRegisteredClaimNames.Iss, _configuration.Value.Issuer),
+                new Claim(JwtRegisteredClaimNames.Iss, _configuration.Value.Issuer, ClaimValueTypes.String, _configuration.Value.Issuer),
                 // Issued at
-                new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim("DisplayName", user.DisplayName),
+                new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64, _configuration.Value.Issuer),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString(), ClaimValueTypes.String, _configuration.Value.Issuer),
+                new Claim(ClaimTypes.Name, user.Username, ClaimValueTypes.String, _configuration.Value.Issuer),
+                new Claim("DisplayName", user.DisplayName, ClaimValueTypes.String, _configuration.Value.Issuer),
                 // to invalidate the cookie
-                new Claim(ClaimTypes.SerialNumber, user.SerialNumber),
+                new Claim(ClaimTypes.SerialNumber, user.SerialNumber, ClaimValueTypes.String, _configuration.Value.Issuer),
                 // custom data
-                new Claim(ClaimTypes.UserData, user.Id.ToString())
+                new Claim(ClaimTypes.UserData, user.Id.ToString(), ClaimValueTypes.String, _configuration.Value.Issuer)
             };
 
             // add roles
             var roles = await _rolesService.FindUserRolesAsync(user.Id);
             foreach (var role in roles)
             {
-                claims.Add(new Claim(ClaimTypes.Role, role.Name));
+                claims.Add(new Claim(ClaimTypes.Role, role.Name, ClaimValueTypes.String, _configuration.Value.Issuer));
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.Value.Key));
@@ -208,7 +208,7 @@ namespace ASPNETCore2JwtAuthentication.Services
                 notBefore: now,
                 expires: now.AddMinutes(_configuration.Value.AccessTokenExpirationMinutes),
                 signingCredentials: creds);
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return (new JwtSecurityTokenHandler().WriteToken(token), claims);
         }
     }
 }

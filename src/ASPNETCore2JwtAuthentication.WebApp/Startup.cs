@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using ASPNETCore2JwtAuthentication.DataLayer.Context;
 using ASPNETCore2JwtAuthentication.Services;
 using ASPNETCore2JwtAuthentication.WebApp.Models;
-using ASPNETCore2JwtAuthentication.WebApp.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -36,6 +35,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp
             services.Configure<BearerTokensOptions>(options => Configuration.GetSection("BearerTokens").Bind(options));
             services.Configure<ApiSettings>(options => Configuration.GetSection("ApiSettings").Bind(options));
 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IUnitOfWork, ApplicationDbContext>();
             services.AddScoped<IUsersService, UsersService>();
             services.AddScoped<IRolesService, RolesService>();
@@ -136,8 +136,6 @@ namespace ASPNETCore2JwtAuthentication.WebApp
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             // app.UseCors(policyName: "CorsPolicy");
-
-            app.UseAngularAntiforgeryToken();
 
             app.UseExceptionHandler(appBuilder =>
             {
