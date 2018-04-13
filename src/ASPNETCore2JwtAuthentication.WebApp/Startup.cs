@@ -36,6 +36,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp
             services.Configure<ApiSettings>(options => Configuration.GetSection("ApiSettings").Bind(options));
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<IAntiForgeryCookieService, AntiForgeryCookieService>();
             services.AddScoped<IUnitOfWork, ApplicationDbContext>();
             services.AddScoped<IUsersService, UsersService>();
             services.AddScoped<IRolesService, RolesService>();
