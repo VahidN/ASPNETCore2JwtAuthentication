@@ -57,7 +57,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
 
             var (accessToken, refreshToken, claims) = await _tokenStoreService.CreateJwtTokens(user, refreshTokenSource: null);
 
-            _antiforgery.RegenerateAntiForgeryCookie(claims);
+            _antiforgery.RegenerateAntiForgeryCookies(claims);
 
             return Ok(new { access_token = accessToken, refresh_token = refreshToken });
         }
@@ -80,7 +80,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
 
             var (accessToken, newRefreshToken, claims) = await _tokenStoreService.CreateJwtTokens(token.User, refreshToken);
 
-            _antiforgery.RegenerateAntiForgeryCookie(claims);
+            _antiforgery.RegenerateAntiForgeryCookies(claims);
 
             return Ok(new { access_token = accessToken, refresh_token = newRefreshToken });
         }

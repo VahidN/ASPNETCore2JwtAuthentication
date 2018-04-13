@@ -10,7 +10,7 @@ namespace ASPNETCore2JwtAuthentication.Services
 {
     public interface IAntiForgeryCookieService
     {
-        void RegenerateAntiForgeryCookie(IEnumerable<Claim> claims);
+        void RegenerateAntiForgeryCookies(IEnumerable<Claim> claims);
         void DeleteAntiForgeryCookies();
     }
 
@@ -28,7 +28,7 @@ namespace ASPNETCore2JwtAuthentication.Services
             IOptions<AntiforgeryOptions> antiforgeryOptions)
         {
             _contextAccessor = contextAccessor;
-            _contextAccessor.CheckArgumentIsNull(nameof(_contextAccessor));
+            _contextAccessor.CheckArgumentIsNull(nameof(contextAccessor));
 
             _antiforgery = antiforgery;
             _antiforgery.CheckArgumentIsNull(nameof(antiforgery));
@@ -37,7 +37,7 @@ namespace ASPNETCore2JwtAuthentication.Services
             _antiforgeryOptions.CheckArgumentIsNull(nameof(antiforgeryOptions));
         }
 
-        public void RegenerateAntiForgeryCookie(IEnumerable<Claim> claims)
+        public void RegenerateAntiForgeryCookies(IEnumerable<Claim> claims)
         {
             var httpContext = _contextAccessor.HttpContext;
             httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims, JwtBearerDefaults.AuthenticationScheme));
