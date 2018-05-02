@@ -14,6 +14,7 @@
       "wwwroot/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js",
       "wwwroot/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js",
       "wwwroot/lib/bootstrap/dist/js/bootstrap.min.js",
+	  "node_modules/jwt-decode/build/jwt-decode.min.js",
       "wwwroot/js/site.js"
     ],
     "minify": {

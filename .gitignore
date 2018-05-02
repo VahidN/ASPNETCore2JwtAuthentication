@@ -245,3 +245,4 @@ ModelManifest.xml
 .fake/
 /src/ASPNETCore2JwtAuthentication.AngularClient/package-lock.json
 /src/ASPNETCore2JwtAuthentication.WebApp/wwwroot/AngularClient
+/src/ASPNETCore2JwtAuthentication.WebApp/package-lock.json

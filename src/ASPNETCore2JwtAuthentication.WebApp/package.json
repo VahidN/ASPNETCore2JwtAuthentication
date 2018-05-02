@@ -1,0 +1,14 @@
+{
+  "name": "jwtwithwebapi",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {},
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jwt-decode": "^2.2.0"
+  },
+  "devDependencies": {
+    "@types/jwt-decode": "^2.2.1"
+  }
+}
