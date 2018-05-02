@@ -38,8 +38,19 @@
             every time you do an API call.
         </div>
 
-        <h2>Decoded Access Token</h2>
-        <div class="highlight"><pre><code id="jwtInfo"></code></pre></div>
+        <div id="ajaxResponse" style="display: none;">
+            <h2>Response</h2>
+            <div class="highlight">
+                <pre><code id="ajaxResponseInfo"></code></pre>
+            </div>
+        </div>
+
+        <div id="decodedToken" style="display: none;">
+            <h2>Decoded Access Token</h2>
+            <div class="highlight">
+                <pre><code id="jwtInfo"></code></pre>
+            </div>
+        </div>
     </div>
     <script type="text/javascript">
         var jwtToken;
@@ -57,13 +68,10 @@
                 dataType: 'json',
                 contentType: 'application/json; charset=utf-8'
             }).then(function (response) {
-                console.log("response", response);
-                alert(JSON.stringify(response, null, ' '));
-
+                showResponse(response);
                 jwtToken = response.access_token;
                 refreshToken = response.refresh_token;
-                console.log(jwt_decode(jwtToken));
-                $("#jwtInfo").text(JSON.stringify(jwt_decode(jwtToken)).replace(/,/g, ',\n'));
+                showDecodedToken();
             }, function (xhr, status, error) {
                 console.log({ xhr: xhr, status: status, error: error });
                 if (xhr.status === 401) {
@@ -86,13 +94,10 @@
                 dataType: 'json',
                 contentType: 'application/json; charset=utf-8'
             }).then(function (response) {
-                console.log("response", response);
-                alert(JSON.stringify(response, null, ' '));
-
+                showResponse(response);
                 jwtToken = response.access_token;
                 refreshToken = response.refresh_token;
-                console.log(jwt_decode(jwtToken));
-                $("#jwtInfo").text(JSON.stringify(jwt_decode(jwtToken)).replace(/,/g, ',\n'));
+                showDecodedToken();
             }, function (xhr, status, error) {
                 console.log({ xhr: xhr, status: status, error: error });
                 if (xhr.status === 401) {
@@ -111,7 +116,7 @@
             }).then(function (response) {
                 console.log("response", response);
                 if (response) {
-                    alert(JSON.stringify(response, null, ' '));
+                    showResponse(response);
                 }
             }, function (xhr, status, error) {
                 console.log({ xhr: xhr, status: status, error: error });
@@ -135,7 +140,7 @@
             }).then(function (response) {
                 console.log("response", response);
                 if (response) {
-                    alert(JSON.stringify(response, null, ' '));
+                    showResponse(response);
                 }
 
                 jwtToken = '';
@@ -165,6 +170,19 @@
             return "";
         }
 
+        function showDecodedToken() {
+            $("#decodedToken").show();
+            let decodedToken = jwt_decode(jwtToken);
+            console.log(decodedToken);
+            $("#jwtInfo").text(JSON.stringify(decodedToken).replace(/,/g, ',\n'));
+        }
+
+        function showResponse(response) {
+            $("#ajaxResponse").show();
+            let responseStr = JSON.stringify(response, null, ' ');
+            console.log("response", response);
+            $("#ajaxResponseInfo").text(responseStr);
+        }
     </script>
 </body>
 
