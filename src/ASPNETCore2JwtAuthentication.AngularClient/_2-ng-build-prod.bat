@@ -1,1 +1,1 @@
-ng build --base-href /AngularClient/ --prod --build-optimizer --watch
+ng build --base-href /AngularClient/ --prod --watch

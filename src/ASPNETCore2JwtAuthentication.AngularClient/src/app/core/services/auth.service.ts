@@ -1,9 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
-import { Observable } from "rxjs/Observable";
-import { ErrorObservable } from "rxjs/observable/ErrorObservable";
+import { BehaviorSubject, Observable, throwError } from "rxjs";
 import { catchError, finalize, map } from "rxjs/operators";
 
 import { AuthTokenType } from "./../models/auth-token-type";
@@ -52,7 +50,7 @@ export class AuthService {
           this.authStatusSource.next(true);
           return true;
         }),
-        catchError((error: HttpErrorResponse) => ErrorObservable.create(error))
+        catchError((error: HttpErrorResponse) => throwError(error))
       );
   }
 
@@ -71,7 +69,7 @@ export class AuthService {
         { headers: headers })
       .pipe(
         map(response => response || {}),
-        catchError((error: HttpErrorResponse) => ErrorObservable.create(error)),
+        catchError((error: HttpErrorResponse) => throwError(error)),
         finalize(() => {
           this.tokenStoreService.deleteAuthTokens();
           this.refreshTokenService.unscheduleRefreshToken(true);

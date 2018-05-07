@@ -1,9 +1,8 @@
-﻿import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { Observable } from "rxjs/Observable";
-import { ErrorObservable } from "rxjs/observable/ErrorObservable";
-import { catchError } from "rxjs/operators/catchError";
+import { Observable, throwError } from "rxjs";
+import { catchError } from "rxjs/operators";
 
 import { AuthTokenType } from "./../models/auth-token-type";
 import { TokenStoreService } from "./token-store.service";
@@ -27,7 +26,7 @@ export class AuthInterceptor implements HttpInterceptor {
           if (error.status === 401 || error.status === 403) {
             this.router.navigate(["/accessDenied"]);
           }
-          return ErrorObservable.create(error);
+          return throwError(error);
         })
       );
     } else {

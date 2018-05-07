@@ -1,6 +1,6 @@
-﻿import { Directive, Input, OnDestroy, OnInit, TemplateRef, ViewContainerRef } from "@angular/core";
+import { Directive, Input, OnDestroy, OnInit, TemplateRef, ViewContainerRef } from "@angular/core";
 import { AuthService } from "@app/core";
-import { Subscription } from "rxjs/Subscription";
+import { Subscription } from "rxjs";
 
 @Directive({
   selector: "[hasAuthUserViewPermission]"

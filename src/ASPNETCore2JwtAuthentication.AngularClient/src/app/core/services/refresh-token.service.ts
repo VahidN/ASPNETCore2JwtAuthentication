@@ -1,9 +1,7 @@
-﻿import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
-import { ErrorObservable } from "rxjs/observable/ErrorObservable";
-import { timer } from "rxjs/observable/timer";
+import { Subscription, throwError, timer } from "rxjs";
 import { catchError, map } from "rxjs/operators";
-import { Subscription } from "rxjs/Subscription";
 
 import { AuthTokenType } from "./../models/auth-token-type";
 import { ApiConfigService } from "./api-config.service";
@@ -72,7 +70,7 @@ export class RefreshTokenService {
         model, { headers: headers })
       .pipe(
         map(response => response || {}),
-        catchError((error: HttpErrorResponse) => ErrorObservable.create(error))
+        catchError((error: HttpErrorResponse) => throwError(error))
       )
       .subscribe(result => {
         console.log("RefreshToken Result", result);

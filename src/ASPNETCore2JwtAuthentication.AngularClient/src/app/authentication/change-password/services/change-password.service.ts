@@ -1,8 +1,7 @@
-﻿import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { APP_CONFIG, IAppConfig } from "@app/core";
-import { Observable } from "rxjs/Observable";
-import { ErrorObservable } from "rxjs/observable/ErrorObservable";
+import { Observable, throwError } from "rxjs";
 import { catchError, map } from "rxjs/operators";
 
 import { ChangePassword } from "./../models/change-password";
@@ -21,7 +20,7 @@ export class ChangePasswordService {
       .post(url, model, { headers: headers })
       .pipe(
         map(response => response || {}),
-        catchError((error: HttpErrorResponse) => ErrorObservable.create(error))
+        catchError((error: HttpErrorResponse) => throwError(error))
       );
   }
 }
