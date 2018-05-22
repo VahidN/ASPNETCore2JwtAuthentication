@@ -3,7 +3,9 @@ import { Inject, Injectable, Injector } from "@angular/core";
 
 import { APP_CONFIG, IAppConfig } from "./app.config";
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class ApiConfigService {
 
   private config: IApiConfig | null = null;

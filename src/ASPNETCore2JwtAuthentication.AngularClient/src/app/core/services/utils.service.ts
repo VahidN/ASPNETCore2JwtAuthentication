@@ -2,7 +2,9 @@
 
 import { BrowserStorageService } from "./browser-storage.service";
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class UtilsService {
 
   constructor(private browserStorageService: BrowserStorageService) { }

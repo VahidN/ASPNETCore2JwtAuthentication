@@ -6,7 +6,9 @@ import { ApiConfigService } from "./api-config.service";
 import { BrowserStorageService } from "./browser-storage.service";
 import { UtilsService } from "./utils.service";
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class TokenStoreService {
 
   private rememberMeToken = "rememberMe_token";

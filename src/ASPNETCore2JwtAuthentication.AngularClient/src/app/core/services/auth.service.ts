@@ -12,7 +12,9 @@ import { APP_CONFIG, IAppConfig } from "./app.config";
 import { RefreshTokenService } from "./refresh-token.service";
 import { TokenStoreService } from "./token-store.service";
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthService {
 
   private authStatusSource = new BehaviorSubject<boolean>(false);

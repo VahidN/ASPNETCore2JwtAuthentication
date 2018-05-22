@@ -10,7 +10,9 @@ import { BrowserStorageService } from "./browser-storage.service";
 import { TokenStoreService } from "./token-store.service";
 import { UtilsService } from "./utils.service";
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class RefreshTokenService {
 
   private refreshTokenTimerCheckId = "is_refreshToken_timer_started";
