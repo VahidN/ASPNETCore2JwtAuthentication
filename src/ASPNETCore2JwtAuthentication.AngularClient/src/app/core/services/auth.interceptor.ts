@@ -24,27 +24,24 @@ export class AuthInterceptor implements HttpInterceptor {
         headers: request.headers.set("Authorization", `Bearer ${accessToken}`)
       });
       return next.handle(request).pipe(
-        retryWhen(errors => {
+        retryWhen(errors => errors.pipe(
+          mergeMap((error: HttpErrorResponse, retryAttempt: number) => {
+            if (retryAttempt === this.numberOfRetries - 1) {
+              console.log(`HTTP call '${request.method} ${request.url}' failed after ${this.numberOfRetries} retries.`);
+              return throwError(error); // no retry
+            }
 
-          return errors.pipe(
-            mergeMap((error: HttpErrorResponse, retryAttempt: number) => {
-              if (retryAttempt === this.numberOfRetries - 1) {
-                console.log(`HTTP call '${request.method} ${request.url}' failed after ${this.numberOfRetries} retries.`);
+            switch (error.status) {
+              case 400:
+              case 404:
                 return throwError(error); // no retry
-              }
+            }
 
-              switch (error.status) {
-                case 400:
-                case 404:
-                  return throwError(error); // no retry
-              }
-
-              return of(error); // retry
-            }),
-            delay(this.delayBetweenRetriesMs),
-            take(this.numberOfRetries)
-          );
-        }),
+            return of(error); // retry
+          }),
+          delay(this.delayBetweenRetriesMs),
+          take(this.numberOfRetries)
+        )),
         catchError((error: any, caught: Observable<HttpEvent<any>>) => {
           console.error({ error, caught });
           if (error.status === 401 || error.status === 403) {
