@@ -12,6 +12,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
   private delayBetweenRetriesMs = 1000;
   private numberOfRetries = 3;
+  private authorizationHeader = "Authorization";
 
   constructor(
     private tokenStoreService: TokenStoreService,
@@ -21,7 +22,7 @@ export class AuthInterceptor implements HttpInterceptor {
     const accessToken = this.tokenStoreService.getRawAuthToken(AuthTokenType.AccessToken);
     if (accessToken) {
       request = request.clone({
-        headers: request.headers.set("Authorization", `Bearer ${accessToken}`)
+        headers: request.headers.set(this.authorizationHeader, `Bearer ${accessToken}`)
       });
       return next.handle(request).pipe(
         retryWhen(errors => errors.pipe(
@@ -45,6 +46,11 @@ export class AuthInterceptor implements HttpInterceptor {
         catchError((error: any, caught: Observable<HttpEvent<any>>) => {
           console.error({ error, caught });
           if (error.status === 401 || error.status === 403) {
+            const newRequest = this.getNewAuthRequest(request);
+            if (newRequest) {
+              console.log("Try new AuthRequest ...");
+              return next.handle(newRequest);
+            }
             this.router.navigate(["/accessDenied"]);
           }
           return throwError(error);
@@ -56,5 +62,18 @@ export class AuthInterceptor implements HttpInterceptor {
     }
   }
 
-
+  getNewAuthRequest(request: HttpRequest<any>): HttpRequest<any> | null {
+    const newStoredToken = this.tokenStoreService.getRawAuthToken(AuthTokenType.AccessToken);
+    const requestAccessTokenHeader = request.headers.get(this.authorizationHeader);
+    if (!newStoredToken || !requestAccessTokenHeader) {
+      console.log("There is no new AccessToken.", { requestAccessTokenHeader: requestAccessTokenHeader, newStoredToken: newStoredToken });
+      return null;
+    }
+    const newAccessTokenHeader = `Bearer ${newStoredToken}`;
+    if (requestAccessTokenHeader === newAccessTokenHeader) {
+      console.log("There is no new AccessToken.", { requestAccessTokenHeader: requestAccessTokenHeader, newAccessTokenHeader: newAccessTokenHeader });
+      return null;
+    }
+    return request.clone({ headers: request.headers.set(this.authorizationHeader, newAccessTokenHeader) });
+  }
 }
