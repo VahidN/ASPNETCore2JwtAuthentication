@@ -165,7 +165,7 @@ namespace ASPNETCore2JwtAuthentication.Services
         public async Task<(string accessToken, string refreshToken, IEnumerable<Claim> Claims)> CreateJwtTokens(User user, string refreshTokenSource)
         {
             var result = await createAccessTokenAsync(user);
-            var refreshToken = Guid.NewGuid().ToString().Replace("-", "");
+            var refreshToken = _securityService.CreateCryptographicallySecureGuid().ToString().Replace("-", "");
             await AddUserTokenAsync(user, refreshToken, result.AccessToken, refreshTokenSource);
             await _uow.SaveChangesAsync();
 
@@ -177,7 +177,7 @@ namespace ASPNETCore2JwtAuthentication.Services
             var claims = new List<Claim>
             {
                 // Unique Id for all Jwt tokes
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString(), ClaimValueTypes.String, _configuration.Value.Issuer),
+                new Claim(JwtRegisteredClaimNames.Jti, _securityService.CreateCryptographicallySecureGuid().ToString(), ClaimValueTypes.String, _configuration.Value.Issuer),
                 // Issuer
                 new Claim(JwtRegisteredClaimNames.Iss, _configuration.Value.Issuer, ClaimValueTypes.String, _configuration.Value.Issuer),
                 // Issued at

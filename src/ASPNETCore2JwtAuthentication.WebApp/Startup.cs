@@ -40,7 +40,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp
             services.AddScoped<IUnitOfWork, ApplicationDbContext>();
             services.AddScoped<IUsersService, UsersService>();
             services.AddScoped<IRolesService, RolesService>();
-            services.AddScoped<ISecurityService, SecurityService>();
+            services.AddSingleton<ISecurityService, SecurityService>();
             services.AddScoped<IDbInitializerService, DbInitializerService>();
             services.AddScoped<ITokenStoreService, TokenStoreService>();
             services.AddScoped<ITokenValidatorService, TokenValidatorService>();
