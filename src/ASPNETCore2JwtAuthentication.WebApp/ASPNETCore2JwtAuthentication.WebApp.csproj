@@ -16,7 +16,7 @@
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.DataLayer\ASPNETCore2JwtAuthentication.DataLayer.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.5" />
   </ItemGroup>
   <ItemGroup>    
     <DotNetCliToolReference Include="BundlerMinifier.Core" Version="2.8.391" />    

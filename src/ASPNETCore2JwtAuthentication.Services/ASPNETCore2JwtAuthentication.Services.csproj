@@ -8,8 +8,8 @@
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.DataLayer\ASPNETCore2JwtAuthentication.DataLayer.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Antiforgery" Version="2.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Antiforgery" Version="2.1.1" />
   </ItemGroup>
 </Project>
