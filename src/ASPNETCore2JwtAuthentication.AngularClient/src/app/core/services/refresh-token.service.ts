@@ -26,14 +26,10 @@ export class RefreshTokenService {
     private browserStorageService: BrowserStorageService,
     private utilsService: UtilsService) { }
 
-  scheduleRefreshToken(isAuthUserLoggedIn: boolean) {
+  scheduleRefreshToken(isAuthUserLoggedIn: boolean, calledFromLogin: boolean) {
     this.unscheduleRefreshToken(false);
 
     if (!isAuthUserLoggedIn) {
-      return;
-    }
-
-    if (this.isRefreshTokenTimerStartedInAnotherTab()) {
       return;
     }
 
@@ -44,14 +40,21 @@ export class RefreshTokenService {
     const expiresAtUtc = expDateUtc.valueOf();
     const nowUtc = new Date().valueOf();
     const threeSeconds = 3000;
-    const initialDelay = Math.max(1, expiresAtUtc - nowUtc - threeSeconds);
+    // threeSeconds instead of 1 to prevent other tab timers run less than threeSeconds
+    const initialDelay = Math.max(threeSeconds, expiresAtUtc - nowUtc - threeSeconds);
     console.log("Initial scheduleRefreshToken Delay(ms)", initialDelay);
     const timerSource$ = timer(initialDelay);
     this.refreshTokenSubscription = timerSource$.subscribe(() => {
-      this.refreshToken(isAuthUserLoggedIn);
+      if (calledFromLogin || !this.isRefreshTokenTimerStartedInAnotherTab()) {
+        this.refreshToken(isAuthUserLoggedIn);
+      } else {
+        this.scheduleRefreshToken(isAuthUserLoggedIn, false);
+      }
     });
 
-    this.setRefreshTokenTimerStarted();
+    if (calledFromLogin || !this.isRefreshTokenTimerStartedInAnotherTab()) {
+      this.setRefreshTokenTimerStarted();
+    }
   }
 
   unscheduleRefreshToken(cancelTimerCheckToken: boolean) {
@@ -61,6 +64,20 @@ export class RefreshTokenService {
 
     if (cancelTimerCheckToken) {
       this.deleteRefreshTokenTimerCheckId();
+    }
+  }
+
+  invalidateCurrentTabId() {
+    if (!this.tokenStoreService.rememberMe()) {
+      return;
+    }
+
+    const currentTabId = this.utilsService.getCurrentTabId();
+    const timerStat = this.browserStorageService.getLocal(
+      this.refreshTokenTimerCheckId
+    );
+    if (timerStat && timerStat.tabId === currentTabId) {
+      this.setRefreshTokenTimerStopped();
     }
   }
 
@@ -77,8 +94,8 @@ export class RefreshTokenService {
       .subscribe(result => {
         console.log("RefreshToken Result", result);
         this.tokenStoreService.storeLoginSession(result);
-        this.deleteRefreshTokenTimerCheckId();
-        this.scheduleRefreshToken(isAuthUserLoggedIn);
+        // this.deleteRefreshTokenTimerCheckId();
+        this.scheduleRefreshToken(isAuthUserLoggedIn, false);
       });
   }
 
@@ -111,5 +128,12 @@ export class RefreshTokenService {
 
   private deleteRefreshTokenTimerCheckId() {
     this.browserStorageService.removeLocal(this.refreshTokenTimerCheckId);
+  }
+
+  private setRefreshTokenTimerStopped(): void {
+    this.browserStorageService.setLocal(this.refreshTokenTimerCheckId, {
+      isStarted: false,
+      tabId: -1
+    });
   }
 }
