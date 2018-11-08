@@ -29,7 +29,7 @@ export class AuthService {
     private refreshTokenService: RefreshTokenService
   ) {
     this.updateStatusOnPageRefresh();
-    this.refreshTokenService.scheduleRefreshToken(this.isAuthUserLoggedIn());
+    this.refreshTokenService.scheduleRefreshToken(this.isAuthUserLoggedIn(), false);
   }
 
   login(credentials: Credentials): Observable<boolean> {
@@ -48,7 +48,7 @@ export class AuthService {
           }
           this.tokenStoreService.storeLoginSession(response);
           console.log("Logged-in user info", this.getAuthUser());
-          this.refreshTokenService.scheduleRefreshToken(true);
+          this.refreshTokenService.scheduleRefreshToken(true, true);
           this.authStatusSource.next(true);
           return true;
         }),
