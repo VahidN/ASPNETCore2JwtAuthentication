@@ -55,7 +55,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
                 return Unauthorized();
             }
 
-            var (accessToken, refreshToken, claims) = await _tokenStoreService.CreateJwtTokens(user, refreshTokenSource: null);
+            var (accessToken, refreshToken, claims) = await _tokenStoreService.CreateJwtTokens(user, refreshTokenSourceValue: null);
 
             _antiforgery.RegenerateAntiForgeryCookies(claims);
 
@@ -66,19 +66,19 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> RefreshToken([FromBody]JToken jsonBody)
         {
-            var refreshToken = jsonBody.Value<string>("refreshToken");
-            if (string.IsNullOrWhiteSpace(refreshToken))
+            var refreshTokenValue = jsonBody.Value<string>("refreshToken");
+            if (string.IsNullOrWhiteSpace(refreshTokenValue))
             {
                 return BadRequest("refreshToken is not set.");
             }
 
-            var token = await _tokenStoreService.FindTokenAsync(refreshToken);
+            var token = await _tokenStoreService.FindTokenAsync(refreshTokenValue);
             if (token == null)
             {
                 return Unauthorized();
             }
 
-            var (accessToken, newRefreshToken, claims) = await _tokenStoreService.CreateJwtTokens(token.User, refreshToken);
+            var (accessToken, newRefreshToken, claims) = await _tokenStoreService.CreateJwtTokens(token.User, refreshTokenValue);
 
             _antiforgery.RegenerateAntiForgeryCookies(claims);
 

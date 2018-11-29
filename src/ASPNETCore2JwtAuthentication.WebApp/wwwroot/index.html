@@ -11,30 +11,37 @@
 
 <body>
     <div class="container">
-        <h1 class="alert alert-info">Testing Jwt Authentication without ASP.NET Core Identity 2.0</h1>
+        <h1 class="alert alert-info">Testing Jwt Authentication without ASP.NET
+            Core Identity 2.0</h1>
         <button type="button" class="btn btn-success" onclick="doLogin('/api/account/login',{
         username: 'Vahid',
-        password: '1234'})" id="login">Login (Valid user)</button>
+        password: '1234'})"
+            id="login">Login (Valid user)</button>
 
         <button type="button" class="btn btn-default" onclick="doLogin('/api/account/login',{
         username: 'Xyz',
-        password: '12345'})" id="login">Login (Invalid user)</button>
+        password: '12345'})"
+            id="login">Login (Invalid user)</button>
 
         <button type="button" class="btn btn-info" onclick="doCallApi('/api/MyProtectedApi')"
             id="callApi">Call Protected API ([Authorize])</button>
 
         <button type="button" class="btn btn-info" onclick="doCallApi('/api/MyProtectedAdminApi')"
-            id="callAdminApi">Call Protected Admin API [Authorize(Roles = "Admin")]</button>
+            id="callAdminApi">Call Protected Admin API [Authorize(Roles =
+            "Admin")]</button>
 
         <button type="button" class="btn btn-warning" onclick="doRefreshToken('/api/account/RefreshToken',{
-                refreshToken: refreshToken})" id="login">Refresh Token</button>
+                refreshToken: refreshToken})"
+            id="login">Refresh Token</button>
 
         <button type="button" class="btn btn-danger" onclick="doLogout('/api/account/logout?refreshToken=' + refreshToken)"
             name="logout">Logout</button>
 
         <div class="alert alert-warning" style="margin-top: 15px">
-            obtaining new tokens using the refresh_token should happen only if the id_token has
-            expired. it is a bad practice to call the endpoint to get a new token
+            obtaining new tokens using the refresh_token should happen only if
+            the id_token has
+            expired. it is a bad practice to call the endpoint to get a new
+            token
             every time you do an API call.
         </div>
 
@@ -49,6 +56,13 @@
             <h2>Decoded Access Token</h2>
             <div class="highlight">
                 <pre><code id="jwtInfo"></code></pre>
+            </div>
+        </div>
+
+        <div id="decodedRefreshToken" style="display: none;">
+            <h2>Decoded Refresh Token</h2>
+            <div class="highlight">
+                <pre><code id="jwtRefreshInfo"></code></pre>
             </div>
         </div>
     </div>
@@ -72,6 +86,7 @@
                 jwtToken = response.access_token;
                 refreshToken = response.refresh_token;
                 showDecodedToken();
+                showDecodedRefreshToken();
             }, function (xhr, status, error) {
                 console.log({ xhr: xhr, status: status, error: error });
                 if (xhr.status === 401) {
@@ -98,6 +113,7 @@
                 jwtToken = response.access_token;
                 refreshToken = response.refresh_token;
                 showDecodedToken();
+                showDecodedRefreshToken();
             }, function (xhr, status, error) {
                 console.log({ xhr: xhr, status: status, error: error });
                 if (xhr.status === 401) {
@@ -175,6 +191,13 @@
             let decodedToken = jwt_decode(jwtToken);
             console.log(decodedToken);
             $("#jwtInfo").text(JSON.stringify(decodedToken).replace(/,/g, ',\n'));
+        }
+
+        function showDecodedRefreshToken() {
+            $("#decodedRefreshToken").show();
+            let decodedRefreshToken = jwt_decode(refreshToken);
+            console.log(decodedRefreshToken);
+            $("#jwtRefreshInfo").text(JSON.stringify(decodedRefreshToken).replace(/,/g, ',\n'));
         }
 
         function showResponse(response) {
