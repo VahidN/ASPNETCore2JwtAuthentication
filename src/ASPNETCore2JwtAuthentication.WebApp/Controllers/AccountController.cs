@@ -19,10 +19,12 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
         private readonly ITokenStoreService _tokenStoreService;
         private readonly IUnitOfWork _uow;
         private readonly IAntiForgeryCookieService _antiforgery;
+        private readonly ITokenFactoryService _tokenFactoryService;
 
         public AccountController(
             IUsersService usersService,
             ITokenStoreService tokenStoreService,
+            ITokenFactoryService tokenFactoryService,
             IUnitOfWork uow,
             IAntiForgeryCookieService antiforgery)
         {
@@ -37,6 +39,9 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
 
             _antiforgery = antiforgery;
             _antiforgery.CheckArgumentIsNull(nameof(antiforgery));
+
+            _tokenFactoryService = tokenFactoryService;
+            _tokenFactoryService.CheckArgumentIsNull(nameof(tokenFactoryService));
         }
 
         [AllowAnonymous]
@@ -55,11 +60,13 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
                 return Unauthorized();
             }
 
-            var (accessToken, refreshToken, claims) = await _tokenStoreService.CreateJwtTokens(user, refreshTokenSourceValue: null);
+            var result = await _tokenFactoryService.CreateJwtTokens(user);
+            await _tokenStoreService.AddUserTokenAsync(user, result.RefreshTokenSerial, result.AccessToken, null);
+            await _uow.SaveChangesAsync();
 
-            _antiforgery.RegenerateAntiForgeryCookies(claims);
+            _antiforgery.RegenerateAntiForgeryCookies(result.Claims);
 
-            return Ok(new { access_token = accessToken, refresh_token = refreshToken });
+            return Ok(new { access_token = result.AccessToken, refresh_token = result.RefreshToken });
         }
 
         [AllowAnonymous]
@@ -78,11 +85,13 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
                 return Unauthorized();
             }
 
-            var (accessToken, newRefreshToken, claims) = await _tokenStoreService.CreateJwtTokens(token.User, refreshTokenValue);
+            var result = await _tokenFactoryService.CreateJwtTokens(token.User);
+            await _tokenStoreService.AddUserTokenAsync(token.User, result.RefreshTokenSerial, result.AccessToken, _tokenFactoryService.GetRefreshTokenSerial(refreshTokenValue));
+            await _uow.SaveChangesAsync();
 
-            _antiforgery.RegenerateAntiForgeryCookies(claims);
+            _antiforgery.RegenerateAntiForgeryCookies(result.Claims);
 
-            return Ok(new { access_token = accessToken, refresh_token = newRefreshToken });
+            return Ok(new { access_token = result.AccessToken, refresh_token = result.RefreshToken });
         }
 
         [AllowAnonymous]

@@ -44,6 +44,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp
             services.AddScoped<IDbInitializerService, DbInitializerService>();
             services.AddScoped<ITokenStoreService, TokenStoreService>();
             services.AddScoped<ITokenValidatorService, TokenValidatorService>();
+            services.AddScoped<ITokenFactoryService, TokenFactoryService>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
