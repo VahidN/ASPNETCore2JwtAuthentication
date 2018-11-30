@@ -11,7 +11,7 @@ namespace ASPNETCore2JwtAuthentication.Services
     public interface IRolesService
     {
         Task<List<Role>> FindUserRolesAsync(int userId);
-        Task<bool> IsUserInRole(int userId, string roleName);
+        Task<bool> IsUserInRoleAsync(int userId, string roleName);
         Task<List<User>> FindUsersInRoleAsync(string roleName);
     }
 
@@ -40,7 +40,7 @@ namespace ASPNETCore2JwtAuthentication.Services
             return userRolesQuery.OrderBy(x => x.Name).ToListAsync();
         }
 
-        public async Task<bool> IsUserInRole(int userId, string roleName)
+        public async Task<bool> IsUserInRoleAsync(int userId, string roleName)
         {
             var userRolesQuery = from role in _roles
                                  where role.Name == roleName

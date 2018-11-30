@@ -23,7 +23,7 @@ namespace ASPNETCore2JwtAuthentication.Services
 
     public interface ITokenFactoryService
     {
-        Task<JwtTokensData> CreateJwtTokens(User user);
+        Task<JwtTokensData> CreateJwtTokensAsync(User user);
         string GetRefreshTokenSerial(string refreshTokenValue);
     }
 
@@ -54,7 +54,7 @@ namespace ASPNETCore2JwtAuthentication.Services
         }
 
 
-        public async Task<JwtTokensData> CreateJwtTokens(User user)
+        public async Task<JwtTokensData> CreateJwtTokensAsync(User user)
         {
             var (accessToken, claims) = await createAccessTokenAsync(user);
             var (refreshTokenValue, refreshTokenSerial) = createRefreshToken();

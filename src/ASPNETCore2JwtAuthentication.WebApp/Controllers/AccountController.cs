@@ -60,7 +60,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
                 return Unauthorized();
             }
 
-            var result = await _tokenFactoryService.CreateJwtTokens(user);
+            var result = await _tokenFactoryService.CreateJwtTokensAsync(user);
             await _tokenStoreService.AddUserTokenAsync(user, result.RefreshTokenSerial, result.AccessToken, null);
             await _uow.SaveChangesAsync();
 
@@ -85,7 +85,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
                 return Unauthorized();
             }
 
-            var result = await _tokenFactoryService.CreateJwtTokens(token.User);
+            var result = await _tokenFactoryService.CreateJwtTokensAsync(token.User);
             await _tokenStoreService.AddUserTokenAsync(token.User, result.RefreshTokenSerial, result.AccessToken, _tokenFactoryService.GetRefreshTokenSerial(refreshTokenValue));
             await _uow.SaveChangesAsync();
 
