@@ -28,7 +28,7 @@ namespace ASPNETCore2JwtAuthentication.ConsoleClient
 
     class Program
     {
-        private static readonly string _baseAddress = "http://localhost:5000/";
+        private static readonly string _baseAddress = "https://localhost:5001/";
         private static readonly HttpClientHandler _httpClientHandler = new HttpClientHandler
         {
             UseCookies = true,
