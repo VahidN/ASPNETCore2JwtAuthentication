@@ -1,4 +1,4 @@
-Jwt Authentication without ASP.NET Core Identity 2.2.102
+Jwt Authentication without ASP.NET Core Identity 2.2.104
 ===========
 
 ![jwtauth](/src/ASPNETCore2JwtAuthentication.WebApp/wwwroot/images/jwtauth.png)
@@ -12,7 +12,7 @@ A Jwt based authentication sample for ASP.NET Core 2.2.102 without using the Ide
 - An account controller with Jwt and DB based login, custom logout and refresh tokens capabilities.
 - 2 sample API controllers to show how user-roles can be applied and used.
 - A Jwt validator service to show how to react to the server side changes to a user's info immediately.
-- [An Angular 6.0+ Client](/src/ASPNETCore2JwtAuthentication.AngularClient/). It contains:
+- [An Angular 7.0+ Client](/src/ASPNETCore2JwtAuthentication.AngularClient/). It contains:
   - A JWT-based Login page.
   - Handling how and where to store the tokens.
   - How to handle refresh tokens mechanism, using reactive timers.
@@ -25,7 +25,7 @@ A Jwt based authentication sample for ASP.NET Core 2.2.102 without using the Ide
 
 
 
-How to run the Angular 6.0+ Client
+How to run the Angular 7.0+ Client
 -------------
 
 - Update all of the outdated global dependencies using the `npm update -g` command.

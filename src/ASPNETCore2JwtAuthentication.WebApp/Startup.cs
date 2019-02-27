@@ -32,8 +32,14 @@ namespace ASPNETCore2JwtAuthentication.WebApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<BearerTokensOptions>(options => Configuration.GetSection("BearerTokens").Bind(options));
-            services.Configure<ApiSettings>(options => Configuration.GetSection("ApiSettings").Bind(options));
+            services.AddOptions<BearerTokensOptions>()
+                    .Bind(Configuration.GetSection("BearerTokens"))
+                    .Validate(bearerTokens =>
+                    {
+                        return bearerTokens.AccessTokenExpirationMinutes < bearerTokens.RefreshTokenExpirationMinutes;
+                    }, "RefreshTokenExpirationMinutes is less than AccessTokenExpirationMinutes. Obtaining new tokens using the refresh token should happen only if the access token has expired.");
+            services.AddOptions<ApiSettings>()
+                    .Bind(Configuration.GetSection("ApiSettings"));
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IAntiForgeryCookieService, AntiForgeryCookieService>();
@@ -138,12 +144,12 @@ namespace ASPNETCore2JwtAuthentication.WebApp
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             // app.UseCors(policyName: "CorsPolicy");
-			
+
             if (!env.IsDevelopment())
             {
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();			
+            app.UseHttpsRedirection();
 
             app.UseExceptionHandler(appBuilder =>
             {
