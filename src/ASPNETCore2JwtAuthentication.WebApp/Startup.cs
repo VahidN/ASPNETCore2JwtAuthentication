@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using ASPNETCore2JwtAuthentication.DataLayer.Context;
 using ASPNETCore2JwtAuthentication.Services;
@@ -16,7 +17,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Hosting;
+
 
 namespace ASPNETCore2JwtAuthentication.WebApp
 {
@@ -56,7 +58,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp
             {
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")
-                                 .Replace("|DataDirectory|", Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "app_data")),
+                                .Replace("|DataDirectory|", Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "app_data")),
                     serverDbContextOptionsBuilder =>
                         {
                             var minutes = (int)TimeSpan.FromMinutes(3).TotalSeconds;
@@ -110,9 +112,9 @@ namespace ASPNETCore2JwtAuthentication.WebApp
                             return tokenValidatorService.ValidateAsync(context);
                         },
                         OnMessageReceived = context =>
-                         {
-                             return Task.CompletedTask;
-                         },
+                        {
+                            return Task.CompletedTask;
+                        },
                         OnChallenge = context =>
                         {
                             var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(JwtBearerEvents));
@@ -130,6 +132,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp
                         .WithOrigins("http://localhost:4200") //Note:  The URL must be specified without a trailing slash (/).
                         .AllowAnyMethod()
                         .AllowAnyHeader()
+                        .SetIsOriginAllowed((host) => true)
                         .AllowCredentials());
             });
 
@@ -137,13 +140,19 @@ namespace ASPNETCore2JwtAuthentication.WebApp
             services.AddMvc(options =>
             {
                 options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            // app.UseCors(policyName: "CorsPolicy");
+            var scopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var dbInitializer = scope.ServiceProvider.GetService<IDbInitializerService>();
+                dbInitializer.Initialize();
+                dbInitializer.SeedData();
+            }
 
             if (!env.IsDevelopment())
             {
@@ -160,7 +169,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp
                     {
                         context.Response.StatusCode = 401;
                         context.Response.ContentType = "application/json";
-                        await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+                        await context.Response.WriteAsync(JsonSerializer.Serialize(new
                         {
                             State = 401,
                             Msg = "token expired"
@@ -170,7 +179,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp
                     {
                         context.Response.StatusCode = 500;
                         context.Response.ContentType = "application/json";
-                        await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+                        await context.Response.WriteAsync(JsonSerializer.Serialize(new
                         {
                             State = 500,
                             Msg = error.Error.Message
@@ -183,25 +192,23 @@ namespace ASPNETCore2JwtAuthentication.WebApp
                 });
             });
 
-            app.UseAuthentication();
-
-            var scopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var dbInitializer = scope.ServiceProvider.GetService<IDbInitializerService>();
-                dbInitializer.Initialize();
-                dbInitializer.SeedData();
-            }
-
             app.UseStatusCodePages();
-            app.UseDefaultFiles(); // so index.html is not required
+
             app.UseStaticFiles();
 
-            app.UseMvc(routes =>
+            app.UseRouting();
+
+            app.UseAuthentication();
+
+            app.UseCors("CorsPolicy");
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
 
             // catch-all handler for HTML5 client routes - serve index.html

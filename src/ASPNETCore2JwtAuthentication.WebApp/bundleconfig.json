@@ -2,19 +2,26 @@
   {
     "outputFileName": "wwwroot/css/site.min.css",
     "inputFiles": [
-      "wwwroot/lib/bootstrap/dist/css/bootstrap.min.css",
+      "node_modules/bootstrap/dist/css/bootstrap.min.css",
       "wwwroot/css/site.css"
-    ]
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": false,
+      "adjustRelativePaths": false
+    },
+    "sourceMap": false
   },
   {
     "outputFileName": "wwwroot/js/site.min.js",
     "inputFiles": [
-      "wwwroot/lib/jquery/dist/jquery.min.js",
-      "wwwroot/lib/jquery-validation/dist/jquery.validate.min.js",
-      "wwwroot/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js",
-      "wwwroot/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js",
-      "wwwroot/lib/bootstrap/dist/js/bootstrap.min.js",
-	  "node_modules/jwt-decode/build/jwt-decode.min.js",
+      "node_modules/jquery/dist/jquery.min.js",
+      "node_modules/popper.js/dist/umd/popper.min.js",
+      "node_modules/jquery-validation/dist/jquery.validate.min.js",
+      "node_modules/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js",
+      "node_modules/jquery-ajax-unobtrusive/dist/jquery.unobtrusive-ajax.min.js",
+      "node_modules/bootstrap/dist/js/bootstrap.min.js",
+      "node_modules/jwt-decode/build/jwt-decode.min.js",
       "wwwroot/js/site.js"
     ],
     "minify": {

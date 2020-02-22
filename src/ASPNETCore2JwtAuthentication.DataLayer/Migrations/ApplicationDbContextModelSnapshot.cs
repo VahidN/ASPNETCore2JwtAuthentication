@@ -15,7 +15,7 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.0-rtm-30799")
+                .HasAnnotation("ProductVersion", "3.1.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -23,10 +23,12 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("nvarchar(450)")
                         .HasMaxLength(450);
 
                     b.HasKey("Id");
@@ -41,22 +43,29 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("DisplayName");
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsActive");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
-                    b.Property<DateTimeOffset?>("LastLoggedIn");
+                    b.Property<DateTimeOffset?>("LastLoggedIn")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Password")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SerialNumber")
+                        .HasColumnType("nvarchar(450)")
                         .HasMaxLength(450);
 
                     b.Property<string>("Username")
                         .IsRequired()
+                        .HasColumnType("nvarchar(450)")
                         .HasMaxLength(450);
 
                     b.HasKey("Id");
@@ -69,9 +78,11 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Migrations
 
             modelBuilder.Entity("ASPNETCore2JwtAuthentication.DomainClasses.UserRole", b =>
                 {
-                    b.Property<int>("UserId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
-                    b.Property<int>("RoleId");
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -86,22 +97,29 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTimeOffset>("AccessTokenExpiresDateTime");
+                    b.Property<DateTimeOffset>("AccessTokenExpiresDateTime")
+                        .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("AccessTokenHash");
+                    b.Property<string>("AccessTokenHash")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTimeOffset>("RefreshTokenExpiresDateTime");
+                    b.Property<DateTimeOffset>("RefreshTokenExpiresDateTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("RefreshTokenIdHash")
                         .IsRequired()
+                        .HasColumnType("nvarchar(450)")
                         .HasMaxLength(450);
 
                     b.Property<string>("RefreshTokenIdHashSource")
+                        .HasColumnType("nvarchar(450)")
                         .HasMaxLength(450);
 
-                    b.Property<int>("UserId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -115,12 +133,14 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Migrations
                     b.HasOne("ASPNETCore2JwtAuthentication.DomainClasses.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ASPNETCore2JwtAuthentication.DomainClasses.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ASPNETCore2JwtAuthentication.DomainClasses.UserToken", b =>
@@ -128,7 +148,8 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Migrations
                     b.HasOne("ASPNETCore2JwtAuthentication.DomainClasses.User", "User")
                         .WithMany("UserTokens")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

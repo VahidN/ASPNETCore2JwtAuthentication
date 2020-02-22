@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-	<TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="node_modules\**" />
     <Content Remove="node_modules\**" />
     <EmbeddedResource Remove="node_modules\**" />
     <None Remove="node_modules\**" />
-  </ItemGroup>  
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.Services\ASPNETCore2JwtAuthentication.Services.csproj" />
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.DomainClasses\ASPNETCore2JwtAuthentication.DomainClasses.csproj" />
@@ -16,16 +16,15 @@
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.DataLayer\ASPNETCore2JwtAuthentication.DataLayer.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>    
-    <DotNetCliToolReference Include="BundlerMinifier.Core" Version="2.8.391" />    
+    <DotNetCliToolReference Include="BundlerMinifier.Core" Version="3.2.435" />
   </ItemGroup>
   <ItemGroup>
     <!-- extends watching group to include *.js files -->
     <Watch Include="**\*.js" Exclude="node_modules\**\*;**\*.js.map;obj\**\*;bin\**\*;wwwroot\**\*;src\**\*" />
-  </ItemGroup>  
+  </ItemGroup>
+  <!--
   <Target Name="PrecompileScript" BeforeTargets="BeforeBuild">
     <Exec Command="dotnet bundle" />
   </Target>
+  -->
 </Project>

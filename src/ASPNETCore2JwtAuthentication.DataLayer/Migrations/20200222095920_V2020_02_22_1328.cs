@@ -1,10 +1,9 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ASPNETCore2JwtAuthentication.DataLayer.Migrations
 {
-    public partial class V2018_06_03_1216 : Migration
+    public partial class V2020_02_22_1328 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,7 +12,7 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(maxLength: 450, nullable: false)
                 },
                 constraints: table =>
@@ -26,7 +25,7 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Username = table.Column<string>(maxLength: 450, nullable: false),
                     Password = table.Column<string>(nullable: false),
                     DisplayName = table.Column<string>(nullable: true),
@@ -68,7 +67,7 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     AccessTokenHash = table.Column<string>(nullable: true),
                     AccessTokenExpiresDateTime = table.Column<DateTimeOffset>(nullable: false),
                     RefreshTokenIdHash = table.Column<string>(maxLength: 450, nullable: false),

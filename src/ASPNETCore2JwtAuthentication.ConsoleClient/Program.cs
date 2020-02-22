@@ -70,9 +70,7 @@ namespace ASPNETCore2JwtAuthentication.ConsoleClient
         {
             Console.WriteLine("\nLogin:");
 
-            var response = await _httpClient.PostAsJsonAsync(
-                 requestUri,
-                 new User { Username = username, Password = password });
+            var response = await _httpClient.PostAsJsonAsync(requestUri, new User { Username = username, Password = password });
             response.EnsureSuccessStatusCode();
 
             var token = await response.Content.ReadAsAsync<Token>(new[] { new JsonMediaTypeFormatter() });
@@ -95,9 +93,7 @@ namespace ASPNETCore2JwtAuthentication.ConsoleClient
             }
             // this is necessary to populate the this.HttpContext.User object automatically
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-            var response = await _httpClient.PostAsJsonAsync(
-                 requestUri,
-                 new { refreshToken = token.RefreshToken });
+            var response = await _httpClient.PostAsJsonAsync(requestUri, new { refreshToken = token.RefreshToken });
             response.EnsureSuccessStatusCode();
 
             var newToken = await response.Content.ReadAsAsync<Token>(new[] { new JsonMediaTypeFormatter() });

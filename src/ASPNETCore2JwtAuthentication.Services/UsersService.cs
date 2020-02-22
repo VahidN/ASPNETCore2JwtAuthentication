@@ -13,9 +13,9 @@ namespace ASPNETCore2JwtAuthentication.Services
     {
         Task<string> GetSerialNumberAsync(int userId);
         Task<User> FindUserAsync(string username, string password);
-        Task<User> FindUserAsync(int userId);
+        ValueTask<User> FindUserAsync(int userId);
         Task UpdateUserLastActivityDateAsync(int userId);
-        Task<User> GetCurrentUserAsync();
+        ValueTask<User> GetCurrentUserAsync();
         int GetCurrentUserId();
         Task<(bool Succeeded, string Error)> ChangePasswordAsync(User user, string currentPassword, string newPassword);
     }
@@ -44,7 +44,7 @@ namespace ASPNETCore2JwtAuthentication.Services
             _contextAccessor.CheckArgumentIsNull(nameof(_contextAccessor));
         }
 
-        public Task<User> FindUserAsync(int userId)
+        public ValueTask<User> FindUserAsync(int userId)
         {
             return _users.FindAsync(userId);
         }
@@ -86,7 +86,7 @@ namespace ASPNETCore2JwtAuthentication.Services
             return string.IsNullOrWhiteSpace(userId) ? 0 : int.Parse(userId);
         }
 
-        public Task<User> GetCurrentUserAsync()
+        public ValueTask<User> GetCurrentUserAsync()
         {
             var userId = GetCurrentUserId();
             return FindUserAsync(userId);

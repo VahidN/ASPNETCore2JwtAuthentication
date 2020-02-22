@@ -5,9 +5,7 @@
 ## Environment
 
 ```
-The in-use version:
-Operating system: 
-IDE: (e.g. Visual Studio 2015)
+.NET Core version:
 ```
 
 ## Example code/Steps to reproduce:
