@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+    <NoWarn>RCS1090</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="node_modules\**" />
@@ -11,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.Services\ASPNETCore2JwtAuthentication.Services.csproj" />
+    <ProjectReference Include="..\ASPNETCore2JwtAuthentication.IoCConfig\ASPNETCore2JwtAuthentication.IoCConfig.csproj" />
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.DomainClasses\ASPNETCore2JwtAuthentication.DomainClasses.csproj" />
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.Common\ASPNETCore2JwtAuthentication.Common.csproj" />
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.DataLayer\ASPNETCore2JwtAuthentication.DataLayer.csproj" />

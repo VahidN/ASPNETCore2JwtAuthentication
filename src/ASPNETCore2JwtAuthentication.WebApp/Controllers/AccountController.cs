@@ -55,7 +55,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
             }
 
             var user = await _usersService.FindUserAsync(loginUser.Username, loginUser.Password);
-            if (user == null || !user.IsActive)
+            if (user?.IsActive != true)
             {
                 return Unauthorized();
             }

@@ -35,13 +35,13 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
                 return BadRequest("NotFound");
             }
 
-            var result = await _usersService.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
-            if (result.Succeeded)
+            var (Succeeded, Error) = await _usersService.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+            if (Succeeded)
             {
                 return Ok();
             }
 
-            return BadRequest(result.Error);
+            return BadRequest(Error);
         }
     }
 }

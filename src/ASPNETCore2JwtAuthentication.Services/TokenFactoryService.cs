@@ -53,7 +53,6 @@ namespace ASPNETCore2JwtAuthentication.Services
             _logger.CheckArgumentIsNull(nameof(logger));
         }
 
-
         public async Task<JwtTokensData> CreateJwtTokensAsync(User user)
         {
             var (accessToken, claims) = await createAccessTokenAsync(user);

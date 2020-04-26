@@ -28,7 +28,8 @@ namespace ASPNETCore2JwtAuthentication.ConsoleClient
 
     class Program
     {
-        private static readonly string _baseAddress = "https://localhost:5001/";
+        private const string BaseAddress = "https://localhost:5001/";
+
         private static readonly HttpClientHandler _httpClientHandler = new HttpClientHandler
         {
             UseCookies = true,
@@ -37,7 +38,7 @@ namespace ASPNETCore2JwtAuthentication.ConsoleClient
         };
         private static readonly HttpClient _httpClient = new HttpClient(_httpClientHandler)
         {
-            BaseAddress = new Uri(_baseAddress)
+            BaseAddress = new Uri(BaseAddress)
         };
 
         public static async Task Main(string[] args)
@@ -53,7 +54,7 @@ namespace ASPNETCore2JwtAuthentication.ConsoleClient
         private static Dictionary<string, string> GetAntiforgeryCookies()
         {
             Console.WriteLine("\nGet Antiforgery Cookies:");
-            var cookies = _httpClientHandler.CookieContainer.GetCookies(new Uri(_baseAddress));
+            var cookies = _httpClientHandler.CookieContainer.GetCookies(new Uri(BaseAddress));
 
             var appCookies = new Dictionary<string, string>();
             Console.WriteLine("WebApp Cookies:");

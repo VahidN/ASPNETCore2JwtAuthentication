@@ -28,8 +28,6 @@ namespace ASPNETCore2JwtAuthentication.Services
 
         public async Task ValidateAsync(TokenValidatedContext context)
         {
-            var userPrincipal = context.Principal;
-
             var claimsIdentity = context.Principal.Identity as ClaimsIdentity;
             if (claimsIdentity?.Claims == null || !claimsIdentity.Claims.Any())
             {
@@ -58,8 +56,7 @@ namespace ASPNETCore2JwtAuthentication.Services
                 context.Fail("This token is expired. Please login again.");
             }
 
-            var accessToken = context.SecurityToken as JwtSecurityToken;
-            if (accessToken == null || string.IsNullOrWhiteSpace(accessToken.RawData) ||
+            if (!(context.SecurityToken is JwtSecurityToken accessToken) || string.IsNullOrWhiteSpace(accessToken.RawData) ||
                 !await _tokenStoreService.IsValidTokenAsync(accessToken.RawData, userId))
             {
                 context.Fail("This token is not in our database.");

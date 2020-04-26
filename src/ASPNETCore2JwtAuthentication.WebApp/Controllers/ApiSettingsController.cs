@@ -1,9 +1,9 @@
-using ASPNETCore2JwtAuthentication.WebApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using ASPNETCore2JwtAuthentication.Common;
+using ASPNETCore2JwtAuthentication.DomainClasses;
 
 namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
 {

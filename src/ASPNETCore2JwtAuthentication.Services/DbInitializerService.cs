@@ -40,13 +40,9 @@ namespace ASPNETCore2JwtAuthentication.Services
 
         public void Initialize()
         {
-            using (var serviceScope = _scopeFactory.CreateScope())
-            {
-                using (var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>())
-                {
-                    context.Database.Migrate();
-                }
-            }
+            using var serviceScope = _scopeFactory.CreateScope();
+            using var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
+            context.Database.Migrate();
         }
 
         public void SeedData()
