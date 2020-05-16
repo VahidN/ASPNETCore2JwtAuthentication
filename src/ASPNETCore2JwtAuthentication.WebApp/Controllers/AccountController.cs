@@ -70,6 +70,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
         }
 
         [AllowAnonymous]
+        [IgnoreAntiforgeryToken]
         [HttpPost("[action]")]
         public async Task<IActionResult> RefreshToken([FromBody]Token model)
         {
