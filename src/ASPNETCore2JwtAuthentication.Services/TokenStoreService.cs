@@ -100,8 +100,11 @@ namespace ASPNETCore2JwtAuthentication.Services
             {
                 return;
             }
-            await _tokens.Where(t => t.RefreshTokenIdHashSource == refreshTokenIdHashSource)
-                        .ForEachAsync(userToken => _tokens.Remove(userToken));
+
+            await _tokens.Where(t => t.RefreshTokenIdHashSource == refreshTokenIdHashSource ||
+                                     t.RefreshTokenIdHash == refreshTokenIdHashSource &&
+                                      t.RefreshTokenIdHashSource == null)
+                .ForEachAsync(userToken => _tokens.Remove(userToken));
         }
 
         public async Task RevokeUserBearerTokensAsync(string userIdValue, string refreshTokenValue)
