@@ -1,0 +1,53 @@
+@baseUrl = https://localhost:5001/api
+
+# @name login
+POST {{baseUrl}}/account/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "Vahid",
+    "password": "1234"
+}
+
+###
+
+@accessToken = {{login.response.body.access_token}}
+@refreshToken = {{login.response.body.refresh_token}}
+
+
+# @name callMyProtectedApi
+GET {{baseUrl}}/MyProtectedApi HTTP/1.1
+Authorization: Bearer {{accessToken}}
+
+###
+
+# @name callMyProtectedAdminApi
+
+GET {{baseUrl}}/MyProtectedAdminApi HTTP/1.1
+Authorization: Bearer {{accessToken}}
+
+###
+
+# @name callRefreshToken
+POST {{baseUrl}}/account/RefreshToken HTTP/1.1
+Content-Type: application/json
+
+{
+    "refreshToken": "{{refreshToken}}"
+}
+
+###
+//TODO: 
+//@accessToken = {{callRefreshToken.response.body.access_token}}
+//@refreshToken = {{callRefreshToken.response.body.refresh_token}}
+
+
+# @name logout
+GET {{baseUrl}}/account/logout?refreshToken={{refreshToken}} HTTP/1.1
+Authorization: Bearer {{accessToken}}
+
+
+###
+
+
+

@@ -1,0 +1,114 @@
+# using https://github.com/eykrehbein/strest
+version: 2
+
+variables:
+  baseUrl: https://localhost:5001/api
+  logResponse: false
+
+allowInsecure: true
+requests:
+  loginRequest:
+    request:
+      url: <$ baseUrl $>/account/login
+      method: POST
+      postData:
+        mimeType: application/json
+        text:
+          username: "Vahid"
+          password: "1234"
+    log: <$ logResponse $>
+    validate:
+      - jsonpath: content.access_token
+        type: [string]
+      - jsonpath: content.refresh_token
+        type: [string]
+
+  myProtectedApiRequest:
+    request:
+      url: <$ baseUrl $>/MyProtectedApi
+      method: GET
+      headers:
+        - name: Authorization
+          value: Bearer <$ loginRequest.content.access_token $>
+    log: <$ logResponse $>
+    validate:
+      - jsonpath: content.title
+        expect: "Hello from My Protected Controller! [Authorize]"
+
+  mProtectedAdminApiRequest:
+    request:
+      url: <$ baseUrl $>/MyProtectedAdminApi
+      method: GET
+      headers:
+        - name: Authorization
+          value: Bearer <$ loginRequest.content.access_token $>
+    log: <$ logResponse $>
+    validate:
+      - jsonpath: content.title
+        expect: "Hello from My Protected Admin Api Controller! [Authorize(Policy = CustomRoles.Admin)]"
+
+  refreshTokenRequest:
+    request:
+      url: <$ baseUrl $>/account/RefreshToken
+      method: POST
+      postData:
+        mimeType: application/json
+        text:
+          refreshToken: <$ loginRequest.content.refresh_token $>
+    log: <$ logResponse $>
+    validate:
+      - jsonpath: content.access_token
+        type: [string]
+      - jsonpath: content.refresh_token
+        type: [string]
+
+  myProtectedApiRequestWithNewToken:
+    request:
+      url: <$ baseUrl $>/MyProtectedApi
+      method: GET
+      headers:
+        - name: Authorization
+          value: Bearer <$ refreshTokenRequest.content.access_token $>
+    log: <$ logResponse $>
+    validate:
+      - jsonpath: content.title
+        expect: "Hello from My Protected Controller! [Authorize]"
+
+  myProtectedApiRequestWithOldToken:
+    request:
+      url: <$ baseUrl $>/MyProtectedApi
+      method: GET
+      headers:
+        - name: Authorization
+          value: Bearer <$ loginRequest.content.access_token $>
+    log: <$ logResponse $>
+    validate:
+      - jsonpath: status
+        expect: 401
+
+  logoutRequest:
+    request:
+      url: <$ baseUrl $>/account/logout
+      method: GET
+      headers:
+        - name: Authorization
+          value: Bearer <$ refreshTokenRequest.content.access_token $>
+      queryString:
+        - name: refreshToken
+          value: <$ refreshTokenRequest.content.refresh_token $>
+    log: <$ logResponse $>
+    validate:
+      - jsonpath: content
+        expect: true
+
+  myProtectedApiRequestWithNewTokenAfterLogout:
+    request:
+      url: <$ baseUrl $>/MyProtectedApi
+      method: GET
+      headers:
+        - name: Authorization
+          value: Bearer <$ refreshTokenRequest.content.access_token $>
+    log: <$ logResponse $>
+    validate:
+      - jsonpath: status
+        expect: 401
