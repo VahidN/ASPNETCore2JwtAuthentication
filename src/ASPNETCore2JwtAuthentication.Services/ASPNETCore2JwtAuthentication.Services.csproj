@@ -9,7 +9,7 @@
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.DataLayer\ASPNETCore2JwtAuthentication.DataLayer.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.8" />
   </ItemGroup>
 </Project>

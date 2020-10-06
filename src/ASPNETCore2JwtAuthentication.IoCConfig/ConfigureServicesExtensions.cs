@@ -1,7 +1,9 @@
 using System;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using ASPNETCore2JwtAuthentication.Common;
 using ASPNETCore2JwtAuthentication.DataLayer.Context;
 using ASPNETCore2JwtAuthentication.DomainClasses;
 using ASPNETCore2JwtAuthentication.Services;
@@ -101,19 +103,20 @@ namespace ASPNETCore2JwtAuthentication.IoCConfig
                 });
         }
 
-        public static void AddCustomDbContext(this IServiceCollection services, IConfiguration configuration)
+        public static void AddCustomDbContext(this IServiceCollection services, IConfiguration configuration, Assembly startupAssembly)
         {
+            string projectDir = ServerPath.GetProjectPath(startupAssembly);
+            var connectionString = configuration.GetConnectionString("DefaultConnection")
+                                                .Replace("|DataDirectory|", Path.Combine(projectDir, "wwwroot", "app_data"));
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(
-                    configuration.GetConnectionString("DefaultConnection")
-                                .Replace("|DataDirectory|", Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "app_data")),
-                    serverDbContextOptionsBuilder =>
-                    {
-                        var minutes = (int)TimeSpan.FromMinutes(3).TotalSeconds;
-                        serverDbContextOptionsBuilder.CommandTimeout(minutes);
-                        serverDbContextOptionsBuilder.EnableRetryOnFailure();
-                    });
+                options.UseSqlServer(connectionString,
+                        serverDbContextOptionsBuilder =>
+                        {
+                            var minutes = (int)TimeSpan.FromMinutes(3).TotalSeconds;
+                            serverDbContextOptionsBuilder.CommandTimeout(minutes);
+                            serverDbContextOptionsBuilder.EnableRetryOnFailure();
+                        });
             });
         }
 

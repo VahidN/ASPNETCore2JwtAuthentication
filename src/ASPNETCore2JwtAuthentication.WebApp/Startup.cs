@@ -27,7 +27,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp
         {
             services.AddCustomOptions(Configuration);
             services.AddCustomServices();
-            services.AddCustomDbContext(Configuration);
+            services.AddCustomDbContext(Configuration, typeof(Startup).Assembly);
             services.AddCustomJwtBearer(Configuration);
             services.AddCustomCors();
             services.AddCustomAntiforgery();
