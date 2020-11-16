@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceRoot}/src/ASPNETCore2JwtAuthentication.WebApp/bin/Debug/netcoreapp3.1/ASPNETCore2JwtAuthentication.WebApp.dll",
+            "program": "${workspaceRoot}/src/ASPNETCore2JwtAuthentication.WebApp/bin/Debug/net5.0/ASPNETCore2JwtAuthentication.WebApp.dll",
             "args": [],
             "cwd": "${workspaceRoot}/src/ASPNETCore2JwtAuthentication.WebApp",
             "stopAtEntry": false,
