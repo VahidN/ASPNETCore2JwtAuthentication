@@ -9,6 +9,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
     [Authorize]
     public class MyProtectedApiController : Controller
     {
+        [HttpGet]
         public IActionResult Get()
         {
             return Ok(new

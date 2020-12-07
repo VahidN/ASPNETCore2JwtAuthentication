@@ -22,6 +22,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
             _usersService.CheckArgumentIsNull(nameof(usersService));
         }
 
+        [HttpGet]
         public async Task<IActionResult> Get()
         {
             var claimsIdentity = this.User.Identity as ClaimsIdentity;

@@ -1,212 +1,279 @@
 ﻿<!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <title>Testing Jwt Authentication without ASP.NET Core Identity</title>
     <meta charset="utf-8" />
 
     <link href="css/site.min.css" rel="stylesheet" />
     <script src="js/site.min.js" type="text/javascript"></script>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="container">
-        <h1 class="alert alert-info">Testing Jwt Authentication without ASP.NET
-            Core Identity 3.x</h1>
-        <button type="button" class="btn btn-success" onclick="doLogin('/api/account/login',{
+      <h1 class="alert alert-info">
+        Testing Jwt Authentication without ASP.NET Core Identity 3.x
+      </h1>
+      <div>
+        <button
+          type="button"
+          class="btn btn-success"
+          onclick="doLogin('/api/account/login',{
         username: 'Vahid',
         password: '1234'})"
-            id="login">Login (Valid user)</button>
+          id="login"
+        >
+          Login (Valid user)
+        </button>
 
-        <button type="button" class="btn btn-default" onclick="doLogin('/api/account/login',{
+        <button
+          type="button"
+          class="btn btn-default"
+          onclick="doLogin('/api/account/login',{
         username: 'Xyz',
         password: '12345'})"
-            id="login">Login (Invalid user)</button>
+          id="login"
+        >
+          Login (Invalid user)
+        </button>
 
-        <button type="button" class="btn btn-info" onclick="doCallApi('/api/MyProtectedApi')"
-            id="callApi">Call Protected API ([Authorize])</button>
-
-        <button type="button" class="btn btn-info" onclick="doCallApi('/api/MyProtectedAdminApi')"
-            id="callAdminApi">Call Protected Admin API [Authorize(Roles =
-            "Admin")]</button>
-
-        <button type="button" class="btn btn-warning" onclick="doRefreshToken('/api/account/RefreshToken',{
+        <button
+          type="button"
+          class="btn btn-warning"
+          onclick="doRefreshToken('/api/account/RefreshToken',{
                 refreshToken: refreshToken})"
-            id="login">Refresh Token</button>
+          id="login"
+        >
+          Refresh Token
+        </button>
+      </div>
 
-        <button type="button" class="btn btn-danger" onclick="doLogout('/api/account/logout?refreshToken=' + refreshToken)"
-            name="logout">Logout</button>
+      <div style="margin-top: 15px">
+        <button
+          type="button"
+          class="btn btn-info"
+          onclick="doCallApi('/api/MyProtectedApi')"
+          id="callApi"
+        >
+          Call Protected API ([Authorize])
+        </button>
 
-        <div class="alert alert-warning" style="margin-top: 15px">
-            obtaining new tokens using the refresh_token should happen only if
-            the id_token has
-            expired. it is a bad practice to call the endpoint to get a new
-            token
-            every time you do an API call.
+        <button
+          type="button"
+          class="btn btn-info"
+          onclick="doCallApi('/api/MyProtectedAdminApi')"
+          id="callAdminApi"
+        >
+          Call Protected Admin API [Authorize(Roles = "Admin")]
+        </button>
+      </div>
+
+      <div style="margin-top: 15px">
+        <button
+          type="button"
+          class="btn btn-danger"
+          onclick="doLogout('/api/account/logout?refreshToken=' + refreshToken)"
+          name="logout"
+        >
+          Logout
+        </button>
+      </div>
+
+      <a
+        href="/swagger/index.html"
+        style="margin-top: 15px"
+        class="btn btn-info"
+        >Swagger-UI</a
+      >
+
+      <div class="alert alert-warning" style="margin-top: 15px">
+        obtaining new tokens using the refresh_token should happen only if the
+        id_token has expired. it is a bad practice to call the endpoint to get a
+        new token every time you do an API call.
+      </div>
+
+      <div id="ajaxResponse" style="display: none">
+        <h2>Response</h2>
+        <div class="highlight">
+          <pre><code id="ajaxResponseInfo"></code></pre>
         </div>
+      </div>
 
-        <div id="ajaxResponse" style="display: none;">
-            <h2>Response</h2>
-            <div class="highlight">
-                <pre><code id="ajaxResponseInfo"></code></pre>
-            </div>
+      <div id="decodedToken" style="display: none">
+        <h2>Decoded Access Token</h2>
+        <div class="highlight">
+          <pre><code id="jwtInfo"></code></pre>
         </div>
+      </div>
 
-        <div id="decodedToken" style="display: none;">
-            <h2>Decoded Access Token</h2>
-            <div class="highlight">
-                <pre><code id="jwtInfo"></code></pre>
-            </div>
+      <div id="decodedRefreshToken" style="display: none">
+        <h2>Decoded Refresh Token</h2>
+        <div class="highlight">
+          <pre><code id="jwtRefreshInfo"></code></pre>
         </div>
-
-        <div id="decodedRefreshToken" style="display: none;">
-            <h2>Decoded Refresh Token</h2>
-            <div class="highlight">
-                <pre><code id="jwtRefreshInfo"></code></pre>
-            </div>
-        </div>
+      </div>
     </div>
     <script type="text/javascript">
-        var jwtToken;
-        var refreshToken;
+      var jwtToken;
+      var refreshToken;
 
-        function isNullOrEmpty(value) {
-            return (typeof value == 'undefined' || !value);
-        }
+      function isNullOrEmpty(value) {
+        return typeof value == "undefined" || !value;
+      }
 
-        function doLogin(url, data) {
-            $.ajax({
-                url: url,
-                data: JSON.stringify(data),
-                type: 'POST',
-                dataType: 'json',
-                contentType: 'application/json; charset=utf-8'
-            }).then(function (response) {
-                showResponse(response);
-                jwtToken = response.access_token;
-                refreshToken = response.refresh_token;
-                showDecodedToken();
-                showDecodedRefreshToken();
-            }, function (xhr, status, error) {
-                console.log({ xhr: xhr, status: status, error: error });
-                if (xhr.status === 401) {
-                    alert('Login failed. Please enter a valid username and password.');
-                    jwtToken = "";
-                    refreshToken = "";
-                }
-            });
-        }
-
-        function doRefreshToken(url, data) {
-            $.ajax({
-                headers: {
-                    'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'), // this is necessary for [AutoValidateAntiforgeryTokenAttribute] and all of the 'POST' requests
-                    'Authorization': 'Bearer ' + jwtToken // this is necessary to populate the this.HttpContext.User object automatically
-                },
-                url: url,
-                data: JSON.stringify(data),
-                type: 'POST',
-                dataType: 'json',
-                contentType: 'application/json; charset=utf-8'
-            }).then(function (response) {
-                showResponse(response);
-                jwtToken = response.access_token;
-                refreshToken = response.refresh_token;
-                showDecodedToken();
-                showDecodedRefreshToken();
-            }, function (xhr, status, error) {
-                console.log({ xhr: xhr, status: status, error: error });
-                if (xhr.status === 401) {
-                    alert('Login failed. Please enter a valid username and password.');
-                    jwtToken = "";
-                    refreshToken = "";
-                }
-            });
-        }
-
-        function doCallApi(url) {
-            $.ajax({
-                headers: { 'Authorization': 'Bearer ' + jwtToken },
-                url: url,
-                type: 'GET'
-            }).then(function (response) {
-                console.log("response", response);
-                if (response) {
-                    showResponse(response);
-                }
-            }, function (xhr, status, error) {
-                console.log({ xhr: xhr, status: status, error: error });
-                if (xhr.status === 401) {
-                    alert('Access denied! Please login with an account which has enough permissions first.');
-                }
-            });
-        }
-
-        function doLogout(url) {
-            if (isNullOrEmpty(jwtToken)) // will check if the value is undefined or null.
-            {
-                alert('Please login first.');
-                return;
+      function doLogin(url, data) {
+        $.ajax({
+          url: url,
+          data: JSON.stringify(data),
+          type: "POST",
+          dataType: "json",
+          contentType: "application/json; charset=utf-8",
+        }).then(
+          function (response) {
+            showResponse(response);
+            jwtToken = response.access_token;
+            refreshToken = response.refresh_token;
+            showDecodedToken();
+            showDecodedRefreshToken();
+          },
+          function (xhr, status, error) {
+            console.log({ xhr: xhr, status: status, error: error });
+            if (xhr.status === 401) {
+              alert(
+                "Login failed. Please enter a valid username and password."
+              );
+              jwtToken = "";
+              refreshToken = "";
             }
+          }
+        );
+      }
 
-            $.ajax({
-                headers: { 'Authorization': 'Bearer ' + jwtToken },
-                url: url,
-                type: 'GET'
-            }).then(function (response) {
-                console.log("response", response);
-                if (response) {
-                    showResponse(response);
-                }
-
-                jwtToken = '';
-                refreshToken = '';
-            }, function (xhr, status, error) {
-                console.log({ xhr: xhr, status: status, error: error });
-                if (xhr.status === 401) {
-                    alert('Access denied! Please login with an account which has enough permissions first.');
-                }
-            });
-        }
-
-        function getCookie(name) {
-            const value = "; " + document.cookie;
-            const parts = value.split("; " + name + "=");
-            if (parts.length === 2) {
-                const lastItem = parts.pop();
-                if (lastItem) {
-                    const uri = lastItem.split(";").shift();
-                    if (uri) {
-                        const cookie = decodeURIComponent(uri);
-                        console.log('cookie[' + name + ']', cookie);
-                        return cookie;
-                    }
-                }
+      function doRefreshToken(url, data) {
+        $.ajax({
+          headers: {
+            "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"), // this is necessary for [AutoValidateAntiforgeryTokenAttribute] and all of the 'POST' requests
+            Authorization: "Bearer " + jwtToken, // this is necessary to populate the this.HttpContext.User object automatically
+          },
+          url: url,
+          data: JSON.stringify(data),
+          type: "POST",
+          dataType: "json",
+          contentType: "application/json; charset=utf-8",
+        }).then(
+          function (response) {
+            showResponse(response);
+            jwtToken = response.access_token;
+            refreshToken = response.refresh_token;
+            showDecodedToken();
+            showDecodedRefreshToken();
+          },
+          function (xhr, status, error) {
+            console.log({ xhr: xhr, status: status, error: error });
+            if (xhr.status === 401) {
+              alert(
+                "Login failed. Please enter a valid username and password."
+              );
+              jwtToken = "";
+              refreshToken = "";
             }
-            return "";
-        }
+          }
+        );
+      }
 
-        function showDecodedToken() {
-            $("#decodedToken").show();
-            let decodedToken = jwt_decode(jwtToken);
-            console.log(decodedToken);
-            $("#jwtInfo").text(JSON.stringify(decodedToken).replace(/,/g, ',\n'));
-        }
-
-        function showDecodedRefreshToken() {
-            $("#decodedRefreshToken").show();
-            let decodedRefreshToken = jwt_decode(refreshToken);
-            console.log(decodedRefreshToken);
-            $("#jwtRefreshInfo").text(JSON.stringify(decodedRefreshToken).replace(/,/g, ',\n'));
-        }
-
-        function showResponse(response) {
-            $("#ajaxResponse").show();
-            let responseStr = JSON.stringify(response, null, ' ');
+      function doCallApi(url) {
+        $.ajax({
+          headers: { Authorization: "Bearer " + jwtToken },
+          url: url,
+          type: "GET",
+        }).then(
+          function (response) {
             console.log("response", response);
-            $("#ajaxResponseInfo").text(responseStr);
-        }
-    </script>
-</body>
+            if (response) {
+              showResponse(response);
+            }
+          },
+          function (xhr, status, error) {
+            console.log({ xhr: xhr, status: status, error: error });
+            if (xhr.status === 401) {
+              alert(
+                "Access denied! Please login with an account which has enough permissions first."
+              );
+            }
+          }
+        );
+      }
 
+      function doLogout(url) {
+        if (isNullOrEmpty(jwtToken)) {
+          // will check if the value is undefined or null.
+          alert("Please login first.");
+          return;
+        }
+
+        $.ajax({
+          headers: { Authorization: "Bearer " + jwtToken },
+          url: url,
+          type: "GET",
+        }).then(
+          function (response) {
+            console.log("response", response);
+            if (response) {
+              showResponse(response);
+            }
+
+            jwtToken = "";
+            refreshToken = "";
+          },
+          function (xhr, status, error) {
+            console.log({ xhr: xhr, status: status, error: error });
+            if (xhr.status === 401) {
+              alert(
+                "Access denied! Please login with an account which has enough permissions first."
+              );
+            }
+          }
+        );
+      }
+
+      function getCookie(name) {
+        const value = "; " + document.cookie;
+        const parts = value.split("; " + name + "=");
+        if (parts.length === 2) {
+          const lastItem = parts.pop();
+          if (lastItem) {
+            const uri = lastItem.split(";").shift();
+            if (uri) {
+              const cookie = decodeURIComponent(uri);
+              console.log("cookie[" + name + "]", cookie);
+              return cookie;
+            }
+          }
+        }
+        return "";
+      }
+
+      function showDecodedToken() {
+        $("#decodedToken").show();
+        let decodedToken = jwt_decode(jwtToken);
+        console.log(decodedToken);
+        $("#jwtInfo").text(JSON.stringify(decodedToken).replace(/,/g, ",\n"));
+      }
+
+      function showDecodedRefreshToken() {
+        $("#decodedRefreshToken").show();
+        let decodedRefreshToken = jwt_decode(refreshToken);
+        console.log(decodedRefreshToken);
+        $("#jwtRefreshInfo").text(
+          JSON.stringify(decodedRefreshToken).replace(/,/g, ",\n")
+        );
+      }
+
+      function showResponse(response) {
+        $("#ajaxResponse").show();
+        let responseStr = JSON.stringify(response, null, " ");
+        console.log("response", response);
+        $("#ajaxResponseInfo").text(responseStr);
+      }
+    </script>
+  </body>
 </html>

@@ -10,6 +10,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
     [Authorize(Policy = CustomRoles.Editor)]
     public class MyProtectedEditorsApiController : Controller
     {
+        [HttpGet]
         public IActionResult Get()
         {
             return Ok(new

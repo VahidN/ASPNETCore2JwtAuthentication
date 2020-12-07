@@ -25,6 +25,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCustomSwagger();
             services.AddCustomOptions(Configuration);
             services.AddCustomServices();
             services.AddCustomDbContext(Configuration, typeof(Startup).Assembly);
@@ -84,6 +85,7 @@ namespace ASPNETCore2JwtAuthentication.WebApp
 
             app.UseStatusCodePages();
 
+            app.UseCustomSwagger();
             app.UseStaticFiles();
 
             app.UseRouting();
