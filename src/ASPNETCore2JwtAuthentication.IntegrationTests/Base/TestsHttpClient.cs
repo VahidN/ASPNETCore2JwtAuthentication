@@ -1,23 +1,20 @@
-﻿using System;
-using System.Threading;
-using System.Net.Http;
+﻿namespace ASPNETCore2JwtAuthentication.IntegrationTests.Base;
 
-namespace ASPNETCore2JwtAuthentication.IntegrationTests
+internal static class TestsHttpClient
 {
-    public static class TestsHttpClient
+    private static readonly CustomWebApplicationFactory _factory = new();
+
+    private static readonly Lazy<HttpClient> _serviceProviderBuilder =
+        new(getHttpClient, LazyThreadSafetyMode.ExecutionAndPublication);
+
+    /// <summary>
+    ///     A lazy loaded thread-safe singleton
+    /// </summary>
+    public static HttpClient Instance { get; } = _serviceProviderBuilder.Value;
+
+    private static HttpClient getHttpClient()
     {
-        private static readonly Lazy<HttpClient> _serviceProviderBuilder =
-                new Lazy<HttpClient>(getHttpClient, LazyThreadSafetyMode.ExecutionAndPublication);
-
-        /// <summary>
-        /// A lazy loaded thread-safe singleton
-        /// </summary>
-        public static HttpClient Instance { get; } = _serviceProviderBuilder.Value;
-
-        private static HttpClient getHttpClient()
-        {
-            var services = new CustomWebApplicationFactory();
-            return services.CreateClient(); //NOTE: This action is very time consuming, so it should be defined as a singleton.
-        }
+        var httpClient = _factory.CreateClient();
+        return httpClient; //NOTE: This action is very time consuming, so it should be defined as a singleton.
     }
 }

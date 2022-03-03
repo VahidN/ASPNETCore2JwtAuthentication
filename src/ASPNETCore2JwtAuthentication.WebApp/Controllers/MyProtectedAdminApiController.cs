@@ -1,43 +1,39 @@
 using System.Security.Claims;
 using ASPNETCore2JwtAuthentication.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using ASPNETCore2JwtAuthentication.Common;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
-using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 
-namespace ASPNETCore2JwtAuthentication.WebApp.Controllers
+namespace ASPNETCore2JwtAuthentication.WebApp.Controllers;
+
+[Route("api/[controller]"), EnableCors("CorsPolicy"), Authorize(Policy = CustomRoles.Admin)]
+public class MyProtectedAdminApiController : Controller
 {
-    [Route("api/[controller]")]
-    [EnableCors("CorsPolicy")]
-    [Authorize(Policy = CustomRoles.Admin)]
-    public class MyProtectedAdminApiController : Controller
+    private readonly IUsersService _usersService;
+
+    public MyProtectedAdminApiController(IUsersService usersService)
     {
-        private readonly IUsersService _usersService;
+        _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
+    }
 
-        public MyProtectedAdminApiController(IUsersService usersService)
+    [HttpGet]
+    public async Task<IActionResult> Get()
+    {
+        var claimsIdentity = User.Identity as ClaimsIdentity;
+        var userDataClaim = claimsIdentity?.FindFirst(ClaimTypes.UserData);
+        var userId = userDataClaim?.Value;
+
+        return Ok(new
         {
-            _usersService = usersService;
-            _usersService.CheckArgumentIsNull(nameof(usersService));
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Get()
-        {
-            var claimsIdentity = this.User.Identity as ClaimsIdentity;
-            var userDataClaim = claimsIdentity.FindFirst(ClaimTypes.UserData);
-            var userId = userDataClaim.Value;
-
-            return Ok(new
-            {
-                Id = 1,
-                Title = "Hello from My Protected Admin Api Controller! [Authorize(Policy = CustomRoles.Admin)]",
-                Username = this.User.Identity.Name,
-                UserData = userId,
-                TokenSerialNumber = await _usersService.GetSerialNumberAsync(int.Parse(userId)),
-                Roles = claimsIdentity.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToList()
-            });
-        }
+            Id = 1,
+            Title = "Hello from My Protected Admin Api Controller! [Authorize(Policy = CustomRoles.Admin)]",
+            Username = User.Identity?.Name,
+            UserData = userId,
+            TokenSerialNumber =
+                await _usersService.GetSerialNumberAsync(int.Parse(userId ?? "0", NumberStyles.Number,
+                    CultureInfo.InvariantCulture)),
+            Roles = claimsIdentity?.Claims.Where(x => string.Equals(x.Type, ClaimTypes.Role, StringComparison.Ordinal))
+                .Select(x => x.Value).ToList()
+        });
     }
 }

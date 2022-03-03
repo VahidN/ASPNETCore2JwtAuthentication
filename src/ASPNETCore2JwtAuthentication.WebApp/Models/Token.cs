@@ -1,12 +1,7 @@
-using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
+namespace ASPNETCore2JwtAuthentication.WebApp.Models;
 
-namespace ASPNETCore2JwtAuthentication.WebApp.Models
+public class Token
 {
-    public class Token
-    {
-        [JsonPropertyName("refreshToken")]
-        [Required]
-        public string RefreshToken { get; set; }
-    }
+    [JsonPropertyName("refreshToken"), Required]
+    public string RefreshToken { get; set; }
 }

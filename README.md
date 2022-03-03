@@ -1,13 +1,13 @@
-Jwt Authentication without ASP.NET Core Identity 5.0.401
+Jwt Authentication without ASP.NET Core Identity 6.0.102
 ===========
 
 ![jwtauth](/src/ASPNETCore2JwtAuthentication.WebApp/wwwroot/images/jwtauth.png)
 
-A Jwt based authentication sample for ASP.NET Core 5.0.401 without using the Identity system. It includes:
+A Jwt based authentication sample for ASP.NET Core 6.0.102 without using the Identity system. It includes:
 
 - Users and Roles tables with a many-to-may relationship.
 - A separated EF Core data layer with enabled migrations.
-- An EF Core 5.0.401 based service layer.
+- An EF Core 6.0.102 based service layer.
 - A Db initializer to seed the default database values.
 - An account controller with Jwt and DB based login, custom logout and refresh tokens capabilities.
 - 2 sample API controllers to show how user-roles can be applied and used.

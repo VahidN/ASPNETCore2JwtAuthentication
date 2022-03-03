@@ -1,0 +1,252 @@
+[*.cs]
+
+roslynator_accessibility_modifiers = explicit
+roslynator_enum_has_flag_style = operator
+roslynator_object_creation_type_style = implicit_when_type_is_obvious
+
+# The logging message template should not vary between calls to 'LoggerExtensions.LogError(ILogger, Exception?, string?, params object?[])'
+dotnet_diagnostic.CA2254.severity = suggestion
+
+# SCS0008: The cookie is missing 'Secure' flag. 
+dotnet_diagnostic.SCS0008.severity = suggestion
+
+# SCS0009: The cookie is missing 'HttpOnly' flag. 
+dotnet_diagnostic.SCS0009.severity = suggestion
+
+# For improved performance, use the LoggerMessage delegates instead of calling 'LoggerExtensions.LogError(ILogger, Exception?, string?, params object?[])'
+dotnet_diagnostic.CA1848.severity = suggestion
+
+# Retrieve the following string(s) from a resource table instead
+dotnet_diagnostic.CA1303.severity = suggestion
+
+# Refactor your code not to use hardcoded absolute paths or URIs.
+dotnet_diagnostic.S1075.severity = suggestion
+
+# Modify 'Program.CallProtectedApiAsync(string, Token)' to call 'HttpClient.GetAsync(Uri)' instead of 'HttpClient.GetAsync(string)'
+dotnet_diagnostic.CA2234.severity = suggestion
+
+# CA5395: Action method xyz needs to specify the HTTP request kind explicitly
+dotnet_diagnostic.CA5395.severity = suggestion
+
+# CA5391:  Method Index handles a HttpPost request without performing antiforgery token validation. You also need to ensure that your HTML form sends an antiforgery token.
+dotnet_diagnostic.CA5391.severity = suggestion
+
+# CA1724: The type name Logging conflicts in whole or in part with the namespace name 'Microsoft.Extensions.Http.Logging'. Change either name to eliminate the conflict.
+dotnet_diagnostic.CA1724.severity = suggestion
+
+# S125: Remove this commented out code.
+dotnet_diagnostic.S125.severity = suggestion
+
+# Change 'List<>' to use 'Collection<T>', 'ReadOnlyCollection<T>' or 'KeyedCollection<K,V>'
+dotnet_diagnostic.CA1002.severity = suggestion
+
+# Do not call overridable members in constructor
+dotnet_diagnostic.MA0056.severity = suggestion
+
+# CA1819: Properties should not return arrays
+dotnet_diagnostic.CA1819.severity = suggestion
+
+# S1066: Merge this if statement with the enclosing one. 
+dotnet_diagnostic.S1066.severity = suggestion
+
+# Controller method is potentially vulnerable to Cross Site Request Forgery (CSRF). 
+dotnet_diagnostic.SCS0016.severity = suggestion
+
+# CA1716: Rename namespace `Shared` so that it no longer conflicts with the reserved language keyword 'Shared'.
+dotnet_diagnostic.CA1716.severity = suggestion
+
+# S3903: Move into a named namespace. 
+dotnet_diagnostic.S3903.severity = suggestion
+
+# Modify to catch a more specific allowed exception type, or rethrow the exception csharp(CA1031)
+dotnet_diagnostic.CA1031.severity = suggestion
+
+# Potential file path injection vulnerability was found csharp(CA3003)
+dotnet_diagnostic.CA3003.severity = suggestion
+
+# Potential Path Traversal vulnerability was found where 'path' in csharp(SCS0018)
+dotnet_diagnostic.SCS0018.severity = suggestion
+
+# Use an overload that has a IEqualityComparer<string> or IComparer<string> parameter csharp(MA0002)
+dotnet_diagnostic.MA0002.severity = suggestion
+
+# Prefer return collection abstraction instead of implementation csharp(MA0016)
+dotnet_diagnostic.MA0016.severity = suggestion
+
+# Change this to be read-only by removing the property setter csharp(CA2227)
+dotnet_diagnostic.CA2227.severity = suggestion
+
+# Rename type name Permission so that it does not end in 'Permission'
+dotnet_diagnostic.CA1711.severity = suggestion
+
+# CA1812: Program is an internal class that is apparently never instantiated. If so, remove the code from the assembly. If this class is intended to contain only static members, make it static (Shared in Visual Basic). 
+dotnet_diagnostic.CA1812.severity = suggestion
+
+# Declare types in namespaces 
+dotnet_diagnostic.MA0047.severity = suggestion
+
+# Make sure that this accessibility bypass is safe here. (S3011)
+dotnet_diagnostic.S3011.severity = suggestion
+
+# Private classes or records which are not derived in the current assembly should be marked as 'sealed'.
+dotnet_diagnostic.S3260.severity = suggestion
+
+# MA0026 : Complete the task
+dotnet_diagnostic.MA0026.severity = suggestion
+
+# MA0023 : Add RegexOptions.ExplicitCapture to prevent capturing unneeded groups
+dotnet_diagnostic.MA0023.severity = suggestion
+
+# MA0076: Do not use implicit culture-sensitive ToString in interpolated strings
+dotnet_diagnostic.MA0076.severity = error
+
+# S101 : Rename class name to match pascal case naming rules
+dotnet_diagnostic.S101.severity = suggestion
+
+# MA0007 : Add comma after the last value
+dotnet_diagnostic.MA0007.severity = none
+
+# S1854: Remove this useless assignment to local variable
+dotnet_diagnostic.S1854.severity = suggestion
+
+# MA0051 : Method is too long. maximum allowed: 60.
+dotnet_diagnostic.MA0051.severity = suggestion
+
+# CA1308: In method 'urlToLower', replace the call to 'ToLowerInvariant' with 'ToUpperInvariant' (CA1308)
+dotnet_diagnostic.CA1308.severity = suggestion
+
+# CA1040: Avoid empty interfaces
+dotnet_diagnostic.CA1040.severity = suggestion
+
+# CA1829 Use the "Count" property instead of Enumerable.Count()
+dotnet_diagnostic.CA1829.severity = suggestion
+
+# Use 'Count' property here instead.
+dotnet_diagnostic.S2971.severity = suggestion
+
+# S1135 : Complete the task
+dotnet_diagnostic.S1135.severity = suggestion
+
+# S2479: Replace the control character at position 7 by its escape sequence
+dotnet_diagnostic.S2479.severity = suggestion
+
+# CA2007: Consider calling ConfigureAwait on the awaited task
+dotnet_diagnostic.CA2007.severity = none
+
+# MA0004: Use Task.ConfigureAwait(false) as the current SynchronizationContext is not needed
+dotnet_diagnostic.MA0004.severity = none
+
+# CA1056: Change the type of property 'Url' from 'string' to 'System.Uri'
+dotnet_diagnostic.CA1056.severity = suggestion
+
+# CA1054: Change the type of parameter of the method to allow a Uri to be passed as a 'System.Uri' object
+dotnet_diagnostic.CA1054.severity = suggestion
+
+# CA1055: Change the return type of method from 'string' to 'System.Uri'
+dotnet_diagnostic.CA1055.severity = suggestion
+
+# S4457: Split this method into two, one handling parameters check and the other handling the asynchronous code.
+dotnet_diagnostic.S4457.severity = none
+
+# AsyncFixer01: Unnecessary async/await usage
+dotnet_diagnostic.AsyncFixer01.severity = suggestion
+
+# AsyncFixer02: Long-running or blocking operations inside an async method
+dotnet_diagnostic.AsyncFixer02.severity = error
+
+# VSTHRD103: Call async methods when in an async method
+dotnet_diagnostic.VSTHRD103.severity = error
+
+# AsyncFixer03: Fire & forget async void methods
+dotnet_diagnostic.AsyncFixer03.severity = error
+
+# VSTHRD100: Avoid async void methods
+dotnet_diagnostic.VSTHRD100.severity = error
+
+# VSTHRD101: Avoid unsupported async delegates
+dotnet_diagnostic.VSTHRD101.severity = error
+
+# VSTHRD107: Await Task within using expression
+dotnet_diagnostic.VSTHRD107.severity = error
+
+# AsyncFixer04: Fire & forget async call inside a using block
+dotnet_diagnostic.AsyncFixer04.severity = error
+
+# VSTHRD110: Observe result of async calls
+dotnet_diagnostic.VSTHRD110.severity = error
+
+# VSTHRD002: Avoid problematic synchronous waits
+dotnet_diagnostic.VSTHRD002.severity = suggestion
+
+# MA0045: Do not use blocking call (make method async)
+dotnet_diagnostic.MA0045.severity = suggestion
+
+# AsyncifyInvocation: Use Task Async
+dotnet_diagnostic.AsyncifyInvocation.severity = error
+
+# AsyncifyVariable: Use Task Async
+dotnet_diagnostic.AsyncifyVariable.severity = error
+
+# VSTHRD111: Use ConfigureAwait(bool)
+dotnet_diagnostic.VSTHRD111.severity = none
+
+# MA0022: Return Task.FromResult instead of returning null
+dotnet_diagnostic.MA0022.severity = error
+
+# VSTHRD114: Avoid returning a null Task
+dotnet_diagnostic.VSTHRD114.severity = error
+
+# VSTHRD200: Use "Async" suffix for async methods
+dotnet_diagnostic.VSTHRD200.severity = suggestion
+
+# MA0040: Specify a cancellation token
+dotnet_diagnostic.MA0032.severity = suggestion
+
+# MA0040: Flow the cancellation token when available
+dotnet_diagnostic.MA0040.severity = suggestion
+
+# MA0079: Use a cancellation token using .WithCancellation()
+dotnet_diagnostic.MA0079.severity = suggestion
+
+# MA0080: Use a cancellation token using .WithCancellation()
+dotnet_diagnostic.MA0080.severity = error
+
+#AsyncFixer05: Downcasting from a nested task to an outer task.
+dotnet_diagnostic.AsyncFixer05.severity = error
+
+# ClrHeapAllocationAnalyzer ----------------------------------------------------
+# HAA0301: Closure Allocation Source
+dotnet_diagnostic.HAA0301.severity = suggestion
+
+# HAA0601: Value type to reference type conversion causing boxing allocation
+dotnet_diagnostic.HAA0601.severity = suggestion
+
+# HAA0302: Display class allocation to capture closure
+dotnet_diagnostic.HAA0302.severity = suggestion
+
+# HAA0101: Array allocation for params parameter
+dotnet_diagnostic.HAA0101.severity = suggestion
+
+# HAA0603: Delegate allocation from a method group
+dotnet_diagnostic.HAA0603.severity = suggestion
+
+# HAA0602: Delegate on struct instance caused a boxing allocation
+dotnet_diagnostic.HAA0602.severity = suggestion
+
+# HAA0401: Possible allocation of reference type enumerator
+dotnet_diagnostic.HAA0401.severity = silent
+
+# HAA0303: Lambda or anonymous method in a generic method allocates a delegate instance
+dotnet_diagnostic.HAA0303.severity = silent
+
+# HAA0102: Non-overridden virtual method call on value type
+dotnet_diagnostic.HAA0102.severity = silent
+
+# HAA0502: Explicit new reference type allocation
+dotnet_diagnostic.HAA0502.severity = none
+
+# HAA0505: Initializer reference type allocation
+dotnet_diagnostic.HAA0505.severity = silent
+
+# force file scoped namespaces
+csharp_style_namespace_declarations = file_scoped:warning

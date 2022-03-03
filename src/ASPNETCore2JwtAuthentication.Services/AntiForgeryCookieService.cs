@@ -1,61 +1,68 @@
-using System.Collections.Generic;
 using System.Security.Claims;
-using ASPNETCore2JwtAuthentication.Common;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace ASPNETCore2JwtAuthentication.Services
+namespace ASPNETCore2JwtAuthentication.Services;
+
+public class AntiForgeryCookieService : IAntiForgeryCookieService
 {
-    public interface IAntiForgeryCookieService
+    private const string XsrfTokenKey = "XSRF-TOKEN";
+    private readonly IAntiforgery _antiforgery;
+    private readonly IOptions<AntiforgeryOptions> _antiforgeryOptions;
+
+    private readonly IHttpContextAccessor _contextAccessor;
+
+    public AntiForgeryCookieService(
+        IHttpContextAccessor contextAccessor,
+        IAntiforgery antiforgery,
+        IOptions<AntiforgeryOptions> antiforgeryOptions)
     {
-        void RegenerateAntiForgeryCookies(IEnumerable<Claim> claims);
-        void DeleteAntiForgeryCookies();
+        _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
+        _antiforgery = antiforgery ?? throw new ArgumentNullException(nameof(antiforgery));
+        _antiforgeryOptions = antiforgeryOptions ?? throw new ArgumentNullException(nameof(antiforgeryOptions));
     }
 
-    public class AntiForgeryCookieService : IAntiForgeryCookieService
+    public void RegenerateAntiForgeryCookies(IEnumerable<Claim> claims)
     {
-        private const string XsrfTokenKey = "XSRF-TOKEN";
-
-        private readonly IHttpContextAccessor _contextAccessor;
-        private readonly IAntiforgery _antiforgery;
-        private readonly IOptions<AntiforgeryOptions> _antiforgeryOptions;
-
-        public AntiForgeryCookieService(
-            IHttpContextAccessor contextAccessor,
-            IAntiforgery antiforgery,
-            IOptions<AntiforgeryOptions> antiforgeryOptions)
+        var httpContext = _contextAccessor.HttpContext;
+        if (httpContext is null)
         {
-            _contextAccessor = contextAccessor;
-            _contextAccessor.CheckArgumentIsNull(nameof(contextAccessor));
-
-            _antiforgery = antiforgery;
-            _antiforgery.CheckArgumentIsNull(nameof(antiforgery));
-
-            _antiforgeryOptions = antiforgeryOptions;
-            _antiforgeryOptions.CheckArgumentIsNull(nameof(antiforgeryOptions));
+            throw new InvalidOperationException("httpContext is null");
         }
 
-        public void RegenerateAntiForgeryCookies(IEnumerable<Claim> claims)
+        httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims, JwtBearerDefaults.AuthenticationScheme));
+        var tokens = _antiforgery.GetAndStoreTokens(httpContext);
+        if (tokens.RequestToken is null)
         {
-            var httpContext = _contextAccessor.HttpContext;
-            httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims, JwtBearerDefaults.AuthenticationScheme));
-            var tokens = _antiforgery.GetAndStoreTokens(httpContext);
-            httpContext.Response.Cookies.Append(
-                  key: XsrfTokenKey,
-                  value: tokens.RequestToken,
-                  options: new CookieOptions
-                  {
-                      HttpOnly = false // Now JavaScript is able to read the cookie
-                  });
+            throw new InvalidOperationException("tokens.RequestToken is null");
         }
 
-        public void DeleteAntiForgeryCookies()
+        httpContext.Response.Cookies.Append(
+            XsrfTokenKey,
+            tokens.RequestToken,
+            new CookieOptions
+            {
+                HttpOnly = false // Now JavaScript is able to read the cookie
+            });
+    }
+
+    public void DeleteAntiForgeryCookies()
+    {
+        var cookies = _contextAccessor.HttpContext?.Response.Cookies;
+        if (cookies is null)
         {
-            var cookies = _contextAccessor.HttpContext.Response.Cookies;
-            cookies.Delete(_antiforgeryOptions.Value.Cookie.Name);
-            cookies.Delete(XsrfTokenKey);
+            return;
         }
+
+        var cookieName = _antiforgeryOptions.Value.Cookie.Name;
+        if (string.IsNullOrWhiteSpace(cookieName))
+        {
+            return;
+        }
+
+        cookies.Delete(cookieName);
+        cookies.Delete(XsrfTokenKey);
     }
 }

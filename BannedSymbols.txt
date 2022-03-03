@@ -1,0 +1,4 @@
+# https://github.com/dotnet/roslyn-analyzers/blob/master/src/Microsoft.CodeAnalysis.BannedApiAnalyzers/BannedApiAnalyzers.Help.md
+P:System.DateTime.Now;Use System.DateTime.UtcNow instead
+P:System.DateTimeOffset.Now;Use System.DateTimeOffset.UtcNow instead
+P:System.DateTimeOffset.DateTime;Use System.DateTimeOffset.UtcDateTime instead
