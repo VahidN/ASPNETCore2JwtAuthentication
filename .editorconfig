@@ -1,3 +1,7 @@
+# Code files
+[*.{cs,csx,vb,vbx,razor,html,htm,js,md,cshtml,xaml,vbhtml,aspx,txt,asax,ashx,asmx,master,config}]
+charset = utf-8-bom
+
 [*.cs]
 
 roslynator_accessibility_modifiers = explicit
@@ -6,6 +10,7 @@ roslynator_object_creation_type_style = implicit_when_type_is_obvious
 
 # The logging message template should not vary between calls to 'LoggerExtensions.LogError(ILogger, Exception?, string?, params object?[])'
 dotnet_diagnostic.CA2254.severity = suggestion
+dotnet_diagnostic.CA1852.severity = suggestion
 
 # SCS0008: The cookie is missing 'Secure' flag. 
 dotnet_diagnostic.SCS0008.severity = suggestion

@@ -114,3 +114,5 @@ public class AccountController : Controller
         return Json(new { Username = claimsIdentity?.Name });
     }
 }
+
+//TODO: Delete old tokens using a background job

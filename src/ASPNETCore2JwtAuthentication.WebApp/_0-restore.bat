@@ -1,5 +1,6 @@
 rmdir /S /Q bin
 rmdir /S /Q obj
 dotnet restore
-npm install
+dotnet tool update -g Microsoft.Web.LibraryManager.Cli
+libman restore
 pause

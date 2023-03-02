@@ -17,10 +17,10 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.2")
+                .HasAnnotation("ProductVersion", "7.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("ASPNETCore2JwtAuthentication.DomainClasses.Role", b =>
                 {
@@ -28,7 +28,7 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -49,7 +49,7 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("DisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -104,7 +104,7 @@ namespace ASPNETCore2JwtAuthentication.DataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTimeOffset>("AccessTokenExpiresDateTime")
                         .HasColumnType("datetimeoffset");

@@ -1,0 +1,18 @@
+{
+  "version": "1.0",
+  "defaultProvider": "unpkg",
+  "libraries": [
+    {
+      "library":"bootstrap@5.2.3",
+      "destination": "wwwroot/lib/bootstrap"
+    },
+    {
+      "library":"jquery@3.6.3",
+      "destination": "wwwroot/lib/jquery"
+    },
+    {
+      "library":    "jwt-decode@3.1.2",
+      "destination": "wwwroot/lib/jwt-decode"
+    }
+  ]
+}

@@ -1,8 +1,11 @@
 # Editor configuration, see http://editorconfig.org
 root = true
 
+# Code files
+[*.{cs,csx,vb,vbx,razor,html,htm,js,md,cshtml,xaml,vbhtml,aspx,txt,asax,ashx,asmx,master,config}]
+charset = utf-8-bom
+
 [*]
-charset = utf-8
 indent_style = space
 indent_size = 2
 insert_final_newline = true

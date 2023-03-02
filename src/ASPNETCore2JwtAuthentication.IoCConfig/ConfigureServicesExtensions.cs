@@ -62,14 +62,15 @@ public static class ConfigureServicesExtensions
             {
                 cfg.RequireHttpsMetadata = false;
                 cfg.SaveToken = true;
+                var bearerTokenOption = configuration.GetSection("BearerTokens").Get<BearerTokensOptions>();
                 cfg.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidIssuer = configuration["BearerTokens:Issuer"], // site that makes the token
+                    ValidIssuer = bearerTokenOption.Issuer, // site that makes the token
                     ValidateIssuer = true,
-                    ValidAudience = configuration["BearerTokens:Audience"], // site that consumes the token
+                    ValidAudience = bearerTokenOption.Audience, // site that consumes the token
                     ValidateAudience = true,
                     IssuerSigningKey =
-                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["BearerTokens:Key"])),
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(bearerTokenOption.Key)),
                     ValidateIssuerSigningKey = true, // verify signature to avoid tampering
                     ValidateLifetime = true, // validate the expiration
                     ClockSkew = TimeSpan.Zero // tolerance for the expiration date
