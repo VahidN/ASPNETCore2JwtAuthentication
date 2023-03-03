@@ -13,5 +13,5 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 7.0.200
-    - name: Build DNTIdentity
+    - name: Build ASPNETCore2JwtAuthentication
       run: dotnet build ./src/ASPNETCore2JwtAuthentication.WebApp/ASPNETCore2JwtAuthentication.WebApp.csproj --configuration Release
