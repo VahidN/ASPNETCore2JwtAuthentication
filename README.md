@@ -1,6 +1,13 @@
 Jwt Authentication without ASP.NET Core Identity 7x
 ===========
 
+<p>
+  <a href="https://github.com/VahidN/ASPNETCore2JwtAuthentication">
+     <img alt="GitHub Actions status" src="https://github.com/VahidN/ASPNETCore2JwtAuthentication/workflows/.NET%20Core%20Build/badge.svg">
+  </a>
+</p>
+
+
 ![jwtauth](/src/ASPNETCore2JwtAuthentication.WebApp/wwwroot/images/jwtauth.png)
 
 A Jwt based authentication sample for ASP.NET Core 7x without using the Identity system. It includes:
