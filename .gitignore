@@ -248,3 +248,4 @@ ModelManifest.xml
 /src/ASPNETCore2JwtAuthentication.WebApp/wwwroot/AngularClient
 /src/ASPNETCore2JwtAuthentication.WebApp/package-lock.json
 strest_history.json
+/.idea
