@@ -1,5 +1,6 @@
 using ASPNETCore2JwtAuthentication.DataLayer.Context;
 using ASPNETCore2JwtAuthentication.DomainClasses;
+using ASPNETCore2JwtAuthentication.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -46,7 +47,7 @@ public class TokenStoreService : ITokenStoreService
     }
 
     public async Task AddUserTokenAsync(User user, string refreshTokenSerial, string accessToken,
-        string refreshTokenSourceSerial)
+                                        string refreshTokenSourceSerial)
     {
         if (user == null)
         {
@@ -55,17 +56,18 @@ public class TokenStoreService : ITokenStoreService
 
         var now = DateTimeOffset.UtcNow;
         var token = new UserToken
-        {
-            UserId = user.Id,
-            // Refresh token handles should be treated as secrets and should be stored hashed
-            RefreshTokenIdHash = _securityService.GetSha256Hash(refreshTokenSerial),
-            RefreshTokenIdHashSource = string.IsNullOrWhiteSpace(refreshTokenSourceSerial)
-                ? null
-                : _securityService.GetSha256Hash(refreshTokenSourceSerial),
-            AccessTokenHash = _securityService.GetSha256Hash(accessToken),
-            RefreshTokenExpiresDateTime = now.AddMinutes(_configuration.Value.RefreshTokenExpirationMinutes),
-            AccessTokenExpiresDateTime = now.AddMinutes(_configuration.Value.AccessTokenExpirationMinutes)
-        };
+                    {
+                        UserId = user.Id,
+                        // Refresh token handles should be treated as secrets and should be stored hashed
+                        RefreshTokenIdHash = _securityService.GetSha256Hash(refreshTokenSerial),
+                        RefreshTokenIdHashSource = string.IsNullOrWhiteSpace(refreshTokenSourceSerial)
+                                                       ? null
+                                                       : _securityService.GetSha256Hash(refreshTokenSourceSerial),
+                        AccessTokenHash = _securityService.GetSha256Hash(accessToken),
+                        RefreshTokenExpiresDateTime =
+                            now.AddMinutes(_configuration.Value.RefreshTokenExpirationMinutes),
+                        AccessTokenExpiresDateTime = now.AddMinutes(_configuration.Value.AccessTokenExpirationMinutes),
+                    };
         await AddUserTokenAsync(token);
     }
 
@@ -73,7 +75,7 @@ public class TokenStoreService : ITokenStoreService
     {
         var now = DateTimeOffset.UtcNow;
         await _tokens.Where(x => x.RefreshTokenExpiresDateTime < now)
-            .ForEachAsync(userToken => _tokens.Remove(userToken));
+                     .ForEachAsync(userToken => _tokens.Remove(userToken));
     }
 
     public async Task DeleteTokenAsync(string refreshTokenValue)
@@ -93,9 +95,9 @@ public class TokenStoreService : ITokenStoreService
         }
 
         await _tokens.Where(t => t.RefreshTokenIdHashSource == refreshTokenIdHashSource ||
-                                 t.RefreshTokenIdHash == refreshTokenIdHashSource &&
-                                 t.RefreshTokenIdHashSource == null)
-            .ForEachAsync(userToken => _tokens.Remove(userToken));
+                                 (t.RefreshTokenIdHash == refreshTokenIdHashSource &&
+                                  t.RefreshTokenIdHashSource == null))
+                     .ForEachAsync(userToken => _tokens.Remove(userToken));
     }
 
     public async Task RevokeUserBearerTokensAsync(string userIdValue, string refreshTokenValue)
@@ -142,14 +144,15 @@ public class TokenStoreService : ITokenStoreService
     public async Task InvalidateUserTokensAsync(int userId)
     {
         await _tokens.Where(x => x.UserId == userId)
-            .ForEachAsync(userToken => _tokens.Remove(userToken));
+                     .ForEachAsync(userToken => _tokens.Remove(userToken));
     }
 
     public async Task<bool> IsValidTokenAsync(string accessToken, int userId)
     {
         var accessTokenHash = _securityService.GetSha256Hash(accessToken);
         var userToken = await _tokens.FirstOrDefaultAsync(
-            x => x.AccessTokenHash == accessTokenHash && x.UserId == userId);
+                                                          x => x.AccessTokenHash == accessTokenHash &&
+                                                               x.UserId == userId);
         return userToken?.AccessTokenExpiresDateTime >= DateTimeOffset.UtcNow;
     }
 }

@@ -7,6 +7,7 @@
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.DomainClasses\ASPNETCore2JwtAuthentication.DomainClasses.csproj" />
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.Common\ASPNETCore2JwtAuthentication.Common.csproj" />
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.DataLayer\ASPNETCore2JwtAuthentication.DataLayer.csproj" />
+    <ProjectReference Include="..\ASPNETCore2JwtAuthentication.Models\ASPNETCore2JwtAuthentication.Models.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" />

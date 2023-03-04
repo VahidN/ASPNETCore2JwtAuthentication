@@ -1,4 +1,4 @@
-namespace ASPNETCore2JwtAuthentication.Services;
+namespace ASPNETCore2JwtAuthentication.Models;
 
 public class BearerTokensOptions
 {

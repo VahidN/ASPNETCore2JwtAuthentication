@@ -1,4 +1,4 @@
-namespace ASPNETCore2JwtAuthentication.DomainClasses;
+namespace ASPNETCore2JwtAuthentication.Models;
 
 public class ApiSettings
 {

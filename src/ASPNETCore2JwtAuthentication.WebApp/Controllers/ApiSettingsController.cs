@@ -1,4 +1,4 @@
-using ASPNETCore2JwtAuthentication.DomainClasses;
+using ASPNETCore2JwtAuthentication.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -6,19 +6,16 @@ using Microsoft.Extensions.Options;
 
 namespace ASPNETCore2JwtAuthentication.WebApp.Controllers;
 
-[Route("api/[controller]"), EnableCors("CorsPolicy")]
+[Route("api/[controller]")]
+[EnableCors("CorsPolicy")]
 public class ApiSettingsController : Controller
 {
     private readonly IOptionsSnapshot<ApiSettings> _apiSettingsConfig;
 
-    public ApiSettingsController(IOptionsSnapshot<ApiSettings> apiSettingsConfig)
-    {
+    public ApiSettingsController(IOptionsSnapshot<ApiSettings> apiSettingsConfig) =>
         _apiSettingsConfig = apiSettingsConfig ?? throw new ArgumentNullException(nameof(apiSettingsConfig));
-    }
 
-    [AllowAnonymous, HttpGet]
-    public IActionResult Get()
-    {
-        return Ok(_apiSettingsConfig.Value); // For the Angular Client
-    }
+    [AllowAnonymous]
+    [HttpGet]
+    public IActionResult Get() => Ok(_apiSettingsConfig.Value); // For the Angular Client
 }

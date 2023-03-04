@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using ASPNETCore2JwtAuthentication.DomainClasses;
+using ASPNETCore2JwtAuthentication.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -37,12 +38,12 @@ public class TokenFactoryService : ITokenFactoryService
         var (accessToken, claims) = await createAccessTokenAsync(user);
         var (refreshTokenValue, refreshTokenSerial) = createRefreshToken();
         return new JwtTokensData
-        {
-            AccessToken = accessToken,
-            RefreshToken = refreshTokenValue,
-            RefreshTokenSerial = refreshTokenSerial,
-            Claims = claims
-        };
+               {
+                   AccessToken = accessToken,
+                   RefreshToken = refreshTokenValue,
+                   RefreshTokenSerial = refreshTokenSerial,
+                   Claims = claims,
+               };
     }
 
     public string GetRefreshTokenSerial(string refreshTokenValue)
@@ -56,21 +57,21 @@ public class TokenFactoryService : ITokenFactoryService
         try
         {
             decodedRefreshTokenPrincipal = new JwtSecurityTokenHandler().ValidateToken(
-                refreshTokenValue,
-                new TokenValidationParameters
-                {
-                    ValidIssuer = _configuration.Value.Issuer, // site that makes the token
-                    ValidAudience = _configuration.Value.Audience, // site that consumes the token
-                    RequireExpirationTime = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.Value.Key)),
-                    ValidateIssuerSigningKey = true, // verify signature to avoid tampering
-                    ValidateLifetime = true, // validate the expiration
-                    ClockSkew = TimeSpan.Zero // tolerance for the expiration date
-                },
-                out _
-            );
+                 refreshTokenValue,
+                 new TokenValidationParameters
+                 {
+                     ValidIssuer = _configuration.Value.Issuer, // site that makes the token
+                     ValidAudience = _configuration.Value.Audience, // site that consumes the token
+                     RequireExpirationTime = true,
+                     ValidateIssuer = true,
+                     ValidateAudience = true,
+                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.Value.Key)),
+                     ValidateIssuerSigningKey = true, // verify signature to avoid tampering
+                     ValidateLifetime = true, // validate the expiration
+                     ClockSkew = TimeSpan.Zero, // tolerance for the expiration date
+                 },
+                 out _
+                );
         }
         catch (Exception ex)
         {
@@ -78,39 +79,42 @@ public class TokenFactoryService : ITokenFactoryService
         }
 
         return decodedRefreshTokenPrincipal?.Claims
-            ?.FirstOrDefault(c => string.Equals(c.Type, ClaimTypes.SerialNumber, StringComparison.Ordinal))?.Value;
+                                           ?.FirstOrDefault(c => string.Equals(c.Type, ClaimTypes.SerialNumber,
+                                                                               StringComparison.Ordinal))?.Value;
     }
 
     private (string RefreshTokenValue, string RefreshTokenSerial) createRefreshToken()
     {
         var refreshTokenSerial = _securityService.CreateCryptographicallySecureGuid().ToString()
-            .Replace("-", "", StringComparison.Ordinal);
+                                                 .Replace("-", "", StringComparison.Ordinal);
 
         var claims = new List<Claim>
-        {
-            // Unique Id for all Jwt tokes
-            new(JwtRegisteredClaimNames.Jti, _securityService.CreateCryptographicallySecureGuid().ToString(),
-                ClaimValueTypes.String, _configuration.Value.Issuer),
-            // Issuer
-            new(JwtRegisteredClaimNames.Iss, _configuration.Value.Issuer, ClaimValueTypes.String,
-                _configuration.Value.Issuer),
-            // Issued at
-            new(JwtRegisteredClaimNames.Iat,
-                DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture),
-                ClaimValueTypes.Integer64, _configuration.Value.Issuer),
-            // for invalidation
-            new(ClaimTypes.SerialNumber, refreshTokenSerial, ClaimValueTypes.String, _configuration.Value.Issuer)
-        };
+                     {
+                         // Unique Id for all Jwt tokes
+                         new(JwtRegisteredClaimNames.Jti,
+                             _securityService.CreateCryptographicallySecureGuid().ToString(),
+                             ClaimValueTypes.String, _configuration.Value.Issuer),
+                         // Issuer
+                         new(JwtRegisteredClaimNames.Iss, _configuration.Value.Issuer, ClaimValueTypes.String,
+                             _configuration.Value.Issuer),
+                         // Issued at
+                         new(JwtRegisteredClaimNames.Iat,
+                             DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture),
+                             ClaimValueTypes.Integer64, _configuration.Value.Issuer),
+                         // for invalidation
+                         new(ClaimTypes.SerialNumber, refreshTokenSerial, ClaimValueTypes.String,
+                             _configuration.Value.Issuer),
+                     };
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.Value.Key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var now = DateTime.UtcNow;
         var token = new JwtSecurityToken(
-            _configuration.Value.Issuer,
-            _configuration.Value.Audience,
-            claims,
-            now,
-            now.AddMinutes(_configuration.Value.RefreshTokenExpirationMinutes),
-            creds);
+                                         _configuration.Value.Issuer,
+                                         _configuration.Value.Audience,
+                                         claims,
+                                         now,
+                                         now.AddMinutes(_configuration.Value.RefreshTokenExpirationMinutes),
+                                         creds);
         var refreshTokenValue = new JwtSecurityTokenHandler().WriteToken(token);
         return (refreshTokenValue, refreshTokenSerial);
     }
@@ -123,27 +127,31 @@ public class TokenFactoryService : ITokenFactoryService
         }
 
         var claims = new List<Claim>
-        {
-            // Unique Id for all Jwt tokes
-            new(JwtRegisteredClaimNames.Jti, _securityService.CreateCryptographicallySecureGuid().ToString(),
-                ClaimValueTypes.String, _configuration.Value.Issuer),
-            // Issuer
-            new(JwtRegisteredClaimNames.Iss, _configuration.Value.Issuer, ClaimValueTypes.String,
-                _configuration.Value.Issuer),
-            // Issued at
-            new(JwtRegisteredClaimNames.Iat,
-                DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture),
-                ClaimValueTypes.Integer64, _configuration.Value.Issuer),
-            new(ClaimTypes.NameIdentifier, user.Id.ToString(CultureInfo.InvariantCulture), ClaimValueTypes.String,
-                _configuration.Value.Issuer),
-            new(ClaimTypes.Name, user.Username, ClaimValueTypes.String, _configuration.Value.Issuer),
-            new("DisplayName", user.DisplayName, ClaimValueTypes.String, _configuration.Value.Issuer),
-            // to invalidate the cookie
-            new(ClaimTypes.SerialNumber, user.SerialNumber, ClaimValueTypes.String, _configuration.Value.Issuer),
-            // custom data
-            new(ClaimTypes.UserData, user.Id.ToString(CultureInfo.InvariantCulture), ClaimValueTypes.String,
-                _configuration.Value.Issuer)
-        };
+                     {
+                         // Unique Id for all Jwt tokes
+                         new(JwtRegisteredClaimNames.Jti,
+                             _securityService.CreateCryptographicallySecureGuid().ToString(),
+                             ClaimValueTypes.String, _configuration.Value.Issuer),
+                         // Issuer
+                         new(JwtRegisteredClaimNames.Iss, _configuration.Value.Issuer, ClaimValueTypes.String,
+                             _configuration.Value.Issuer),
+                         // Issued at
+                         new(JwtRegisteredClaimNames.Iat,
+                             DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture),
+                             ClaimValueTypes.Integer64, _configuration.Value.Issuer),
+                         new(ClaimTypes.NameIdentifier, user.Id.ToString(CultureInfo.InvariantCulture),
+                             ClaimValueTypes.String,
+                             _configuration.Value.Issuer),
+                         new(ClaimTypes.Name, user.Username, ClaimValueTypes.String, _configuration.Value.Issuer),
+                         new("DisplayName", user.DisplayName, ClaimValueTypes.String, _configuration.Value.Issuer),
+                         // to invalidate the cookie
+                         new(ClaimTypes.SerialNumber, user.SerialNumber, ClaimValueTypes.String,
+                             _configuration.Value.Issuer),
+                         // custom data
+                         new(ClaimTypes.UserData, user.Id.ToString(CultureInfo.InvariantCulture),
+                             ClaimValueTypes.String,
+                             _configuration.Value.Issuer),
+                     };
 
         // add roles
         var roles = await _rolesService.FindUserRolesAsync(user.Id);
@@ -156,12 +164,12 @@ public class TokenFactoryService : ITokenFactoryService
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var now = DateTime.UtcNow;
         var token = new JwtSecurityToken(
-            _configuration.Value.Issuer,
-            _configuration.Value.Audience,
-            claims,
-            now,
-            now.AddMinutes(_configuration.Value.AccessTokenExpirationMinutes),
-            creds);
+                                         _configuration.Value.Issuer,
+                                         _configuration.Value.Audience,
+                                         claims,
+                                         now,
+                                         now.AddMinutes(_configuration.Value.AccessTokenExpirationMinutes),
+                                         creds);
         return (new JwtSecurityTokenHandler().WriteToken(token), claims);
     }
 }

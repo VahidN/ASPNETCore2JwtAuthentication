@@ -8,6 +8,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ASPNETCore2JwtAuthentication.Models\ASPNETCore2JwtAuthentication.Models.csproj" />
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.Services\ASPNETCore2JwtAuthentication.Services.csproj" />
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.DataLayer\ASPNETCore2JwtAuthentication.DataLayer.csproj" />
     <ProjectReference Include="..\ASPNETCore2JwtAuthentication.DomainClasses\ASPNETCore2JwtAuthentication.DomainClasses.csproj" />

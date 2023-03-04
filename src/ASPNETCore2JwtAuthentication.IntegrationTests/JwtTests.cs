@@ -1,7 +1,10 @@
 using System.Text;
 using ASPNETCore2JwtAuthentication.IntegrationTests.Base;
 using ASPNETCore2JwtAuthentication.IntegrationTests.Models;
+using ASPNETCore2JwtAuthentication.Models;
+using ASPNETCore2JwtAuthentication.WebApp.Controllers;
 using FluentAssertions;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ASPNETCore2JwtAuthentication.IntegrationTests;
@@ -16,7 +19,7 @@ public class JwtTests
         var client = TestsHttpClient.Instance;
 
         // Act
-        var token = await doLoginAsync(client);
+        var token = await doLoginAsync(client.HttpClient, client.LinkGenerator, client.AdminUserSeed);
 
         // Assert
         token.Should().NotBeNull();
@@ -31,7 +34,7 @@ public class JwtTests
         var client = TestsHttpClient.Instance;
 
         // Act
-        var token = await doLoginAsync(client);
+        var token = await doLoginAsync(client.HttpClient, client.LinkGenerator, client.AdminUserSeed);
 
         // Assert
         token.Should().NotBeNull();
@@ -39,9 +42,13 @@ public class JwtTests
         token.RefreshToken.Should().NotBeNullOrEmpty();
 
         // Act
-        const string protectedApiUrl = "/api/MyProtectedApi";
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-        var response = await client.GetAsync(protectedApiUrl);
+        var protectedApiUrl = client.LinkGenerator
+                                    .GetPathByAction(nameof(MyProtectedApiController.Get),
+                                                     nameof(MyProtectedApiController).Replace(
+                                                      "Controller", "", StringComparison.Ordinal));
+        client.HttpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token.AccessToken);
+        var response = await client.HttpClient.GetAsync(protectedApiUrl);
         response.EnsureSuccessStatusCode();
 
         // Assert
@@ -53,20 +60,25 @@ public class JwtTests
         apiResponse.Title.Should().Be("Hello from My Protected Controller! [Authorize]");
     }
 
-    private static async Task<Token> doLoginAsync(HttpClient client)
+    private static async Task<Token> doLoginAsync(
+        HttpClient client,
+        LinkGenerator linkGenerator,
+        AdminUserSeed adminUserSeed)
     {
         if (client is null)
         {
             throw new ArgumentNullException(nameof(client));
         }
 
-        const string loginUrl = "/api/account/login";
-        var user = new { Username = "Vahid", Password = "1234" };
+        var loginUrl = linkGenerator.GetPathByAction(nameof(AccountController.Login),
+                                                     nameof(AccountController)
+                                                         .Replace("Controller", "", StringComparison.Ordinal));
+        var user = new { adminUserSeed.Username, adminUserSeed.Password };
         using var stringContent = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
         using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, loginUrl)
-        {
-            Content = stringContent
-        };
+                                       {
+                                           Content = stringContent,
+                                       };
         var response = await client.SendAsync(httpRequestMessage);
         response.EnsureSuccessStatusCode();
         var responseString = await response.Content.ReadAsStringAsync();

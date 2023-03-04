@@ -1,21 +1,26 @@
 using ASPNETCore2JwtAuthentication.DataLayer.Context;
 using ASPNETCore2JwtAuthentication.DomainClasses;
+using ASPNETCore2JwtAuthentication.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace ASPNETCore2JwtAuthentication.Services;
 
 public class DbInitializerService : IDbInitializerService
 {
+    private readonly IOptions<AdminUserSeed> _adminUserSeedOption;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ISecurityService _securityService;
 
     public DbInitializerService(
         IServiceScopeFactory scopeFactory,
-        ISecurityService securityService)
+        ISecurityService securityService,
+        IOptions<AdminUserSeed> adminUserSeedOption)
     {
         _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
         _securityService = securityService ?? throw new ArgumentNullException(nameof(securityService));
+        _adminUserSeedOption = adminUserSeedOption ?? throw new ArgumentNullException(nameof(adminUserSeedOption));
     }
 
     public void Initialize()
@@ -44,14 +49,14 @@ public class DbInitializerService : IDbInitializerService
         if (!context.Users.Any())
         {
             var adminUser = new User
-            {
-                Username = "Vahid",
-                DisplayName = "وحيد",
-                IsActive = true,
-                LastLoggedIn = null,
-                Password = _securityService.GetSha256Hash("1234"),
-                SerialNumber = Guid.NewGuid().ToString("N")
-            };
+                            {
+                                Username = _adminUserSeedOption.Value.Username,
+                                DisplayName = _adminUserSeedOption.Value.DisplayName,
+                                IsActive = true,
+                                LastLoggedIn = null,
+                                Password = _securityService.GetSha256Hash(_adminUserSeedOption.Value.Password),
+                                SerialNumber = Guid.NewGuid().ToString("N"),
+                            };
             context.Add(adminUser);
             context.SaveChanges();
 
