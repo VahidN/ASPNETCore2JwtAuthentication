@@ -152,6 +152,7 @@ public static class ConfigureServicesExtensions
     public static void AddCustomServices(this IServiceCollection services)
     {
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.AddScoped<IDeviceDetectionService, DeviceDetectionService>();
         services.AddScoped<IAntiForgeryCookieService, AntiForgeryCookieService>();
         services.AddScoped<IUnitOfWork, ApplicationDbContext>();
         services.AddScoped<IUsersService, UsersService>();

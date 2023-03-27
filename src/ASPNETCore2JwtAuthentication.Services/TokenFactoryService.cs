@@ -12,6 +12,7 @@ namespace ASPNETCore2JwtAuthentication.Services;
 public class TokenFactoryService : ITokenFactoryService
 {
     private readonly IOptionsSnapshot<BearerTokensOptions> _configuration;
+    private readonly IDeviceDetectionService _deviceDetectionService;
     private readonly ILogger<TokenFactoryService> _logger;
     private readonly IRolesService _rolesService;
     private readonly ISecurityService _securityService;
@@ -20,12 +21,15 @@ public class TokenFactoryService : ITokenFactoryService
         ISecurityService securityService,
         IRolesService rolesService,
         IOptionsSnapshot<BearerTokensOptions> configuration,
-        ILogger<TokenFactoryService> logger)
+        ILogger<TokenFactoryService> logger,
+        IDeviceDetectionService deviceDetectionService)
     {
         _securityService = securityService ?? throw new ArgumentNullException(nameof(securityService));
         _rolesService = rolesService ?? throw new ArgumentNullException(nameof(rolesService));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _deviceDetectionService =
+            deviceDetectionService ?? throw new ArgumentNullException(nameof(deviceDetectionService));
     }
 
     public async Task<JwtTokensData> CreateJwtTokensAsync(User user)
@@ -104,6 +108,8 @@ public class TokenFactoryService : ITokenFactoryService
                          // for invalidation
                          new(ClaimTypes.SerialNumber, refreshTokenSerial, ClaimValueTypes.String,
                              _configuration.Value.Issuer),
+                         new(ClaimTypes.System, _deviceDetectionService.GetCurrentRequestDeviceDetailsHash(),
+                             ClaimValueTypes.String, _configuration.Value.Issuer),
                      };
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.Value.Key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -140,8 +146,7 @@ public class TokenFactoryService : ITokenFactoryService
                              DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture),
                              ClaimValueTypes.Integer64, _configuration.Value.Issuer),
                          new(ClaimTypes.NameIdentifier, user.Id.ToString(CultureInfo.InvariantCulture),
-                             ClaimValueTypes.String,
-                             _configuration.Value.Issuer),
+                             ClaimValueTypes.String, _configuration.Value.Issuer),
                          new(ClaimTypes.Name, user.Username, ClaimValueTypes.String, _configuration.Value.Issuer),
                          new("DisplayName", user.DisplayName, ClaimValueTypes.String, _configuration.Value.Issuer),
                          // to invalidate the cookie
@@ -149,8 +154,9 @@ public class TokenFactoryService : ITokenFactoryService
                              _configuration.Value.Issuer),
                          // custom data
                          new(ClaimTypes.UserData, user.Id.ToString(CultureInfo.InvariantCulture),
-                             ClaimValueTypes.String,
-                             _configuration.Value.Issuer),
+                             ClaimValueTypes.String, _configuration.Value.Issuer),
+                         new(ClaimTypes.System, _deviceDetectionService.GetCurrentRequestDeviceDetailsHash(),
+                             ClaimValueTypes.String, _configuration.Value.Issuer),
                      };
 
         // add roles
