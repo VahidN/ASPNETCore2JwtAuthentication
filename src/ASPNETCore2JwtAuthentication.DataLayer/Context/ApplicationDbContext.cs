@@ -9,10 +9,10 @@ public class ApplicationDbContext : DbContext, IUnitOfWork
     {
     }
 
-    public virtual DbSet<User> Users { set; get; }
-    public virtual DbSet<Role> Roles { set; get; }
-    public virtual DbSet<UserRole> UserRoles { get; set; }
-    public virtual DbSet<UserToken> UserTokens { get; set; }
+    public virtual DbSet<User> Users { set; get; } = default!;
+    public virtual DbSet<Role> Roles { set; get; } = default!;
+    public virtual DbSet<UserRole> UserRoles { get; set; } = default!;
+    public virtual DbSet<UserToken> UserTokens { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,38 +26,40 @@ public class ApplicationDbContext : DbContext, IUnitOfWork
 
         // Custom application mappings
         modelBuilder.Entity<User>(entity =>
-        {
-            entity.Property(e => e.Username).HasMaxLength(450).IsRequired();
-            entity.HasIndex(e => e.Username).IsUnique();
-            entity.Property(e => e.Password).IsRequired();
-            entity.Property(e => e.SerialNumber).HasMaxLength(450);
-        });
+                                  {
+                                      entity.Property(e => e.Username).HasMaxLength(450).IsRequired();
+                                      entity.HasIndex(e => e.Username).IsUnique();
+                                      entity.Property(e => e.Password).IsRequired();
+                                      entity.Property(e => e.SerialNumber).HasMaxLength(450);
+                                  });
 
         modelBuilder.Entity<Role>(entity =>
-        {
-            entity.Property(e => e.Name).HasMaxLength(450).IsRequired();
-            entity.HasIndex(e => e.Name).IsUnique();
-        });
+                                  {
+                                      entity.Property(e => e.Name).HasMaxLength(450).IsRequired();
+                                      entity.HasIndex(e => e.Name).IsUnique();
+                                  });
 
         modelBuilder.Entity<UserRole>(entity =>
-        {
-            entity.HasKey(e => new { e.UserId, e.RoleId });
-            entity.HasIndex(e => e.UserId);
-            entity.HasIndex(e => e.RoleId);
-            entity.Property(e => e.UserId);
-            entity.Property(e => e.RoleId);
-            entity.HasOne(d => d.Role).WithMany(p => p.UserRoles).HasForeignKey(d => d.RoleId);
-            entity.HasOne(d => d.User).WithMany(p => p.UserRoles).HasForeignKey(d => d.UserId);
-        });
+                                      {
+                                          entity.HasKey(e => new { e.UserId, e.RoleId });
+                                          entity.HasIndex(e => e.UserId);
+                                          entity.HasIndex(e => e.RoleId);
+                                          entity.Property(e => e.UserId);
+                                          entity.Property(e => e.RoleId);
+                                          entity.HasOne(d => d.Role).WithMany(p => p.UserRoles)
+                                                .HasForeignKey(d => d.RoleId);
+                                          entity.HasOne(d => d.User).WithMany(p => p.UserRoles)
+                                                .HasForeignKey(d => d.UserId);
+                                      });
 
         modelBuilder.Entity<UserToken>(entity =>
-        {
-            entity.HasOne(ut => ut.User)
-                .WithMany(u => u.UserTokens)
-                .HasForeignKey(ut => ut.UserId);
+                                       {
+                                           entity.HasOne(ut => ut.User)
+                                                 .WithMany(u => u.UserTokens)
+                                                 .HasForeignKey(ut => ut.UserId);
 
-            entity.Property(ut => ut.RefreshTokenIdHash).HasMaxLength(450).IsRequired();
-            entity.Property(ut => ut.RefreshTokenIdHashSource).HasMaxLength(450);
-        });
+                                           entity.Property(ut => ut.RefreshTokenIdHash).HasMaxLength(450).IsRequired();
+                                           entity.Property(ut => ut.RefreshTokenIdHashSource).HasMaxLength(450);
+                                       });
     }
 }

@@ -5,15 +5,15 @@ namespace ASPNETCore2JwtAuthentication.Services;
 
 public interface IDeviceDetectionService
 {
-    string GetDeviceDetails(HttpContext context);
+    string GetDeviceDetails(HttpContext? context);
     string GetCurrentRequestDeviceDetails();
 
-    string GetDeviceDetailsHash(HttpContext context);
+    string GetDeviceDetailsHash(HttpContext? context);
     string GetCurrentRequestDeviceDetailsHash();
 
-    string GetUserTokenDeviceDetailsHash(ClaimsIdentity claimsIdentity);
-    string GetCurrentUserTokenDeviceDetailsHash();
+    string? GetUserTokenDeviceDetailsHash(ClaimsIdentity? claimsIdentity);
+    string? GetCurrentUserTokenDeviceDetailsHash();
 
-    bool HasUserTokenValidDeviceDetails(ClaimsIdentity claimsIdentity);
+    bool HasUserTokenValidDeviceDetails(ClaimsIdentity? claimsIdentity);
     bool HasCurrentUserTokenValidDeviceDetails();
 }

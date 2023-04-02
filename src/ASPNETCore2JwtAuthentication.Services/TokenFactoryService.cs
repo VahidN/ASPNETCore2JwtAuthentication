@@ -50,14 +50,14 @@ public class TokenFactoryService : ITokenFactoryService
                };
     }
 
-    public string GetRefreshTokenSerial(string refreshTokenValue)
+    public string? GetRefreshTokenSerial(string refreshTokenValue)
     {
         if (string.IsNullOrWhiteSpace(refreshTokenValue))
         {
             return null;
         }
 
-        ClaimsPrincipal decodedRefreshTokenPrincipal = null;
+        ClaimsPrincipal? decodedRefreshTokenPrincipal = null;
         try
         {
             decodedRefreshTokenPrincipal = new JwtSecurityTokenHandler().ValidateToken(
@@ -148,9 +148,10 @@ public class TokenFactoryService : ITokenFactoryService
                          new(ClaimTypes.NameIdentifier, user.Id.ToString(CultureInfo.InvariantCulture),
                              ClaimValueTypes.String, _configuration.Value.Issuer),
                          new(ClaimTypes.Name, user.Username, ClaimValueTypes.String, _configuration.Value.Issuer),
-                         new("DisplayName", user.DisplayName, ClaimValueTypes.String, _configuration.Value.Issuer),
+                         new("DisplayName", user.DisplayName ?? "", ClaimValueTypes.String,
+                             _configuration.Value.Issuer),
                          // to invalidate the cookie
-                         new(ClaimTypes.SerialNumber, user.SerialNumber, ClaimValueTypes.String,
+                         new(ClaimTypes.SerialNumber, user.SerialNumber ?? "", ClaimValueTypes.String,
                              _configuration.Value.Issuer),
                          // custom data
                          new(ClaimTypes.UserData, user.Id.ToString(CultureInfo.InvariantCulture),

@@ -24,26 +24,28 @@ public class UsersService : IUsersService
         _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
     }
 
-    public ValueTask<User> FindUserAsync(int userId)
-    {
-        return _users.FindAsync(userId);
-    }
+    public ValueTask<User?> FindUserAsync(int userId) => _users.FindAsync(userId);
 
-    public Task<User> FindUserAsync(string username, string password)
+    public Task<User?> FindUserAsync(string username, string password)
     {
         var passwordHash = _securityService.GetSha256Hash(password);
         return _users.FirstOrDefaultAsync(x => x.Username == username && x.Password == passwordHash);
     }
 
-    public async Task<string> GetSerialNumberAsync(int userId)
+    public async Task<string?> GetSerialNumberAsync(int userId)
     {
         var user = await FindUserAsync(userId);
-        return user.SerialNumber;
+        return user?.SerialNumber;
     }
 
     public async Task UpdateUserLastActivityDateAsync(int userId)
     {
         var user = await FindUserAsync(userId);
+        if (user is null)
+        {
+            return;
+        }
+
         if (user.LastLoggedIn != null)
         {
             var updateLastActivityDate = TimeSpan.FromMinutes(2);
@@ -65,18 +67,18 @@ public class UsersService : IUsersService
         var userDataClaim = claimsIdentity?.FindFirst(ClaimTypes.UserData);
         var userId = userDataClaim?.Value;
         return string.IsNullOrWhiteSpace(userId)
-            ? 0
-            : int.Parse(userId, NumberStyles.Number, CultureInfo.InvariantCulture);
+                   ? 0
+                   : int.Parse(userId, NumberStyles.Number, CultureInfo.InvariantCulture);
     }
 
-    public ValueTask<User> GetCurrentUserAsync()
+    public ValueTask<User?> GetCurrentUserAsync()
     {
         var userId = GetCurrentUserId();
         return FindUserAsync(userId);
     }
 
     public async Task<(bool Succeeded, string Error)> ChangePasswordAsync(User user, string currentPassword,
-        string newPassword)
+                                                                          string newPassword)
     {
         if (user == null)
         {

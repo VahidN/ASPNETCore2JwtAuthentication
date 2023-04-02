@@ -1,15 +1,16 @@
 using System.Security.Claims;
 using ASPNETCore2JwtAuthentication.DataLayer.Context;
 using ASPNETCore2JwtAuthentication.DomainClasses;
+using ASPNETCore2JwtAuthentication.Models;
 using ASPNETCore2JwtAuthentication.Services;
-using ASPNETCore2JwtAuthentication.WebApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ASPNETCore2JwtAuthentication.WebApp.Controllers;
 
-[Route("api/[controller]"), EnableCors("CorsPolicy")]
+[Route("api/[controller]")]
+[EnableCors("CorsPolicy")]
 public class AccountController : Controller
 {
     private readonly IAntiForgeryCookieService _antiforgery;
@@ -32,7 +33,9 @@ public class AccountController : Controller
         _tokenFactoryService = tokenFactoryService ?? throw new ArgumentNullException(nameof(tokenFactoryService));
     }
 
-    [AllowAnonymous, IgnoreAntiforgeryToken, HttpPost("[action]")]
+    [AllowAnonymous]
+    [IgnoreAntiforgeryToken]
+    [HttpPost("[action]")]
     public async Task<IActionResult> Login([FromBody] User loginUser)
     {
         if (loginUser == null)
@@ -55,7 +58,9 @@ public class AccountController : Controller
         return Ok(new { access_token = result.AccessToken, refresh_token = result.RefreshToken });
     }
 
-    [AllowAnonymous, IgnoreAntiforgeryToken, HttpPost("[action]")]
+    [AllowAnonymous]
+    [IgnoreAntiforgeryToken]
+    [HttpPost("[action]")]
     public async Task<IActionResult> RefreshToken([FromBody] Token model)
     {
         if (model == null)
@@ -77,7 +82,7 @@ public class AccountController : Controller
 
         var result = await _tokenFactoryService.CreateJwtTokensAsync(token.User);
         await _tokenStoreService.AddUserTokenAsync(token.User, result.RefreshTokenSerial, result.AccessToken,
-            _tokenFactoryService.GetRefreshTokenSerial(refreshTokenValue));
+                                                   _tokenFactoryService.GetRefreshTokenSerial(refreshTokenValue));
         await _uow.SaveChangesAsync();
 
         _antiforgery.RegenerateAntiForgeryCookies(result.Claims);
@@ -85,7 +90,8 @@ public class AccountController : Controller
         return Ok(new { access_token = result.AccessToken, refresh_token = result.RefreshToken });
     }
 
-    [AllowAnonymous, HttpGet("[action]")]
+    [AllowAnonymous]
+    [HttpGet("[action]")]
     public async Task<bool> Logout(string refreshToken)
     {
         var claimsIdentity = User.Identity as ClaimsIdentity;
@@ -101,13 +107,12 @@ public class AccountController : Controller
         return true;
     }
 
-    [HttpGet("[action]"), HttpPost("[action]")]
-    public bool IsAuthenticated()
-    {
-        return User.Identity?.IsAuthenticated ?? false;
-    }
+    [HttpGet("[action]")]
+    [HttpPost("[action]")]
+    public bool IsAuthenticated() => User.Identity?.IsAuthenticated ?? false;
 
-    [HttpGet("[action]"), HttpPost("[action]")]
+    [HttpGet("[action]")]
+    [HttpPost("[action]")]
     public IActionResult GetUserInfo()
     {
         var claimsIdentity = User.Identity as ClaimsIdentity;

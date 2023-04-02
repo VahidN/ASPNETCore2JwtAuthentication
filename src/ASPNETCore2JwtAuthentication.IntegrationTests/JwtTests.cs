@@ -6,6 +6,7 @@ using ASPNETCore2JwtAuthentication.WebApp.Controllers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Token = ASPNETCore2JwtAuthentication.IntegrationTests.Models.Token;
 
 namespace ASPNETCore2JwtAuthentication.IntegrationTests;
 
@@ -23,8 +24,8 @@ public class JwtTests
 
         // Assert
         token.Should().NotBeNull();
-        token.AccessToken.Should().NotBeNullOrEmpty();
-        token.RefreshToken.Should().NotBeNullOrEmpty();
+        token?.AccessToken.Should().NotBeNullOrEmpty();
+        token?.RefreshToken.Should().NotBeNullOrEmpty();
     }
 
     [TestMethod]
@@ -38,6 +39,11 @@ public class JwtTests
 
         // Assert
         token.Should().NotBeNull();
+        if (token is null)
+        {
+            return;
+        }
+
         token.AccessToken.Should().NotBeNullOrEmpty();
         token.RefreshToken.Should().NotBeNullOrEmpty();
 
@@ -56,11 +62,12 @@ public class JwtTests
         responseString.Should().NotBeNullOrEmpty();
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var apiResponse = JsonSerializer.Deserialize<MyProtectedApiResponse>(responseString, options);
-        apiResponse.Title.Should().NotBeNullOrEmpty();
-        apiResponse.Title.Should().Be("Hello from My Protected Controller! [Authorize]");
+        apiResponse.Should().NotBeNull();
+        apiResponse?.Title.Should().NotBeNullOrEmpty();
+        apiResponse?.Title.Should().Be("Hello from My Protected Controller! [Authorize]");
     }
 
-    private static async Task<Token> doLoginAsync(
+    private static async Task<Token?> doLoginAsync(
         HttpClient client,
         LinkGenerator linkGenerator,
         AdminUserSeed adminUserSeed)

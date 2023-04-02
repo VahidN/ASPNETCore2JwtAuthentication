@@ -14,7 +14,7 @@ internal class CustomWebApplicationFactory : WebApplicationFactory<Program>
         // How to override settings ...
         builder.ConfigureHostConfiguration(config =>
                                            {
-                                               config.AddInMemoryCollection(new Dictionary<string, string>
+                                               config.AddInMemoryCollection(new Dictionary<string, string?>
                                                                             {
                                                                                 {
                                                                                     "ConnectionStrings:SqlServer:ApplicationDbContextConnection",
@@ -32,7 +32,7 @@ internal class CustomWebApplicationFactory : WebApplicationFactory<Program>
         return host;
     }
 
-    protected override IWebHostBuilder CreateWebHostBuilder()
+    protected override IWebHostBuilder? CreateWebHostBuilder()
     {
         var builder = base.CreateWebHostBuilder();
         builder?.ConfigureLogging(logging =>

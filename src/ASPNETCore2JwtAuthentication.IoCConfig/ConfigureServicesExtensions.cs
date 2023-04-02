@@ -67,24 +67,28 @@ public static class ConfigureServicesExtensions
                               cfg.SaveToken = true;
                               var bearerTokenOption =
                                   configuration.GetSection("BearerTokens").Get<BearerTokensOptions>();
+                              if (bearerTokenOption is null)
+                              {
+                                  throw new InvalidOperationException("bearerTokenOption is null");
+                              }
+
                               cfg.TokenValidationParameters = new TokenValidationParameters
                                                               {
-                                                                  ValidIssuer =
-                                                                      bearerTokenOption
-                                                                          .Issuer, // site that makes the token
+                                                                  // site that makes the token
+                                                                  ValidIssuer = bearerTokenOption.Issuer,
                                                                   ValidateIssuer = true,
-                                                                  ValidAudience =
-                                                                      bearerTokenOption
-                                                                          .Audience, // site that consumes the token
+                                                                  // site that consumes the token
+                                                                  ValidAudience = bearerTokenOption.Audience,
                                                                   ValidateAudience = true,
                                                                   IssuerSigningKey =
-                                                                      new SymmetricSecurityKey(Encoding.UTF8
-                                                                          .GetBytes(bearerTokenOption.Key)),
-                                                                  ValidateIssuerSigningKey =
-                                                                      true, // verify signature to avoid tampering
+                                                                      new SymmetricSecurityKey(
+                                                                       Encoding.UTF8
+                                                                               .GetBytes(bearerTokenOption.Key)),
+                                                                  // verify signature to avoid tampering
+                                                                  ValidateIssuerSigningKey = true,
                                                                   ValidateLifetime = true, // validate the expiration
-                                                                  ClockSkew = TimeSpan
-                                                                      .Zero, // tolerance for the expiration date
+                                                                  // tolerance for the expiration date
+                                                                  ClockSkew = TimeSpan.Zero,
                                                               };
                               cfg.Events = new JwtBearerEvents
                                            {
@@ -130,9 +134,15 @@ public static class ConfigureServicesExtensions
         }
 
         var projectDir = ServerPath.GetProjectPath(startupAssembly);
-        var connectionString = configuration.GetConnectionString("DefaultConnection")
-                                            .Replace("|DataDirectory|", Path.Combine(projectDir, "wwwroot", "app_data"),
-                                                     StringComparison.OrdinalIgnoreCase);
+        var defaultConnection = configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrWhiteSpace(defaultConnection))
+        {
+            throw new InvalidOperationException("defaultConnection is null");
+        }
+
+        var connectionString = defaultConnection.Replace("|DataDirectory|",
+                                                         Path.Combine(projectDir, "wwwroot", "app_data"),
+                                                         StringComparison.OrdinalIgnoreCase);
         services.AddDbContext<ApplicationDbContext>(options =>
                                                     {
                                                         options.UseSqlServer(connectionString,

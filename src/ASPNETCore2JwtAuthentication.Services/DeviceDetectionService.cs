@@ -21,7 +21,7 @@ public class DeviceDetectionService : IDeviceDetectionService
 
     public string GetCurrentRequestDeviceDetails() => GetDeviceDetails(_httpContextAccessor.HttpContext);
 
-    public string GetDeviceDetails(HttpContext context)
+    public string GetDeviceDetails(HttpContext? context)
     {
         var ua = GetUserAgent(context);
         if (ua is null)
@@ -37,15 +37,15 @@ public class DeviceDetectionService : IDeviceDetectionService
         return $"{deviceInfo}, {browserInfo}, {osInfo}";
     }
 
-    public string GetDeviceDetailsHash(HttpContext context) =>
+    public string GetDeviceDetailsHash(HttpContext? context) =>
         _securityService.GetSha256Hash(GetDeviceDetails(context));
 
     public string GetCurrentRequestDeviceDetailsHash() => GetDeviceDetailsHash(_httpContextAccessor.HttpContext);
 
-    public string GetCurrentUserTokenDeviceDetailsHash() =>
+    public string? GetCurrentUserTokenDeviceDetailsHash() =>
         GetUserTokenDeviceDetailsHash(_httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity);
 
-    public string GetUserTokenDeviceDetailsHash(ClaimsIdentity claimsIdentity)
+    public string? GetUserTokenDeviceDetailsHash(ClaimsIdentity? claimsIdentity)
     {
         if (claimsIdentity?.Claims == null || !claimsIdentity.Claims.Any())
         {
@@ -58,11 +58,11 @@ public class DeviceDetectionService : IDeviceDetectionService
     public bool HasCurrentUserTokenValidDeviceDetails() =>
         HasUserTokenValidDeviceDetails(_httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity);
 
-    public bool HasUserTokenValidDeviceDetails(ClaimsIdentity claimsIdentity) =>
+    public bool HasUserTokenValidDeviceDetails(ClaimsIdentity? claimsIdentity) =>
         string.Equals(GetCurrentRequestDeviceDetailsHash(), GetUserTokenDeviceDetailsHash(claimsIdentity),
                       StringComparison.Ordinal);
 
-    private static string GetUserAgent(HttpContext context)
+    private static string? GetUserAgent(HttpContext? context)
     {
         if (context is null)
         {

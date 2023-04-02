@@ -47,7 +47,7 @@ public class TokenStoreService : ITokenStoreService
     }
 
     public async Task AddUserTokenAsync(User user, string refreshTokenSerial, string accessToken,
-                                        string refreshTokenSourceSerial)
+                                        string? refreshTokenSourceSerial)
     {
         if (user == null)
         {
@@ -87,7 +87,7 @@ public class TokenStoreService : ITokenStoreService
         }
     }
 
-    public async Task DeleteTokensWithSameRefreshTokenSourceAsync(string refreshTokenIdHashSource)
+    public async Task DeleteTokensWithSameRefreshTokenSourceAsync(string? refreshTokenIdHashSource)
     {
         if (string.IsNullOrWhiteSpace(refreshTokenIdHashSource))
         {
@@ -100,7 +100,7 @@ public class TokenStoreService : ITokenStoreService
                      .ForEachAsync(userToken => _tokens.Remove(userToken));
     }
 
-    public async Task RevokeUserBearerTokensAsync(string userIdValue, string refreshTokenValue)
+    public async Task RevokeUserBearerTokensAsync(string? userIdValue, string refreshTokenValue)
     {
         if (!string.IsNullOrWhiteSpace(userIdValue) &&
             int.TryParse(userIdValue, NumberStyles.Number, CultureInfo.InvariantCulture, out var userId))
@@ -124,17 +124,17 @@ public class TokenStoreService : ITokenStoreService
         await DeleteExpiredTokensAsync();
     }
 
-    public Task<UserToken> FindTokenAsync(string refreshTokenValue)
+    public Task<UserToken?> FindTokenAsync(string refreshTokenValue)
     {
         if (string.IsNullOrWhiteSpace(refreshTokenValue))
         {
-            return Task.FromResult<UserToken>(null);
+            return Task.FromResult<UserToken?>(null);
         }
 
         var refreshTokenSerial = _tokenFactoryService.GetRefreshTokenSerial(refreshTokenValue);
         if (string.IsNullOrWhiteSpace(refreshTokenSerial))
         {
-            return Task.FromResult<UserToken>(null);
+            return Task.FromResult<UserToken?>(null);
         }
 
         var refreshTokenIdHash = _securityService.GetSha256Hash(refreshTokenSerial);

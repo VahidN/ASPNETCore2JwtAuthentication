@@ -1,22 +1,23 @@
+using ASPNETCore2JwtAuthentication.Models;
 using ASPNETCore2JwtAuthentication.Services;
-using ASPNETCore2JwtAuthentication.WebApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ASPNETCore2JwtAuthentication.WebApp.Controllers;
 
-[Authorize, Route("api/[controller]"), EnableCors("CorsPolicy")]
+[Authorize]
+[Route("api/[controller]")]
+[EnableCors("CorsPolicy")]
 public class ChangePasswordController : Controller
 {
     private readonly IUsersService _usersService;
 
-    public ChangePasswordController(IUsersService usersService)
-    {
+    public ChangePasswordController(IUsersService usersService) =>
         _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
-    }
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Post([FromBody] ChangePasswordViewModel model)
     {
         if (model == null)
