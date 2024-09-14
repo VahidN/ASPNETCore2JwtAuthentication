@@ -10,7 +10,8 @@ var webApp = builder.Build();
 ConfigureMiddlewares(webApp, webApp.Environment);
 ConfigureEndpoints(webApp, webApp.Environment);
 ConfigureDatabase(webApp);
-webApp.Run();
+
+await webApp.RunAsync();
 
 void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
@@ -34,7 +35,7 @@ void ConfigureLogging(ILoggingBuilder logging, IHostEnvironment env, IConfigurat
         logging.AddConsole();
     }
 
-    logging.AddConfiguration(configuration.GetSection("Logging"));
+    logging.AddConfiguration(configuration.GetSection(key: "Logging"));
 }
 
 void ConfigureMiddlewares(IApplicationBuilder app, IHostEnvironment env)
@@ -51,10 +52,12 @@ void ConfigureMiddlewares(IApplicationBuilder app, IHostEnvironment env)
         appBuilder.Use(async (context, next) =>
         {
             var error = context.Features[typeof(IExceptionHandlerFeature)] as IExceptionHandlerFeature;
+
             if (error?.Error is SecurityTokenExpiredException)
             {
                 context.Response.StatusCode = 401;
                 context.Response.ContentType = "application/json";
+
                 await context.Response.WriteAsync(JsonSerializer.Serialize(new
                 {
                     State = 401,
@@ -65,6 +68,7 @@ void ConfigureMiddlewares(IApplicationBuilder app, IHostEnvironment env)
             {
                 context.Response.StatusCode = 500;
                 context.Response.ContentType = "application/json";
+
                 await context.Response.WriteAsync(JsonSerializer.Serialize(new
                 {
                     State = 500,
@@ -87,7 +91,7 @@ void ConfigureMiddlewares(IApplicationBuilder app, IHostEnvironment env)
 
     app.UseAuthentication();
 
-    app.UseCors("CorsPolicy");
+    app.UseCors(policyName: "CorsPolicy");
 
     app.UseAuthorization();
 }
@@ -96,16 +100,14 @@ void ConfigureEndpoints(IApplicationBuilder app, IWebHostEnvironment env)
 {
     app.UseEndpoints(endpoints =>
     {
-        endpoints.MapControllerRoute(
-            "default",
-            "{controller=Home}/{action=Index}/{id?}");
+        endpoints.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
     });
 
     // catch-all handler for HTML5 client routes - serve index.html
     app.Run(async context =>
     {
         context.Response.ContentType = "text/html";
-        await context.Response.SendFileAsync(Path.Combine(env.WebRootPath, "index.html"));
+        await context.Response.SendFileAsync(Path.Combine(env.WebRootPath, path2: "index.html"));
     });
 }
 

@@ -16,10 +16,7 @@ public class ApplicationDbContext : DbContext, IUnitOfWork
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        if (modelBuilder == null)
-        {
-            throw new ArgumentNullException(nameof(modelBuilder));
-        }
+        ArgumentNullException.ThrowIfNull(modelBuilder);
 
         // it should be placed here, otherwise it will rewrite the following settings!
         base.OnModelCreating(modelBuilder);

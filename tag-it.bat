@@ -1,3 +1,3 @@
-git tag -a 7.0.200 -m "Published V7.0.200"
+git tag -a 8.0.400 -m "Published V8.0.400"
 git push --follow-tags
 pause

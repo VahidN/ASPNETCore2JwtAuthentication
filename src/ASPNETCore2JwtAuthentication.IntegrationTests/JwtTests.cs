@@ -13,6 +13,11 @@ namespace ASPNETCore2JwtAuthentication.IntegrationTests;
 [TestClass]
 public class JwtTests
 {
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     [TestMethod]
     public async Task TestLoginWorks()
     {
@@ -39,6 +44,7 @@ public class JwtTests
 
         // Assert
         token.Should().NotBeNull();
+
         if (token is null)
         {
             return;
@@ -48,48 +54,52 @@ public class JwtTests
         token.RefreshToken.Should().NotBeNullOrEmpty();
 
         // Act
-        var protectedApiUrl = client.LinkGenerator
-                                    .GetPathByAction(nameof(MyProtectedApiController.Get),
-                                                     nameof(MyProtectedApiController).Replace(
-                                                      "Controller", "", StringComparison.Ordinal));
+        var protectedApiUrl = client.LinkGenerator.GetPathByAction(nameof(MyProtectedApiController.Get),
+            nameof(MyProtectedApiController).Replace(oldValue: "Controller", newValue: "", StringComparison.Ordinal));
+
         client.HttpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            new AuthenticationHeaderValue(scheme: "Bearer", token.AccessToken);
+
         var response = await client.HttpClient.GetAsync(protectedApiUrl);
         response.EnsureSuccessStatusCode();
 
         // Assert
         var responseString = await response.Content.ReadAsStringAsync();
         responseString.Should().NotBeNullOrEmpty();
-        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var apiResponse = JsonSerializer.Deserialize<MyProtectedApiResponse>(responseString, options);
+        var apiResponse = JsonSerializer.Deserialize<MyProtectedApiResponse>(responseString, JsonSerializerOptions);
         apiResponse.Should().NotBeNull();
         apiResponse?.Title.Should().NotBeNullOrEmpty();
-        apiResponse?.Title.Should().Be("Hello from My Protected Controller! [Authorize]");
+        apiResponse?.Title.Should().Be(expected: "Hello from My Protected Controller! [Authorize]");
     }
 
-    private static async Task<Token?> doLoginAsync(
-        HttpClient client,
+    private static async Task<Token?> doLoginAsync(HttpClient client,
         LinkGenerator linkGenerator,
         AdminUserSeed adminUserSeed)
     {
-        if (client is null)
-        {
-            throw new ArgumentNullException(nameof(client));
-        }
+        ArgumentNullException.ThrowIfNull(client);
 
         var loginUrl = linkGenerator.GetPathByAction(nameof(AccountController.Login),
-                                                     nameof(AccountController)
-                                                         .Replace("Controller", "", StringComparison.Ordinal));
-        var user = new { adminUserSeed.Username, adminUserSeed.Password };
-        using var stringContent = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
+            nameof(AccountController).Replace(oldValue: "Controller", newValue: "", StringComparison.Ordinal));
+
+        var user = new
+        {
+            adminUserSeed.Username,
+            adminUserSeed.Password
+        };
+
+        using var stringContent =
+            new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, mediaType: "application/json");
+
         using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, loginUrl)
-                                       {
-                                           Content = stringContent,
-                                       };
+        {
+            Content = stringContent
+        };
+
         var response = await client.SendAsync(httpRequestMessage);
         response.EnsureSuccessStatusCode();
         var responseString = await response.Content.ReadAsStringAsync();
         responseString.Should().NotBeNullOrEmpty();
+
         return JsonSerializer.Deserialize<Token>(responseString);
     }
 }

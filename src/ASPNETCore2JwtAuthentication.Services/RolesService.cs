@@ -11,10 +11,7 @@ public class RolesService : IRolesService
 
     public RolesService(IUnitOfWork uow)
     {
-        if (uow is null)
-        {
-            throw new ArgumentNullException(nameof(uow));
-        }
+        ArgumentNullException.ThrowIfNull(uow);
 
         _roles = uow.Set<Role>();
         _users = uow.Set<User>();

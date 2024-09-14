@@ -17,6 +17,7 @@ dotnet_diagnostic.SCS0008.severity = suggestion
 
 # SCS0009: The cookie is missing 'HttpOnly' flag. 
 dotnet_diagnostic.SCS0009.severity = suggestion
+dotnet_diagnostic.S6968.severity = suggestion
 
 # For improved performance, use the LoggerMessage delegates instead of calling 'LoggerExtensions.LogError(ILogger, Exception?, string?, params object?[])'
 dotnet_diagnostic.CA1848.severity = suggestion
