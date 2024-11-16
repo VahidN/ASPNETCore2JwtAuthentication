@@ -6,15 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ASPNETCore2JwtAuthentication.WebApp.Controllers;
 
-[Route("api/[controller]"), EnableCors("CorsPolicy"), Authorize(Policy = CustomRoles.Admin)]
-public class MyProtectedAdminApiController : Controller
+[Route(template: "api/[controller]")]
+[EnableCors(policyName: "CorsPolicy")]
+[Authorize(Policy = CustomRoles.Admin)]
+public class MyProtectedAdminApiController(IUsersService usersService) : Controller
 {
-    private readonly IUsersService _usersService;
-
-    public MyProtectedAdminApiController(IUsersService usersService)
-    {
+    private readonly IUsersService
         _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
-    }
 
     [HttpGet]
     public async Task<IActionResult> Get()
@@ -33,7 +31,8 @@ public class MyProtectedAdminApiController : Controller
                 await _usersService.GetSerialNumberAsync(int.Parse(userId ?? "0", NumberStyles.Number,
                     CultureInfo.InvariantCulture)),
             Roles = claimsIdentity?.Claims.Where(x => string.Equals(x.Type, ClaimTypes.Role, StringComparison.Ordinal))
-                .Select(x => x.Value).ToList()
+                .Select(x => x.Value)
+                .ToList()
         });
     }
 }

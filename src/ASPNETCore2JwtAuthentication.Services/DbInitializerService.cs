@@ -7,21 +7,19 @@ using Microsoft.Extensions.Options;
 
 namespace ASPNETCore2JwtAuthentication.Services;
 
-public class DbInitializerService : IDbInitializerService
+public class DbInitializerService(
+    IServiceScopeFactory scopeFactory,
+    ISecurityService securityService,
+    IOptions<AdminUserSeed> adminUserSeedOption) : IDbInitializerService
 {
-    private readonly IOptions<AdminUserSeed> _adminUserSeedOption;
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly ISecurityService _securityService;
+    private readonly IOptions<AdminUserSeed> _adminUserSeedOption =
+        adminUserSeedOption ?? throw new ArgumentNullException(nameof(adminUserSeedOption));
 
-    public DbInitializerService(
-        IServiceScopeFactory scopeFactory,
-        ISecurityService securityService,
-        IOptions<AdminUserSeed> adminUserSeedOption)
-    {
-        _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
-        _securityService = securityService ?? throw new ArgumentNullException(nameof(securityService));
-        _adminUserSeedOption = adminUserSeedOption ?? throw new ArgumentNullException(nameof(adminUserSeedOption));
-    }
+    private readonly IServiceScopeFactory _scopeFactory =
+        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+
+    private readonly ISecurityService _securityService =
+        securityService ?? throw new ArgumentNullException(nameof(securityService));
 
     public void Initialize()
     {
@@ -36,8 +34,16 @@ public class DbInitializerService : IDbInitializerService
         using var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         // Add default roles
-        var adminRole = new Role { Name = CustomRoles.Admin };
-        var userRole = new Role { Name = CustomRoles.User };
+        var adminRole = new Role
+        {
+            Name = CustomRoles.Admin
+        };
+
+        var userRole = new Role
+        {
+            Name = CustomRoles.User
+        };
+
         if (!context.Roles.Any())
         {
             context.Add(adminRole);
@@ -49,19 +55,30 @@ public class DbInitializerService : IDbInitializerService
         if (!context.Users.Any())
         {
             var adminUser = new User
-                            {
-                                Username = _adminUserSeedOption.Value.Username,
-                                DisplayName = _adminUserSeedOption.Value.DisplayName,
-                                IsActive = true,
-                                LastLoggedIn = null,
-                                Password = _securityService.GetSha256Hash(_adminUserSeedOption.Value.Password),
-                                SerialNumber = Guid.NewGuid().ToString("N"),
-                            };
+            {
+                Username = _adminUserSeedOption.Value.Username,
+                DisplayName = _adminUserSeedOption.Value.DisplayName,
+                IsActive = true,
+                LastLoggedIn = null,
+                Password = _securityService.GetSha256Hash(_adminUserSeedOption.Value.Password),
+                SerialNumber = Guid.NewGuid().ToString(format: "N")
+            };
+
             context.Add(adminUser);
             context.SaveChanges();
 
-            context.Add(new UserRole { Role = adminRole, User = adminUser });
-            context.Add(new UserRole { Role = userRole, User = adminUser });
+            context.Add(new UserRole
+            {
+                Role = adminRole,
+                User = adminUser
+            });
+
+            context.Add(new UserRole
+            {
+                Role = userRole,
+                User = adminUser
+            });
+
             context.SaveChanges();
         }
     }

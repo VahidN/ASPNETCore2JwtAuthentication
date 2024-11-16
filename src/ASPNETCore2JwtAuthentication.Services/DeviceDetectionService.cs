@@ -8,22 +8,21 @@ namespace ASPNETCore2JwtAuthentication.Services;
 /// <summary>
 ///     To invalidate an old user's token from a new device
 /// </summary>
-public class DeviceDetectionService : IDeviceDetectionService
+public class DeviceDetectionService(ISecurityService securityService, IHttpContextAccessor httpContextAccessor)
+    : IDeviceDetectionService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ISecurityService _securityService;
+    private readonly IHttpContextAccessor _httpContextAccessor =
+        httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
 
-    public DeviceDetectionService(ISecurityService securityService, IHttpContextAccessor httpContextAccessor)
-    {
-        _securityService = securityService ?? throw new ArgumentNullException(nameof(securityService));
-        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-    }
+    private readonly ISecurityService _securityService =
+        securityService ?? throw new ArgumentNullException(nameof(securityService));
 
     public string GetCurrentRequestDeviceDetails() => GetDeviceDetails(_httpContextAccessor.HttpContext);
 
     public string GetDeviceDetails(HttpContext? context)
     {
         var ua = GetUserAgent(context);
+
         if (ua is null)
         {
             return "unknown";
@@ -33,17 +32,18 @@ public class DeviceDetectionService : IDeviceDetectionService
         var deviceInfo = client.Device.Family;
         var browserInfo = $"{client.UA.Family}, {client.UA.Major}.{client.UA.Minor}";
         var osInfo = $"{client.OS.Family}, {client.OS.Major}.{client.OS.Minor}";
+
         //TODO: Add the user's IP address here, if it's a banking system.
         return $"{deviceInfo}, {browserInfo}, {osInfo}";
     }
 
-    public string GetDeviceDetailsHash(HttpContext? context) =>
-        _securityService.GetSha256Hash(GetDeviceDetails(context));
+    public string GetDeviceDetailsHash(HttpContext? context)
+        => _securityService.GetSha256Hash(GetDeviceDetails(context));
 
     public string GetCurrentRequestDeviceDetailsHash() => GetDeviceDetailsHash(_httpContextAccessor.HttpContext);
 
-    public string? GetCurrentUserTokenDeviceDetailsHash() =>
-        GetUserTokenDeviceDetailsHash(_httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity);
+    public string? GetCurrentUserTokenDeviceDetailsHash()
+        => GetUserTokenDeviceDetailsHash(_httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity);
 
     public string? GetUserTokenDeviceDetailsHash(ClaimsIdentity? claimsIdentity)
     {
@@ -55,12 +55,12 @@ public class DeviceDetectionService : IDeviceDetectionService
         return claimsIdentity.FindFirst(ClaimTypes.System)?.Value;
     }
 
-    public bool HasCurrentUserTokenValidDeviceDetails() =>
-        HasUserTokenValidDeviceDetails(_httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity);
+    public bool HasCurrentUserTokenValidDeviceDetails()
+        => HasUserTokenValidDeviceDetails(_httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity);
 
-    public bool HasUserTokenValidDeviceDetails(ClaimsIdentity? claimsIdentity) =>
-        string.Equals(GetCurrentRequestDeviceDetailsHash(), GetUserTokenDeviceDetailsHash(claimsIdentity),
-                      StringComparison.Ordinal);
+    public bool HasUserTokenValidDeviceDetails(ClaimsIdentity? claimsIdentity)
+        => string.Equals(GetCurrentRequestDeviceDetailsHash(), GetUserTokenDeviceDetailsHash(claimsIdentity),
+            StringComparison.Ordinal);
 
     private static string? GetUserAgent(HttpContext? context)
     {
@@ -70,7 +70,7 @@ public class DeviceDetectionService : IDeviceDetectionService
         }
 
         return context.Request.Headers.TryGetValue(HeaderNames.UserAgent, out var userAgent)
-                   ? userAgent.ToString()
-                   : null;
+            ? userAgent.ToString()
+            : null;
     }
 }

@@ -12,26 +12,26 @@ namespace ASPNETCore2JwtAuthentication.WebApp.Controllers;
 [ApiController]
 [Route(template: "api/[controller]")]
 [EnableCors(policyName: "CorsPolicy")]
-public class AccountController : ControllerBase
+public class AccountController(
+    IUsersService usersService,
+    ITokenStoreService tokenStoreService,
+    ITokenFactoryService tokenFactoryService,
+    IUnitOfWork uow,
+    IAntiForgeryCookieService antiforgery) : ControllerBase
 {
-    private readonly IAntiForgeryCookieService _antiforgery;
-    private readonly ITokenFactoryService _tokenFactoryService;
-    private readonly ITokenStoreService _tokenStoreService;
-    private readonly IUnitOfWork _uow;
-    private readonly IUsersService _usersService;
+    private readonly IAntiForgeryCookieService _antiforgery =
+        antiforgery ?? throw new ArgumentNullException(nameof(antiforgery));
 
-    public AccountController(IUsersService usersService,
-        ITokenStoreService tokenStoreService,
-        ITokenFactoryService tokenFactoryService,
-        IUnitOfWork uow,
-        IAntiForgeryCookieService antiforgery)
-    {
+    private readonly ITokenFactoryService _tokenFactoryService =
+        tokenFactoryService ?? throw new ArgumentNullException(nameof(tokenFactoryService));
+
+    private readonly ITokenStoreService _tokenStoreService =
+        tokenStoreService ?? throw new ArgumentNullException(nameof(tokenStoreService));
+
+    private readonly IUnitOfWork _uow = uow ?? throw new ArgumentNullException(nameof(uow));
+
+    private readonly IUsersService
         _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
-        _tokenStoreService = tokenStoreService ?? throw new ArgumentNullException(nameof(tokenStoreService));
-        _uow = uow ?? throw new ArgumentNullException(nameof(uow));
-        _antiforgery = antiforgery ?? throw new ArgumentNullException(nameof(antiforgery));
-        _tokenFactoryService = tokenFactoryService ?? throw new ArgumentNullException(nameof(tokenFactoryService));
-    }
 
     [AllowAnonymous]
     [IgnoreAntiforgeryToken]

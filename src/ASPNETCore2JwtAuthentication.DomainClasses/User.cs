@@ -4,8 +4,8 @@ public class User
 {
     public User()
     {
-        UserRoles = new HashSet<UserRole>();
-        UserTokens = new HashSet<UserToken>();
+        UserRoles = [];
+        UserTokens = [];
     }
 
     public int Id { get; set; }

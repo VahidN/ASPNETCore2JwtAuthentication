@@ -19,23 +19,23 @@ public static class Program
         BaseAddress = new Uri(BaseAddress)
     };
 
-    public static async Task Main(string[] args)
+    public static async Task Main()
     {
         var (token, appCookies) = await LoginAsync(
-            "/api/account/login",
-            "Vahid",
-            "1234");
-        await CallProtectedApiAsync("/api/MyProtectedApi", token);
-        _ = await RefreshTokenAsync("/api/account/RefreshToken", token, appCookies);
+            requestUri: "/api/account/login", username: "Vahid", password: "1234");
+
+        await CallProtectedApiAsync(requestUrl: "/api/MyProtectedApi", token);
+        _ = await RefreshTokenAsync(requestUri: "/api/account/RefreshToken", token, appCookies);
     }
 
     private static Dictionary<string, string> GetAntiforgeryCookies()
     {
-        WriteLine("\nGet Antiforgery Cookies:");
+        WriteLine(value: "\nGet Antiforgery Cookies:");
         var cookies = _httpClientHandler.CookieContainer.GetCookies(new Uri(BaseAddress));
 
         var appCookies = new Dictionary<string, string>();
-        WriteLine("WebApp Cookies:");
+        WriteLine(value: "WebApp Cookies:");
+
         foreach (Cookie cookie in cookies)
         {
             WriteLine($"Name : {cookie.Name}");
@@ -46,53 +46,68 @@ public static class Program
         return appCookies;
     }
 
-    private static async Task<(Token Token, Dictionary<string, string> AppCookies)> LoginAsync(
-        string requestUri,
+    private static async Task<(Token Token, Dictionary<string, string> AppCookies)> LoginAsync(string requestUri,
         string username,
         string password)
     {
-        WriteLine("\nLogin:");
+        WriteLine(value: "\nLogin:");
 
-        var response =
-            await _httpClient.PostAsJsonAsync(requestUri, new User { Username = username, Password = password });
+        var response = await _httpClient.PostAsJsonAsync(requestUri, new User
+        {
+            Username = username,
+            Password = password
+        });
+
         response.EnsureSuccessStatusCode();
 
-        var token = await response.Content.ReadAsAsync<Token>(new[] { new JsonMediaTypeFormatter() });
+        var token = await response.Content.ReadAsAsync<Token>([new JsonMediaTypeFormatter()]);
         WriteLine($"Response    : {response}");
         WriteLine($"AccessToken : {token.AccessToken}");
         WriteLine($"RefreshToken: {token.RefreshToken}");
 
         var appCookies = GetAntiforgeryCookies();
+
         return (token, appCookies);
     }
 
-    private static async Task<Token> RefreshTokenAsync(string requestUri, Token token,
+    private static async Task<Token> RefreshTokenAsync(string requestUri,
+        Token token,
         Dictionary<string, string> appCookies)
     {
-        WriteLine("\nRefreshToken:");
+        WriteLine(value: "\nRefreshToken:");
 
-        if (!_httpClient.DefaultRequestHeaders.Contains("X-XSRF-TOKEN"))
+        if (!_httpClient.DefaultRequestHeaders.Contains(name: "X-XSRF-TOKEN"))
         {
             // this is necessary for [AutoValidateAntiforgeryTokenAttribute] and all of the 'POST' requests
-            _httpClient.DefaultRequestHeaders.Add("X-XSRF-TOKEN", appCookies["XSRF-TOKEN"]);
+            _httpClient.DefaultRequestHeaders.Add(name: "X-XSRF-TOKEN", appCookies[key: "XSRF-TOKEN"]);
         }
 
         // this is necessary to populate the this.HttpContext.User object automatically
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-        var response = await _httpClient.PostAsJsonAsync(requestUri, new { refreshToken = token.RefreshToken });
+        _httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue(scheme: "Bearer", token.AccessToken);
+
+        var response = await _httpClient.PostAsJsonAsync(requestUri, new
+        {
+            refreshToken = token.RefreshToken
+        });
+
         response.EnsureSuccessStatusCode();
 
-        var newToken = await response.Content.ReadAsAsync<Token>(new[] { new JsonMediaTypeFormatter() });
+        var newToken = await response.Content.ReadAsAsync<Token>([new JsonMediaTypeFormatter()]);
         WriteLine($"Response    : {response}");
         WriteLine($"New AccessToken : {newToken.AccessToken}");
         WriteLine($"New RefreshToken: {newToken.RefreshToken}");
+
         return newToken;
     }
 
     private static async Task CallProtectedApiAsync(string requestUrl, Token token)
     {
-        WriteLine("\nCall ProtectedApi:");
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+        WriteLine(value: "\nCall ProtectedApi:");
+
+        _httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue(scheme: "Bearer", token.AccessToken);
+
         var response = await _httpClient.GetAsync(requestUrl);
         var message = await response.Content.ReadAsStringAsync();
         WriteLine("URL response: " + message);

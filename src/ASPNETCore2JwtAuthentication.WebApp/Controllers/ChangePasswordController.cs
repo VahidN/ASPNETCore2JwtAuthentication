@@ -7,13 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace ASPNETCore2JwtAuthentication.WebApp.Controllers;
 
 [Authorize]
-[Route("api/[controller]")]
-[EnableCors("CorsPolicy")]
-public class ChangePasswordController : Controller
+[Route(template: "api/[controller]")]
+[EnableCors(policyName: "CorsPolicy")]
+public class ChangePasswordController(IUsersService usersService) : Controller
 {
-    private readonly IUsersService _usersService;
-
-    public ChangePasswordController(IUsersService usersService) =>
+    private readonly IUsersService
         _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
 
     [HttpPost]
@@ -31,12 +29,14 @@ public class ChangePasswordController : Controller
         }
 
         var user = await _usersService.GetCurrentUserAsync();
+
         if (user == null)
         {
-            return BadRequest("NotFound");
+            return BadRequest(error: "NotFound");
         }
 
         var (succeeded, error) = await _usersService.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+
         if (succeeded)
         {
             return Ok();

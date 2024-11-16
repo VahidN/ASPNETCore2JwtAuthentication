@@ -6,16 +6,12 @@ using Microsoft.Extensions.Options;
 
 namespace ASPNETCore2JwtAuthentication.WebApp.Controllers;
 
-[Route("api/[controller]")]
-[EnableCors("CorsPolicy")]
-public class ApiSettingsController : Controller
+[Route(template: "api/[controller]")]
+[EnableCors(policyName: "CorsPolicy")]
+public class ApiSettingsController(IOptionsSnapshot<ApiSettings> apiSettingsConfig) : Controller
 {
-    private readonly IOptionsSnapshot<ApiSettings> _apiSettingsConfig;
+    private readonly IOptionsSnapshot<ApiSettings> _apiSettingsConfig =
+        apiSettingsConfig ?? throw new ArgumentNullException(nameof(apiSettingsConfig));
 
-    public ApiSettingsController(IOptionsSnapshot<ApiSettings> apiSettingsConfig) =>
-        _apiSettingsConfig = apiSettingsConfig ?? throw new ArgumentNullException(nameof(apiSettingsConfig));
-
-    [AllowAnonymous]
-    [HttpGet]
-    public IActionResult Get() => Ok(_apiSettingsConfig.Value); // For the Angular Client
+    [AllowAnonymous] [HttpGet] public IActionResult Get() => Ok(_apiSettingsConfig.Value); // For the Angular Client
 }

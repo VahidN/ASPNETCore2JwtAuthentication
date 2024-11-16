@@ -1,4 +1,4 @@
-dotnet tool update --global dotnet-ef --version 7.0.3
+dotnet tool update --global dotnet-ef --version 9.0.0
 dotnet tool restore
 dotnet build
 For /f "tokens=2-4 delims=/ " %%a in ('date /t') do (set mydate=%%c_%%a_%%b)

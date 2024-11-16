@@ -4,22 +4,19 @@ using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace ASPNETCore2JwtAuthentication.Services;
 
-public class TokenValidatorService : ITokenValidatorService
+public class TokenValidatorService(
+    IUsersService usersService,
+    ITokenStoreService tokenStoreService,
+    IDeviceDetectionService deviceDetectionService) : ITokenValidatorService
 {
-    private readonly IDeviceDetectionService _deviceDetectionService;
-    private readonly ITokenStoreService _tokenStoreService;
-    private readonly IUsersService _usersService;
+    private readonly IDeviceDetectionService _deviceDetectionService =
+        deviceDetectionService ?? throw new ArgumentNullException(nameof(deviceDetectionService));
 
-    public TokenValidatorService(IUsersService usersService,
-        ITokenStoreService tokenStoreService,
-        IDeviceDetectionService deviceDetectionService)
-    {
+    private readonly ITokenStoreService _tokenStoreService =
+        tokenStoreService ?? throw new ArgumentNullException(nameof(tokenStoreService));
+
+    private readonly IUsersService
         _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
-        _tokenStoreService = tokenStoreService ?? throw new ArgumentNullException(nameof(tokenStoreService));
-
-        _deviceDetectionService =
-            deviceDetectionService ?? throw new ArgumentNullException(nameof(deviceDetectionService));
-    }
 
     public async Task ValidateAsync(TokenValidatedContext context)
     {

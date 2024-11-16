@@ -59,13 +59,7 @@ public static class ConfigureServicesExtensions
             {
                 cfg.RequireHttpsMetadata = false;
                 cfg.SaveToken = true;
-                var bearerTokenOption = configuration.GetSection(key: "BearerTokens").Get<BearerTokensOptions>();
-
-                if (bearerTokenOption is null)
-                {
-                    throw new InvalidOperationException(message: "bearerTokenOption is null");
-                }
-
+                var bearerTokenOption = configuration.GetSection(key: "BearerTokens").Get<BearerTokensOptions>() ?? throw new InvalidOperationException(message: "bearerTokenOption is null");
                 cfg.TokenValidationParameters = new TokenValidationParameters
                 {
                     // site that makes the token

@@ -25,7 +25,7 @@ public class JwtTests
         var client = TestsHttpClient.Instance;
 
         // Act
-        var token = await doLoginAsync(client.HttpClient, client.LinkGenerator, client.AdminUserSeed);
+        var token = await DoLoginAsync(client.HttpClient, client.LinkGenerator, client.AdminUserSeed);
 
         // Assert
         token.Should().NotBeNull();
@@ -40,7 +40,7 @@ public class JwtTests
         var client = TestsHttpClient.Instance;
 
         // Act
-        var token = await doLoginAsync(client.HttpClient, client.LinkGenerator, client.AdminUserSeed);
+        var token = await DoLoginAsync(client.HttpClient, client.LinkGenerator, client.AdminUserSeed);
 
         // Assert
         token.Should().NotBeNull();
@@ -72,7 +72,7 @@ public class JwtTests
         apiResponse?.Title.Should().Be(expected: "Hello from My Protected Controller! [Authorize]");
     }
 
-    private static async Task<Token?> doLoginAsync(HttpClient client,
+    private static async Task<Token?> DoLoginAsync(HttpClient client,
         LinkGenerator linkGenerator,
         AdminUserSeed adminUserSeed)
     {

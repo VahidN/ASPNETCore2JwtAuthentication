@@ -9,35 +9,33 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace ASPNETCore2JwtAuthentication.Services;
 
-public class TokenFactoryService : ITokenFactoryService
+public class TokenFactoryService(
+    ISecurityService securityService,
+    IRolesService rolesService,
+    IOptionsSnapshot<BearerTokensOptions> configuration,
+    ILogger<TokenFactoryService> logger,
+    IDeviceDetectionService deviceDetectionService) : ITokenFactoryService
 {
-    private readonly IOptionsSnapshot<BearerTokensOptions> _configuration;
-    private readonly IDeviceDetectionService _deviceDetectionService;
-    private readonly ILogger<TokenFactoryService> _logger;
-    private readonly IRolesService _rolesService;
-    private readonly ISecurityService _securityService;
+    private readonly IOptionsSnapshot<BearerTokensOptions> _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
 
-    public TokenFactoryService(ISecurityService securityService,
-        IRolesService rolesService,
-        IOptionsSnapshot<BearerTokensOptions> configuration,
-        ILogger<TokenFactoryService> logger,
-        IDeviceDetectionService deviceDetectionService)
-    {
-        _securityService = securityService ?? throw new ArgumentNullException(nameof(securityService));
+    private readonly IDeviceDetectionService _deviceDetectionService =
+        deviceDetectionService ?? throw new ArgumentNullException(nameof(deviceDetectionService));
+
+    private readonly ILogger<TokenFactoryService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IRolesService
         _rolesService = rolesService ?? throw new ArgumentNullException(nameof(rolesService));
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        _deviceDetectionService =
-            deviceDetectionService ?? throw new ArgumentNullException(nameof(deviceDetectionService));
-    }
+    private readonly ISecurityService _securityService =
+        securityService ?? throw new ArgumentNullException(nameof(securityService));
 
     public async Task<JwtTokensData> CreateJwtTokensAsync(User user)
     {
         ArgumentNullException.ThrowIfNull(user);
 
-        var (accessToken, claims) = await createAccessTokenAsync(user);
-        var (refreshTokenValue, refreshTokenSerial) = createRefreshToken();
+        var (accessToken, claims) = await CreateAccessTokenAsync(user);
+        var (refreshTokenValue, refreshTokenSerial) = CreateRefreshToken();
 
         return new JwtTokensData
         {
@@ -84,7 +82,7 @@ public class TokenFactoryService : ITokenFactoryService
             ?.Value;
     }
 
-    private (string RefreshTokenValue, string RefreshTokenSerial) createRefreshToken()
+    private (string RefreshTokenValue, string RefreshTokenSerial) CreateRefreshToken()
     {
         var refreshTokenSerial = _securityService.CreateCryptographicallySecureGuid()
             .ToString()
@@ -123,7 +121,7 @@ public class TokenFactoryService : ITokenFactoryService
         return (refreshTokenValue, refreshTokenSerial);
     }
 
-    private async Task<(string AccessToken, IEnumerable<Claim> Claims)> createAccessTokenAsync(User user)
+    private async Task<(string AccessToken, IEnumerable<Claim> Claims)> CreateAccessTokenAsync(User user)
     {
         ArgumentNullException.ThrowIfNull(user);
 
