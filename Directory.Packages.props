@@ -1,6 +1,6 @@
 <Project>
   <ItemGroup>
-    <PackageVersion Include="Meziantou.Analyzer" Version="2.0.179" />
+    <PackageVersion Include="Meziantou.Analyzer" Version="2.0.180" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.12.19" />
     <PackageVersion Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4" />
     <PackageVersion Include="AsyncFixer" Version="1.6.0" />
